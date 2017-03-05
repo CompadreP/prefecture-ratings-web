@@ -1,4 +1,4 @@
 /* SystemJS module definition */
-declare var module: {
-  id: string;
-};
+// declare let module: {
+//   id: string;
+// };
