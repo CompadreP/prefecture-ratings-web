@@ -9,13 +9,9 @@ import { ModalModule } from 'ng2-bootstrap/modal';
 import { AppComponent } from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
 import {LoginModalComponent} from "./components/login-modal/login-modal.component";
+import { RatingComponent } from './components/rating/rating.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NavbarComponent,
-    LoginModalComponent
-  ],
   imports: [
     BrowserModule,
     FormsModule,
@@ -23,6 +19,12 @@ import {LoginModalComponent} from "./components/login-modal/login-modal.componen
 
     CollapseModule,
     ModalModule.forRoot(),
+  ],
+  declarations: [
+    AppComponent,
+    NavbarComponent,
+    LoginModalComponent,
+    RatingComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
