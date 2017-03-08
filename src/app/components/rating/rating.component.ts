@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {RequestsHandler} from "../../abstract/classes/requests_handler";
 import {Http} from "@angular/http";
+
+import {RequestsHandler} from "../../common/classes/requests_handler";
 
 @Component({
   selector: 'app-rating',

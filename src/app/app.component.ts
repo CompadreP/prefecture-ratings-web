@@ -1,32 +1,26 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+
 import {AuthenticationService} from "./services/authentication.service";
-import {RatingsUser} from "./models/auth";
-import {XSRFStrategy, CookieXSRFStrategy} from "@angular/http";
+import {UserAuth} from "./common/classes/user_auth";
+
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.sass'],
-  providers: [        {
-            provide: XSRFStrategy,
-            useValue: new CookieXSRFStrategy('csrftoken', 'X-CSRFToken')
-        }, AuthenticationService]
+  providers: [AuthenticationService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Ratings!!!';
-  currentUser: RatingsUser = null;
+  auth: UserAuth;
+
 
   constructor(private authenticationService: AuthenticationService) {
-    authenticationService.userLoggedIn$.subscribe(
-      user => {
-        this.currentUser = new RatingsUser(user)
-
-      }
-    );
-    authenticationService.userLoggedOut$.subscribe(
-      user => {
-        this.currentUser = null
-      }
-    );
+    this.auth = new UserAuth(authenticationService);
   }
+
+  ngOnInit() {
+    this.authenticationService.checkExistingAuth();
+  }
+
 }

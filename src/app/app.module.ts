@@ -5,10 +5,11 @@ import { HttpModule } from '@angular/http';
 
 import { CollapseModule } from 'ng2-bootstrap/collapse';
 import { ModalModule } from 'ng2-bootstrap/modal';
+import { DropdownModule } from 'ng2-bootstrap/dropdown';
 
 import { AppComponent } from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
-import {LoginModalComponent} from "./components/login-modal/login-modal.component";
+import {LoginModalComponent} from "./components/authentication/login-modal.component";
 import { RatingComponent } from './components/rating/rating.component';
 
 @NgModule({
@@ -19,6 +20,7 @@ import { RatingComponent } from './components/rating/rating.component';
 
     CollapseModule,
     ModalModule.forRoot(),
+    DropdownModule.forRoot(),
   ],
   declarations: [
     AppComponent,

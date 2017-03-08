@@ -10,13 +10,24 @@
         <span class="icon-bar"></span>
       </button>
       <div>
-        <img src="assets/images/gerb_moskvy.png">
+        <img src="/assets/images/gerb_moskvy.png">
         <a class="navbar-brand" href="/">Рейтинги районов</a>
       </div>
     </div>
     <div id="navbar" class="navbar-collapse" [collapse]="isCollapsed">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a (click)="showLoginModal()" href="#">Войти</a></li>
+      <ul class="nav navbar-nav navbar-right" [ngSwitch]="user">
+        <li *ngSwitchCase="null"><a (click)="showLoginModal()"
+                                    href="#">Войти</a></li>
+        <li *ngSwitchDefault role="presentation" class="dropdown" dropdown>
+          <a class="dropdown-toggle" dropdownToggle href="#"
+             role="button" aria-haspopup="true" aria-expanded="false">
+            {{user.displayName()}} <span class="caret"></span>
+          </a>
+          <ul dropdownMenu class="dropdown-menu">
+            <li><a (click)="logout()" href="#">Выйти</a></li>
+            <li><a href="#">Сменить пароль</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>

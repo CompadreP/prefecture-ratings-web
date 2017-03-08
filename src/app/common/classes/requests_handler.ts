@@ -33,7 +33,13 @@ export class RequestsHandler {
   );
 
   extractData(res: Response) {
-    let data = res.json();
+    console.log(res)
+    let data;
+    if (res.text() === '') {
+      data = {}
+    } else {
+      data = res.json();
+    }
     return data || {};
   }
 

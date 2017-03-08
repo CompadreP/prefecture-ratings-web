@@ -2,27 +2,24 @@
  * Created by evgeniy on 2017-03-05.
  */
 
-import {Injectable} from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {Http} from '@angular/http';
-import 'rxjs/add/operator/map'
-import {RequestsHandler} from "../abstract/classes/requests_handler";
-import {Subject} from "rxjs";
+import 'rxjs/add/operator/map';
+import {RequestsHandler} from "../common/classes/requests_handler";
+import {BehaviorSubject} from "rxjs";
 import {RatingsUser} from "../models/auth";
+import {ROOT_API_URL} from "../../settings";
 
 @Injectable()
 export class AuthenticationService extends RequestsHandler {
-  private loginUrl: string = 'http://127.0.0.1:8000/api/auth/login';
-  private logoutUrl: string = 'http://127.0.0.1:8000/api/auth/logout';
-  private userLoggedInSource = new Subject<string>();
-  private userLoggedOutSource = new Subject<string>();
-  loginErrors: string;
-  logoutErrors: string;
+  private loginUrl: string = ROOT_API_URL + '/api/auth/login';
+  private logoutUrl: string = ROOT_API_URL + '/api/auth/logout';
 
-  userLoggedIn$ = this.userLoggedInSource.asObservable();
-  userLoggedOut$ = this.userLoggedOutSource.asObservable();
+  private _user$ = new BehaviorSubject(null);
+  public user$ = this._user$.asObservable();
 
   constructor(public http: Http) {
-    super(http)
+    super(http);
   }
 
   login(email: string, password: string) {
@@ -36,14 +33,11 @@ export class AuthenticationService extends RequestsHandler {
       .catch(this.handleError)
       .subscribe(
         user => {
-          let ratings_user = new RatingsUser(user);
-          console.log(ratings_user);
-          localStorage.setItem('currentUser', user);
-          this.userLoggedInSource.next(user);
+          this._user$.next(new RatingsUser(user));
+          localStorage.setItem('currentUser', JSON.stringify(user));
         },
         error => {
           console.log(error);
-          this.loginErrors = error
         }
       )
   }
@@ -55,15 +49,25 @@ export class AuthenticationService extends RequestsHandler {
       .map(this.extractData)
       .catch(this.handleError)
       .subscribe(
-        data => {
+        _ => {
           localStorage.removeItem('currentUser');
-          this.userLoggedOutSource.next();
           location.reload();
         },
         error => {
           console.log(error)
         }
       )
+  }
+
+  checkExistingAuth() {
+    let user;
+    let savedUser = localStorage.getItem('currentUser');
+    if (savedUser !== null) {
+      user = savedUser;
+    } else {
+      user = null;
+    }
+    this._user$.next(user ? new RatingsUser(JSON.parse(user)) : null);
   }
 
 }
