@@ -1,7 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
 
-import {ModalDirective} from 'ng2-bootstrap/modal';
-
 import {AuthenticationService} from "../../services/authentication.service";
 
 
@@ -12,24 +10,27 @@ import {AuthenticationService} from "../../services/authentication.service";
 })
 export class LoginModalComponent {
 
+  @ViewChild('loginModal')
+  loginModal;
+
+  email: string = '';
+  password: string = '';
+
   constructor(private authenticationService: AuthenticationService) {
+    authenticationService.loginRequest$.subscribe(
+      _ => {
+        this.loginModal.show();
+      })
   }
 
-  @ViewChild('loginModal') private loginModal: ModalDirective;
-  public email: string = '';
-  public password: string = '';
-
-  public showLoginModal(): void {
-    this.loginModal.show()
+  onLoginRequest() {
+    this.loginModal.show();
   }
 
-  public hideLoginModal(): void {
-    this.loginModal.hide()
-  }
-
-  public onSubmit(): void {
+  onSubmit(): void {
     this.authenticationService.login(this.email, this.password);
-    this.hideLoginModal();
+    this.loginModal.hide();
   }
+
 
 }

@@ -1,14 +1,36 @@
+/**
+ * Created by evgeniy on 2017-03-05.
+ */
+
 import {Response, Headers, RequestOptions, Http} from "@angular/http";
 import {Observable} from "rxjs";
 import {Injectable} from "@angular/core";
 
-/**
- * Created by evgeniy on 2017-03-05.
- */
 @Injectable()
 export class RequestsHandler {
-
   constructor(public http: Http) {
+  }
+
+  private _headers = () => {
+    return new Headers({
+      'Content-Type': 'application/json',
+      'X-CSRFToken': this.getCookie('csrftoken')
+    });
+  };
+
+  private _options = () => {
+    return new RequestOptions({
+        headers: this.headers,
+        withCredentials: true,
+      });
+  };
+
+  get headers(): Headers {
+    return this._headers();
+  }
+
+  get options(): RequestOptions {
+    return this._options();
   }
 
   getCookie(name) {
@@ -19,21 +41,8 @@ export class RequestsHandler {
     }
   }
 
-  public headers = new Headers(
-    {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': this.getCookie('csrftoken')
-    }
-  );
-  public options = new RequestOptions(
-    {
-      headers: this.headers,
-      withCredentials: true,
-    }
-  );
-
   extractData(res: Response) {
-    console.log(res)
+    console.log(res);
     let data;
     if (res.text() === '') {
       data = {}

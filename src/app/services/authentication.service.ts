@@ -2,7 +2,7 @@
  * Created by evgeniy on 2017-03-05.
  */
 
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable, EventEmitter} from '@angular/core';
 import {Http} from '@angular/http';
 import 'rxjs/add/operator/map';
 import {RequestsHandler} from "../common/classes/requests_handler";
@@ -12,14 +12,17 @@ import {ROOT_API_URL} from "../../settings";
 
 @Injectable()
 export class AuthenticationService extends RequestsHandler {
-  private loginUrl: string = ROOT_API_URL + '/api/auth/login';
-  private logoutUrl: string = ROOT_API_URL + '/api/auth/logout';
+  private loginUrl: string = `${ROOT_API_URL}/api/auth/login`;
+  private logoutUrl: string = `${ROOT_API_URL}/api/auth/logout`;
+
+  public loginRequest$;
 
   private _user$ = new BehaviorSubject(null);
   public user$ = this._user$.asObservable();
 
   constructor(public http: Http) {
     super(http);
+    this.loginRequest$ = new EventEmitter();
   }
 
   login(email: string, password: string) {

@@ -1,7 +1,8 @@
-import {Component, ViewChild, Input} from '@angular/core';
-import {LoginModalComponent} from "../authentication/login-modal.component";
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {RatingsUser} from "../../models/auth";
 import {AuthenticationService} from "../../services/authentication.service";
+
+
 
 @Component({
   selector: 'navbar',
@@ -9,21 +10,19 @@ import {AuthenticationService} from "../../services/authentication.service";
   styleUrls: ['./navbar.component.sass'],
 })
 export class NavbarComponent {
-  @Input()
-  user: RatingsUser;
-  @ViewChild(LoginModalComponent) loginModal;
+  @Input()user: RatingsUser;
+  isCollapsed: boolean = true;
 
   constructor(private authenticationService: AuthenticationService) {
 
   }
 
-  public logout(): void {
+  showLoginModal() {
+    this.authenticationService.loginRequest$.emit();
+  }
+
+  logout(): void {
     this.authenticationService.logout();
   }
 
-  public isCollapsed: boolean = true;
-
-  public showLoginModal(): void {
-    this.loginModal.showLoginModal()
-  }
 }

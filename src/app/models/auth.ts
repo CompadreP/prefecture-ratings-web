@@ -7,11 +7,6 @@ import {Organization} from "./map";
 class User {
   email: string;
   is_active: boolean;
-
-  // constructor(email: string, is_active: boolean) {
-  //   this.email = email;
-  //   this.is_active = is_active;
-  // }
 }
 
 export class RatingsUser {
@@ -43,6 +38,9 @@ export class RatingsUser {
     }
     if (this.patronymic) {
       name += this.patronymic.charAt(0) + '.'
+    }
+    if (this.organization && this.organization.name) {
+      name += ' | ' + this.organization.name
     }
     return name
   }

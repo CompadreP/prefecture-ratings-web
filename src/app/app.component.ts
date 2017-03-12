@@ -14,7 +14,6 @@ export class AppComponent implements OnInit {
   title = 'Ratings!!!';
   auth: UserAuth;
 
-
   constructor(private authenticationService: AuthenticationService) {
     this.auth = new UserAuth(authenticationService);
   }
