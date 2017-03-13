@@ -1,6 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 
 import {AuthenticationService} from "../../services/authentication.service";
+import {RequestsService} from "../../services/requests.service";
 
 
 @Component({
@@ -15,21 +16,27 @@ export class LoginModalComponent {
 
   email: string = '';
   password: string = '';
+  loginError = null;
 
   constructor(private authenticationService: AuthenticationService) {
     authenticationService.loginRequest$.subscribe(
       _ => {
         this.loginModal.show();
-      })
+      });
+    authenticationService.successfulLogin$.subscribe(
+      _ => {
+        this.loginModal.hide();
+      }
+    );
+    authenticationService.failedLogin$.subscribe(
+      error => {
+        this.loginError = error;
+      }
+    )
   }
 
-  onLoginRequest() {
-    this.loginModal.show();
-  }
-
-  onSubmit(): void {
+  onSubmit = (): void => {
     this.authenticationService.login(this.email, this.password);
-    this.loginModal.hide();
   }
 
 

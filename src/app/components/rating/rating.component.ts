@@ -1,16 +1,15 @@
 import {Component, OnInit} from '@angular/core';
-import {Http} from "@angular/http";
-
-import {RequestsHandler} from "../../common/classes/requests_handler";
+import {RequestsService} from "../../services/requests.service";
 import {MonthlyRating, AvailableRating} from "../../models/rating/rating";
 import {ROOT_API_URL} from "../../../settings";
 import {displayableMonth} from "../../common/functions";
+import {RegionsService} from "../../services/regions.service";
+import {Region} from "../../models/map";
 
 @Component({
-  selector: 'app-rating',
+  selector: 'rating',
   templateUrl: './rating.component.html',
-  styleUrls: ['./rating.component.sass'],
-  providers: [RequestsHandler]
+  styleUrls: ['./rating.component.sass']
 })
 export class RatingComponent implements OnInit {
   displayableMonth = displayableMonth;
@@ -19,35 +18,42 @@ export class RatingComponent implements OnInit {
   loadedRating: MonthlyRating;
   availableRatings: AvailableRating[];
   availableRatingsLoaded: boolean;
-  requestsHandler: RequestsHandler;
   pickedYear: number;
   pickedMonth: number;
+  regions: Region[];
 
   private availableYearMonths: Map<number, number[]>;
   availableYears: number[];
   availableMonths: number[];
 
-  constructor(private http: Http) {
-    this.requestsHandler = new RequestsHandler(http);
+  constructor(private requestsService: RequestsService,
+              private regionsService: RegionsService,) {
     this.availableRatings = [];
     this.availableYears = [];
     this.availableMonths = [];
+    this.regionsService.regionsLoaded$.subscribe(
+      regions => {
+        this.regions = regions;
+      }
+    )
+
   }
 
   ngOnInit() {
     this.loadRating(this.currentRatingUrl);
   }
 
-  loadRating(url) {
-    this.requestsHandler.http.get(
+  loadRating = (url) => {
+    this.requestsService.http.get(
       url,
-      this.requestsHandler.options
+      this.requestsService.options
     )
-      .map(this.requestsHandler.extractData)
-      .catch(this.requestsHandler.handleError)
+      .map(this.requestsService.extractData)
+      .catch(this.requestsService.handleError)
       .subscribe(
         data => {
           this.loadedRating = new MonthlyRating(data);
+          console.log(this.loadedRating);
           this.pickedYear = this.loadedRating.year;
           this.pickedMonth = this.loadedRating.month;
           if (!this.availableRatingsLoaded) {
@@ -58,21 +64,21 @@ export class RatingComponent implements OnInit {
           console.log(error);
         }
       )
-  }
+  };
 
-  loadAvailableRatings() {
-    this.requestsHandler.http.get(
+  loadAvailableRatings = () => {
+    this.requestsService.http.get(
       this.availableRatingsUrl,
-      this.requestsHandler.options
+      this.requestsService.options
     )
-      .map(this.requestsHandler.extractData)
-      .catch(this.requestsHandler.handleError)
+      .map(this.requestsService.extractData)
+      .catch(this.requestsService.handleError)
       .subscribe(
         data => {
           for (let rating of data) {
             this.availableRatings.push(new AvailableRating(rating))
           }
-          this.availableYearMonths = AvailableRating.getYearsMonthsList(this.availableRatings);
+          this.availableYearMonths = AvailableRating.getYearsAndMonthsList(this.availableRatings);
           for (let year in this.availableYearMonths) {
             this.availableYears.push(parseInt(year, 10))
           }
@@ -83,15 +89,17 @@ export class RatingComponent implements OnInit {
           console.log(error);
         }
       )
-  }
+  };
 
-  yearPicked(year) {
-    this.pickedYear = year;
-    this.pickedMonth = null;
-    this.availableMonths = this.availableYearMonths[year]
-  }
+  yearPicked = (year) => {
+    if (this.pickedYear !== year) {
+      this.pickedYear = year;
+      this.pickedMonth = null;
+      this.availableMonths = this.availableYearMonths[year]
+    }
+  };
 
-  monthPicked(month) {
+  monthPicked = (month) => {
     this.pickedMonth = month;
     let pickedRatingId = AvailableRating.getIdByYearAndMonth(
       this.pickedYear,
@@ -101,5 +109,5 @@ export class RatingComponent implements OnInit {
     if (pickedRatingId !== this.loadedRating.id) {
       this.loadRating(`${this.availableRatingsUrl}${pickedRatingId}/`)
     }
-  }
+  };
 }

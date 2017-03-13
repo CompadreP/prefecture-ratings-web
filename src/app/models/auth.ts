@@ -1,7 +1,7 @@
-import {Organization} from "./map";
 /**
  * Created by evgeniy on 05.03.2017.
  */
+import {Organization} from "./map";
 
 
 class User {
@@ -18,17 +18,19 @@ export class RatingsUser {
   patronymic?: string;
   organization?: Organization;
 
-  constructor(Object) {
-    this.id = Object.id;
-    this.role = Object.role;
-    this.user = Object.user;
-    this.first_name = Object.first_name;
-    this.last_name = Object.last_name;
-    this.patronymic = Object.patronymic;
-    this.organization = Object.organization;
+  constructor(obj) {
+    if (obj !== null) {
+      this.id = obj.id;
+      this.role = obj.role;
+      this.user = obj.user;
+      this.first_name = obj.first_name;
+      this.last_name = obj.last_name;
+      this.patronymic = obj.patronymic;
+      this.organization = obj.organization;
+    }
   }
 
-  displayName() {
+  displayName = () => {
     let name = '';
     if (this.last_name) {
       name += this.last_name

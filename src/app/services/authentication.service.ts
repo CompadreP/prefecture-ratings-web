@@ -3,54 +3,58 @@
  */
 
 import {Injectable, EventEmitter} from '@angular/core';
-import {Http} from '@angular/http';
 import 'rxjs/add/operator/map';
-import {RequestsHandler} from "../common/classes/requests_handler";
+import {RequestsService} from "./requests.service";
 import {BehaviorSubject} from "rxjs";
 import {RatingsUser} from "../models/auth";
 import {ROOT_API_URL} from "../../settings";
 
 @Injectable()
-export class AuthenticationService extends RequestsHandler {
+export class AuthenticationService {
   private loginUrl: string = `${ROOT_API_URL}/api/auth/login`;
   private logoutUrl: string = `${ROOT_API_URL}/api/auth/logout`;
 
   public loginRequest$;
+  public successfulLogin$;
+  public failedLogin$;
 
   private _user$ = new BehaviorSubject(null);
   public user$ = this._user$.asObservable();
 
-  constructor(public http: Http) {
-    super(http);
+  constructor(private requestsService: RequestsService) {
     this.loginRequest$ = new EventEmitter();
+    this.successfulLogin$ = new EventEmitter();
+    this.failedLogin$ = new EventEmitter();
   }
 
-  login(email: string, password: string) {
-    return this.http.post(
+  login = (email: string, password: string) => {
+    return this.requestsService.http.post(
       this.loginUrl,
       {
         email: email,
         password: password
-      }, this.options)
-      .map(this.extractData)
-      .catch(this.handleError)
+      }, this.requestsService.options)
+      .map(this.requestsService.extractData)
+      .catch(this.requestsService.handleError)
       .subscribe(
         user => {
           this._user$.next(new RatingsUser(user));
           localStorage.setItem('currentUser', JSON.stringify(user));
+          this.successfulLogin$.emit();
         },
         error => {
+          this.failedLogin$.emit(error);
           console.log(error);
         }
       )
-  }
+  };
 
-  logout() {
-    return this.http.post(
+  logout = () => {
+    return this.requestsService.http.post(
       this.logoutUrl,
       {})
-      .map(this.extractData)
-      .catch(this.handleError)
+      .map(this.requestsService.extractData)
+      .catch(this.requestsService.handleError)
       .subscribe(
         _ => {
           localStorage.removeItem('currentUser');
@@ -60,9 +64,9 @@ export class AuthenticationService extends RequestsHandler {
           console.log(error)
         }
       )
-  }
+  };
 
-  checkExistingAuth() {
+  checkExistingAuth = () => {
     let user;
     let savedUser = localStorage.getItem('currentUser');
     if (savedUser !== null) {

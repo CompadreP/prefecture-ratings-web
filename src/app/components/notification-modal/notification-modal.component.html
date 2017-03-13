@@ -1,0 +1,34 @@
+<div class="modal fade login-modal" bsModal #notificationModal="bs-modal"
+     [config]="{backdrop: 'static'}"
+     role="dialog" aria-labelledby="mySmallModalLabel"
+     aria-hidden="true">
+  <div *ngIf="notification" class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header modal-header-t2">
+        <h4 *ngIf="notification.header" class="modal-title">
+          {{notification.header}}</h4>
+        <button *ngIf="notification.closeSymbol" type="button" class="close"
+                aria-label="Close"
+                (click)="notificationModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div *ngIf="notification.body" class="modal-body">
+        <div>
+          {{notification.body}}
+        </div>
+      </div>
+      <div class="text-center">
+        <button *ngIf="notification.okButton"
+                class="btn btn-default btn-primary">
+          {{notification.okButtonText}}
+        </button>
+        <button *ngIf="notification.cancelButton"
+                class="btn btn-default btn-primary">
+          {{notification.cancelButtonText}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

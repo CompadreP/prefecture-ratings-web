@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {RatingsUser} from "../../models/auth";
 import {AuthenticationService} from "../../services/authentication.service";
+import {RequestsService} from "../../services/requests.service";
 
 
 
@@ -17,12 +18,12 @@ export class NavbarComponent {
 
   }
 
-  showLoginModal() {
+  showLoginModal = () => {
     this.authenticationService.loginRequest$.emit();
-  }
+  };
 
-  logout(): void {
+  logout = (): void => {
     this.authenticationService.logout();
-  }
+  };
 
 }

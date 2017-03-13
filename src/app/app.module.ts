@@ -12,6 +12,7 @@ import {AppComponent} from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
 import {LoginModalComponent} from "./components/authentication/login-modal.component";
 import {RatingComponent} from './components/rating/rating.component';
+import { NotificationModalComponent } from './components/notification-modal/notification-modal.component';
 
 
 @NgModule({
@@ -26,16 +27,12 @@ import {RatingComponent} from './components/rating/rating.component';
   ],
   declarations: [
     AppComponent,
+    NotificationModalComponent,
     NavbarComponent,
     LoginModalComponent,
-    RatingComponent
+    RatingComponent,
   ],
-  providers: [
-    {
-      provide: XSRFStrategy,
-      useValue: new CookieXSRFStrategy('csrftoken', 'X-CSRFToken')
-    }
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {
