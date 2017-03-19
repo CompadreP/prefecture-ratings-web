@@ -52,29 +52,143 @@
     <table class="table table-striped">
       <thead>
       <tr>
-        <th class="text-center rating-element-name">Наименование<br>показателя
+        <th class="text-center rating-element-name">
+          <div class="complex-header">
+            <div>Наименование<br>показателя</div>
+            <div class="rating-menu-elements">
+              <span dropdown>
+                  <a href id="elements-dropdown" dropdownToggle
+                     class="glyphicon glyphicon-menu-hamburger"
+                     aria-hidden="true">
+                  </a>
+                  <ul class="dropdown-menu elements-dropdown-choices"
+                      dropdownMenu
+                      aria-labelledby="elements-dropdown">
+                    <li role="menuitem">
+                        <div class="elements-dropdown-choices-text choose-all"
+                             (click)="displayAllHeaders()">
+                          <span>Выбрать все</span>
+                        </div>
+                    </li>
+                    <li class="divider dropdown-divider"></li>
+                    <li role="menuitem" *ngFor="let header of headers">
+                      <div class="elements-dropdown-choices-checkbox">
+                        <input type="checkbox" [checked]="header.is_displayed"
+                               (change)="toggleHeader(header)">
+                      </div>
+                      <div>
+                        <div class="elements-dropdown-choices-text"
+                             [innerHTML]="header.text.replace('<br>', ' ')"></div>
+                      </div>
+                    </li>
+                  </ul>
+              </span>
+            </div>
+          </div>
         </th>
-        <th class="text-center rating-responsible-name">Ответственный</th>
-        <th class="text-center" *ngFor="let region of regions">
-          {{region.name.slice(0, 3)}}
+        <th *ngIf="headers[0].is_displayed"
+            class="text-center rating-responsible-name"
+            [innerHTML]="headers[0].text"></th>
+        <th class="text-center rating-element-name menu-only">
+          <div class="complex-header">
+            <div class="rating-menu-elements">
+              <span dropdown>
+                  <a href id="regions-dropdown" dropdownToggle
+                     class="glyphicon glyphicon-menu-hamburger"
+                     aria-hidden="true">
+                  </a>
+                  <ul class="dropdown-menu elements-dropdown-choices"
+                      dropdownMenu
+                      aria-labelledby="regions-dropdown">
+                    <li role="menuitem">
+                        <div class="elements-dropdown-choices-text choose-all"
+                             (click)="displayAllRegions()">
+                          <span>Выбрать все</span>
+                        </div>
+                    </li>
+                    <li class="divider dropdown-divider"></li>
+                    <li role="menuitem"
+                        *ngFor="let region of regionsS.regions">
+                      <div class="elements-dropdown-choices-checkbox">
+                        <input type="checkbox" [checked]="region.is_displayed"
+                               (change)="toggleRegion(region)">
+                      </div>
+                      <div>
+                        <div class="elements-dropdown-choices-text"
+                             [innerHTML]="region.name"></div>
+                      </div>
+                    </li>
+                  </ul>
+              </span>
+            </div>
+          </div>
         </th>
-        <th class="text-center">Средний</th>
-        <th class="text-center rating-element-description">Описание<br>показателя</th>
-        <th class="text-center rating-negotiator-comment">Комментарии<br>согласовывающего</th>
-        <th class="text-center rating-region-comment">Замечания<br>районов</th>
+        <ng-container *ngFor="let region of regionsS.regions">
+          <th class="text-center" *ngIf="region.is_displayed">
+            <span>{{region.name.slice(0, 3)}}</span>
+          </th>
+        </ng-container>
+        <th *ngIf="headers[1].is_displayed" class="text-center"
+            [innerHTML]="headers[1].text"></th>
+        <th *ngIf="headers[2].is_displayed"
+            class="text-center rating-element-description"
+            [innerHTML]="headers[2].text">
+        </th>
+        <th *ngIf="headers[3].is_displayed"
+            class="text-center rating-negotiator-comment"
+            [innerHTML]="headers[3].text">
+        </th>
+        <th *ngIf="headers[4].is_displayed"
+            class="text-center rating-region-comment"
+            [innerHTML]="headers[4].text">
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let element of loadedRating.elements">
-        <td>{{element.rating_element.number}}) {{element.rating_element.name}}</td>
-        <td class="rating-responsible-name">{{element.responsible.displayName()}}</td>
-        <td *ngFor="let region of regions">
-          {{element.values[region.id]}}
+        <td class="rating-element-name">{{element.rating_element.number}})
+          {{element.rating_element.name}}
         </td>
-        <td class="text-center">{{element.getAverage()}}</td>
-        <td>{{element.rating_element.base_description}} {{element.additional_description}}</td>
-        <td>{{element.negotiator_comment}}</td>
-        <td>{{element.region_comment}}</td>
+        <td *ngIf="headers[0].is_displayed" class="rating-responsible-name">
+          {{element.responsible.displayName()}}
+        </td>
+        <td></td>
+        <ng-container *ngFor="let region of regionsS.regions">
+          <td *ngIf="region.is_displayed">
+            <span>{{element.values[region.id]}}</span>
+          </td>
+        </ng-container>
+        <td *ngIf="headers[1].is_displayed" class="text-center">
+          {{element.getAverage()}}
+        </td>
+        <td *ngIf="headers[2].is_displayed" class="rating-element-description">
+          {{element.rating_element.base_description}}
+          <textarea class="form-control"
+                    *ngIf="auth.user && auth.user.role === 'admin'"
+                    [ngClass]="{'textarea-saved': !pendingSaves['additional_description'], 'textarea-save-pending': pendingSaves['additional_description']}"
+                    [ngModel]="element.additional_description"
+                    (ngModelChange)="emitElementChange(element.id, 'additional_description', $event)"></textarea>
+          <span *ngIf="!auth.user || auth.user.role !== 'admin'">
+            {{element.additional_description}}
+          </span>
+        </td>
+        <td *ngIf="headers[3].is_displayed" class="rating-negotiator-comment">
+          <textarea class="form-control"
+                    *ngIf="auth.user && auth.user.can_approve_rating"
+                    [ngClass]="{'textarea-saved': !pendingSaves['negotiator_comment'], 'textarea-save-pending': pendingSaves['negotiator_comment']}"
+                    (ngModel)="element.negotiator_comment"
+                    (ngModelChange)="emitElementChange(element.id, 'negotiator_comment', $event)"></textarea>
+          <span *ngIf="!auth.user || !auth.user.can_approve_rating">{{element.negotiator_comment}}</span>
+        </td>
+        <td *ngIf="headers[4].is_displayed"
+            class="rating-region-comment textarea-wrapper">
+          <textarea class="form-control"
+                    *ngIf="auth.user && element.responsible.id === auth.user.id"
+                    [ngClass]="{'textarea-saved': !pendingSaves['region_comment'], 'textarea-save-pending': pendingSaves['region_comment']}"
+                    [ngModel]="element.region_comment"
+                    (ngModelChange)="emitElementChange(element.id, 'region_comment', $event)"></textarea>
+          <span
+            *ngIf="!auth.user || element.responsible.id !== auth.user.id">{{element.region_comment}}</span>
+        </td>
       </tr>
       </tbody>
     </table>

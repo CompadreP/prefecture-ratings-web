@@ -1,8 +1,5 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {RatingsUser} from "../../models/auth";
+import {Component} from '@angular/core';
 import {AuthenticationService} from "../../services/authentication.service";
-import {RequestsService} from "../../services/requests.service";
-
 
 
 @Component({
@@ -11,19 +8,18 @@ import {RequestsService} from "../../services/requests.service";
   styleUrls: ['./navbar.component.sass'],
 })
 export class NavbarComponent {
-  @Input()user: RatingsUser;
   isCollapsed: boolean = true;
 
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(public authS: AuthenticationService) {
 
   }
 
   showLoginModal = () => {
-    this.authenticationService.loginRequest$.emit();
+    this.authS.loginRequest$.emit();
   };
 
   logout = (): void => {
-    this.authenticationService.logout();
+    this.authS.logout();
   };
 
 }

@@ -5,7 +5,6 @@
 import {Injectable, EventEmitter} from '@angular/core';
 import 'rxjs/add/operator/map';
 import {RequestsService} from "./requests.service";
-import {BehaviorSubject} from "rxjs";
 import {RatingsUser} from "../models/auth";
 import {ROOT_API_URL} from "../../settings";
 
@@ -18,8 +17,7 @@ export class AuthenticationService {
   public successfulLogin$;
   public failedLogin$;
 
-  private _user$ = new BehaviorSubject(null);
-  public user$ = this._user$.asObservable();
+  public user: RatingsUser;
 
   constructor(private requestsService: RequestsService) {
     this.loginRequest$ = new EventEmitter();
@@ -38,9 +36,10 @@ export class AuthenticationService {
       .catch(this.requestsService.handleError)
       .subscribe(
         user => {
-          this._user$.next(new RatingsUser(user));
+          this.user = new RatingsUser(user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.successfulLogin$.emit();
+          location.reload();
         },
         error => {
           this.failedLogin$.emit(error);
@@ -74,7 +73,7 @@ export class AuthenticationService {
     } else {
       user = null;
     }
-    this._user$.next(user ? new RatingsUser(JSON.parse(user)) : null);
+    this.user = user ? new RatingsUser(JSON.parse(user)) : null;
   }
 
 }

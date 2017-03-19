@@ -17,6 +17,7 @@ export class RatingsUser {
   last_name?: string;
   patronymic?: string;
   organization?: Organization;
+  can_approve_rating?: boolean = false;
 
   constructor(obj) {
     if (obj !== null) {
@@ -27,6 +28,9 @@ export class RatingsUser {
       this.last_name = obj.last_name;
       this.patronymic = obj.patronymic;
       this.organization = obj.organization;
+      if (obj.can_approve_rating) {
+        this.can_approve_rating = obj.can_approve_rating;
+      }
     }
   }
 

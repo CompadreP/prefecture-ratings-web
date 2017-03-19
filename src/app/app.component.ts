@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 
 import {AuthenticationService} from "./services/authentication.service";
-import {UserAuth} from "./common/classes/user_auth";
 import {RequestsService} from "./services/requests.service";
 import {NotificationService} from "./services/notification.service";
 import {Notification, NotificationTypeEnum} from "./models/notification";
@@ -20,27 +19,66 @@ import {RegionsService} from "./services/regions.service";
   ]
 })
 export class AppComponent implements OnInit {
-  auth: UserAuth;
+  __version__ = '2';
 
-  constructor(private authenticationService: AuthenticationService,
-              private requestsService: RequestsService,
-              private notificationService: NotificationService) {
-    this.auth = new UserAuth(authenticationService);
+  private migrations = [
+    () => {
+      console.log('migration 0')
+    },
+    () => {
+      this.invalidateLocalStorageKeys(['ratingHeadersDisplay']);
+      console.log('migration 1')
+    },
+    () => {
+      console.log('migration 2')
+    },
+  ];
+
+  constructor(private authS: AuthenticationService,
+              private reqS: RequestsService,
+              private notiS: NotificationService) {
   }
 
   ngOnInit() {
-    this.authenticationService.checkExistingAuth();
-    this.requestsService.serverUnavailable$.subscribe(
+    this.checkVersion();
+    this.authS.checkExistingAuth();
+    this.reqS.serverUnavailable$.subscribe(
       _ => {
-        this.notificationService.notificate(new Notification(
-        NotificationTypeEnum.INFO,
-        'Ошибка!',
-        'К сожалению в данный момент сервер недоступен, попробуйте позже',
-        true,
-        false
+        this.notiS.notificate(new Notification(
+          NotificationTypeEnum.INFO,
+          'Ошибка!',
+          'К сожалению в данный момент сервер недоступен, попробуйте позже',
+          true,
+          false
         ))
       }
     )
   }
+
+  checkVersion = (): void => {
+    if (localStorage.getItem('__version__') === null) {
+      localStorage.clear();
+      localStorage.setItem('__version__', this.__version__)
+    }
+    if (localStorage.getItem('__version__') !== this.__version__) {
+      let clientVersion = Number(localStorage.getItem('__version__'));
+      let currentVersion = Number(this.__version__);
+      this.migrateToVersion(clientVersion, currentVersion)
+    }
+  };
+
+  migrateToVersion = (from: number, to: number): void => {
+    for (let num = 0; num < to - from; num++) {
+      let migrationNum = from + num + 1;
+      this.migrations[migrationNum]();
+      localStorage.setItem('__version__', String(migrationNum))
+    }
+  };
+
+  invalidateLocalStorageKeys = (keys: string[]): void => {
+    for (let key of keys) {
+      localStorage.removeItem(key)
+    }
+  };
 
 }

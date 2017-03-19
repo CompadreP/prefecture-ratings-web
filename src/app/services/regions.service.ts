@@ -4,33 +4,76 @@
 import {Injectable} from "@angular/core";
 import {RequestsService} from "./requests.service";
 import {ROOT_API_URL} from "../../settings";
-import {BehaviorSubject} from "rxjs";
+import {Region} from "../models/map";
 
 @Injectable()
 export class RegionsService {
   private regionsUrl: string = `${ROOT_API_URL}/api/map/regions/`;
 
-  private _regions$ = new BehaviorSubject(null);
-  public regionsLoaded$ = this._regions$.asObservable();
+  regions: Region[] = [];
 
-  constructor(private requestsService: RequestsService) {
+  constructor(private reqS: RequestsService) {
     this.loadRegions();
   }
 
   loadRegions = () => {
-    this.requestsService.http.get(
+    this.reqS.http.get(
       this.regionsUrl,
-      this.requestsService.options
+      this.reqS.options
     )
-      .map(this.requestsService.extractData)
-      .catch(this.requestsService.handleError)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
       .subscribe(
-        data => {
-          this._regions$.next(data);
+        regions => {
+          for (let region in regions) {
+            if (regions.hasOwnProperty(region)) {
+              this.regions.push(new Region(regions[region]))
+            }
+          }
+          if (this.isRegionsInLocalStorageValid()) {
+            this.regions = JSON.parse(localStorage.getItem('regionsDisplay'))
+          }
         },
         error => {
           console.log(error);
         }
       )
-  }
+  };
+
+  isRegionsInLocalStorageValid = () => {
+    let localStorageRegions = JSON.parse(localStorage.getItem('regionsDisplay'));
+    if (localStorageRegions === null) {
+      console.log('regions localstorage null');
+      return false
+    }
+    if (this.regions.length !== localStorageRegions.length) {
+      localStorage.removeItem('regionsDisplay');
+      console.log('regions different length');
+      return false;
+    } else {
+      let this_regions = {};
+      for (let region in this.regions) {
+        if (this.regions.hasOwnProperty(region)) {
+          this_regions[this.regions[region].id] = this.regions[region].name
+        }
+      }
+      let local_regions = {};
+      for (let region in localStorageRegions) {
+        if (localStorageRegions.hasOwnProperty(region)) {
+          local_regions[localStorageRegions[region].id] = localStorageRegions[region].name
+        }
+      }
+      for (let region in this_regions) {
+        if (this.regions.hasOwnProperty(region)) {
+          if (this_regions[region] !== local_regions[region]) {
+            localStorage.removeItem('regionsDisplay');
+            console.log('regions different name', this_regions[region], local_regions[region]);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
+
 }
