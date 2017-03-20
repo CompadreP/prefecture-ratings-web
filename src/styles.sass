@@ -1,12 +1,105 @@
+html
+  height: 100%
+
 body
   padding-top: 50px
+  height: 100%
 
-#main-conatiner
-  min-width: 400px
+a
+  cursor: pointer
+  text-decoration: none !important
 
-.textarea-saved
-  background-color: #d5ffdd !important
+.box
+  display: flex
+  flex-flow: column
+  height: 100%
 
-.textarea-save-pending
-  background-color: #f0ced6 !important
+rating, rating-element
+  @extend .box
 
+.rating-label
+  font-size: 16px
+  text-align: center
+
+.responsible-select
+  button
+    font-size: inherit
+    padding: 3px 5px
+  ul, li
+    font-size: inherit
+    a
+      padding: 1px 10px
+
+.element-saved
+  background-color: #e9ffee !important
+
+.element-save-pending
+  background-color: #fff0f9 !important
+
+.rating-table
+  height: 100%
+  font-size: 12px
+  margin-top: 15px
+  overflow-x: auto
+  overflow-y: auto
+  table
+    margin-bottom: 0
+  th
+    border-top: 1px solid #d0d0d0 !important
+    vertical-align: middle !important
+    white-space: normal !important
+  td
+    vertical-align: middle !important
+    white-space: normal !important
+    textarea
+      resize: none
+      padding: 3px 5px
+      font-size: 12px
+      border-color: #d0d0d0
+      width: 100%
+      height: 100%
+
+.rating-element-name
+  min-width: 200px
+
+.complex-header
+  width: 100%
+  display: table
+  .rating-menu-elements
+    display: table-cell
+    vertical-align: middle
+    .elements-dropdown-choices
+      font-size: 12px
+      .dropdown-divider
+        margin: 5px
+      div
+        display: table-cell
+        vertical-align: middle
+        white-space: nowrap
+      .elements-dropdown-choices-checkbox
+        padding-left: 5px
+        padding-right: 5px
+        input
+          cursor: pointer
+      .elements-dropdown-choices-text
+        padding-right: 5px
+
+.rating-responsible-name
+  min-width: 150px
+  vertical-align: middle
+
+.menu-only
+  width: 20px !important
+  min-width: 20px !important
+
+.choose-all
+  padding-left: 22px
+  cursor: pointer
+  color: #336699
+  span:hover
+    color: #4591d6
+
+.textarea-wrapper
+  padding: 3px
+  width: 100%
+  height: 100%

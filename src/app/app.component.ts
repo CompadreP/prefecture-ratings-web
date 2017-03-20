@@ -5,6 +5,8 @@ import {RequestsService} from "./services/requests.service";
 import {NotificationService} from "./services/notification.service";
 import {Notification, NotificationTypeEnum} from "./models/notification";
 import {RegionsService} from "./services/regions.service";
+import {PrefectureEmployeesService} from "./services/employees.service";
+import {RatingElementsService} from "./services/rating-element.service";
 
 
 @Component({
@@ -15,7 +17,9 @@ import {RegionsService} from "./services/regions.service";
     AuthenticationService,
     RequestsService,
     NotificationService,
-    RegionsService
+    RegionsService,
+    PrefectureEmployeesService,
+    RatingElementsService,
   ]
 })
 export class AppComponent implements OnInit {

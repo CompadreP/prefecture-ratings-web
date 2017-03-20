@@ -1,4 +1,4 @@
-<div class="modal fade login-modal" bsModal #notificationModal="bs-modal"
+<div class="modal fade notification-modal" bsModal #notificationModal="bs-modal"
      [config]="{backdrop: 'static'}"
      role="dialog" aria-labelledby="mySmallModalLabel"
      aria-hidden="true">
@@ -13,18 +13,18 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div *ngIf="notification.body" class="modal-body">
-        <div>
-          {{notification.body}}
-        </div>
+      <div *ngIf="notification.body" class="modal-body"
+           [innerHTML]="notification.body">
       </div>
-      <div class="text-center">
+      <div class="text-center notification-buttons-wrapper">
         <button *ngIf="notification.okButton"
-                class="btn btn-default btn-primary">
+                class="btn btn-default btn-primary"
+                (click)="okButtonAction()">
           {{notification.okButtonText}}
         </button>
         <button *ngIf="notification.cancelButton"
-                class="btn btn-default btn-primary">
+                class="btn btn-default btn-primary"
+                (click)="cancelButtonAction()">
           {{notification.cancelButtonText}}
         </button>
       </div>
