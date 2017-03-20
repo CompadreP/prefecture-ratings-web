@@ -16,16 +16,15 @@
     </div>
     <div id="navbar" class="navbar-collapse" [collapse]="isCollapsed">
       <ul class="nav navbar-nav navbar-right" [ngSwitch]="authS.user">
-        <li *ngSwitchCase="null"><a (click)="showLoginModal()"
-                                    href="#">Войти</a></li>
+        <li *ngSwitchCase="null"><a (click)="showLoginModal()">Войти</a></li>
         <li *ngSwitchDefault role="presentation" class="dropdown" dropdown>
-          <a class="dropdown-toggle" dropdownToggle href="#"
-             role="button" aria-haspopup="true" aria-expanded="false">
+          <a class="dropdown-toggle" dropdownToggle role="button"
+             aria-haspopup="true" aria-expanded="false">
             {{authS.user.displayName()}} <span class="caret"></span>
           </a>
           <ul dropdownMenu class="dropdown-menu">
-            <li><a (click)="logout()" href="#">Выйти</a></li>
-            <li><a href="#">Сменить пароль</a></li>
+            <li><a (click)="logout()">Выйти</a></li>
+            <li><a>Сменить пароль</a></li>
           </ul>
         </li>
       </ul>

@@ -5,7 +5,10 @@ import 'rxjs/add/operator/switchMap';
 import {displayableMonth} from "../../../common/functions";
 import {RatingElementsService} from "../../../services/rating-element.service";
 import {RequestsService} from "../../../services/requests.service";
-import {MonthlyRatingElement} from "../../../models/rating/rating";
+import {
+  MonthlyRatingElement,
+  MonthlyRatingSubElement
+} from "../../../models/rating/rating";
 import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {AuthenticationService} from "../../../services/authentication.service";
 import {BaseTableComponent} from "../base-table.component";
@@ -46,7 +49,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     },
     {
       is_displayed: true,
-      text: 'Ссылка на<br>документ-основание'
+      text: 'Ссылка на<br>документ&#8209;основание'
     }
   ];
   loadedRatingElement: MonthlyRatingElement = null;
@@ -65,11 +68,11 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     this.route.params
       .switchMap((params: Params) => this.ratingelS.loadRatingElement(+params['id'], true))
       .map(this.reqS.extractData)
-      .catch(this.reqS.handleError)
       .subscribe(
         data => {
           console.log(data);
           this.loadedRatingElement = new MonthlyRatingElement(data);
+          console.log(this.loadedRatingElement);
           if (!this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
             this.loadedRatingElement.monthly_rating.state = this.ratingStates.on_negotiation
           } else if (this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
@@ -82,6 +85,10 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
           console.log(error);
         }
       )
+  }
+
+  addSubElement = () => {
+    this.loadedRatingElement.related_sub_elements.push(new MonthlyRatingSubElement())
   }
 
 }

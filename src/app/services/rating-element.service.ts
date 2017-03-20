@@ -22,6 +22,14 @@ export class RatingElementsService {
       `${this.url}${elementId}/`,
       this.reqS.options
     )
+      .catch(this.reqS.handleError);
+      // .subscribe(
+      //   data => {
+      //     console.log(data);
+      //   },
+      //   error => {
+      //     console.log(error)
+      //   }
+      // )
   };
-
 }

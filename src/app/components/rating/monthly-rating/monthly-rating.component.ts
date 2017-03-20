@@ -125,7 +125,6 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     if (!this.availableRatingsLoaded) {
       this.loadAvailableRatings();
     }
-    console.log(this.isLocalStorageHeadersValid())
     if (this.isLocalStorageHeadersValid()) {
       this.headers = JSON.parse(localStorage.getItem(this._localStorageHeadersKey))
     }

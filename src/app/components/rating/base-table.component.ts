@@ -98,11 +98,9 @@ export abstract class BaseTableComponent implements OnDestroy {
 
   isLocalStorageHeadersValid = () => {
     let localStorageHeaders = JSON.parse(localStorage.getItem(this._localStorageHeadersKey));
-    console.log(this._localStorageHeadersKey);
     if (!localStorageHeaders) {
       return false;
     }
-    console.log(localStorageHeaders);
     if (this.headers.length !== localStorageHeaders.length) {
       localStorage.removeItem(this._localStorageHeadersKey);
       return false;

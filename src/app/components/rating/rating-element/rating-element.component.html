@@ -21,7 +21,7 @@
               'label-info': !loadedRatingElement.monthly_rating.is_approved && loadedRatingElement.monthly_rating.is_negotiated,
               'label-success': loadedRatingElement.monthly_rating.is_approved
             }">{{loadedRatingElement.monthly_rating.state}}
-            </span>
+      </span>
     </div>
   </div>
 
@@ -108,19 +108,31 @@
             <span>{{region.name.slice(0, 3)}}</span>
           </th>
         </ng-container>
-        <!--<th *ngIf="headers[1].is_displayed" class="text-center"-->
-            <!--[innerHTML]="headers[1].text"></th>-->
-        <!--<th *ngIf="headers[2].is_displayed"-->
-            <!--class="text-center rating-element-description"-->
-            <!--[innerHTML]="headers[2].text">-->
-        <!--</th>-->
+        <th *ngIf="headers[1].is_displayed" class="text-center"
+            [innerHTML]="headers[1].text">
+        </th>
+        <th *ngIf="headers[2].is_displayed" class="text-center"
+            [innerHTML]="headers[2].text">
+        </th>
+        <th *ngIf="headers[3].is_displayed" class="text-center"
+            [innerHTML]="headers[3].text">
+        </th>
+        <th *ngIf="headers[4].is_displayed" class="text-center"
+            [innerHTML]="headers[4].text">
+        </th>
+        <th *ngIf="headers[5].is_displayed" class="text-center"
+            [innerHTML]="headers[5].text">
+        </th>
+        <th *ngIf="headers[6].is_displayed" class="text-center"
+            [innerHTML]="headers[6].text">
+        </th>
         <!--<th *ngIf="headers[3].is_displayed"-->
-            <!--class="text-center rating-negotiator-comment"-->
-            <!--[innerHTML]="headers[3].text">-->
+        <!--class="text-center rating-negotiator-comment"-->
+        <!--[innerHTML]="headers[3].text">-->
         <!--</th>-->
         <!--<th *ngIf="headers[4].is_displayed"-->
-            <!--class="text-center rating-region-comment"-->
-            <!--[innerHTML]="headers[4].text">-->
+        <!--class="text-center rating-region-comment"-->
+        <!--[innerHTML]="headers[4].text">-->
       </tr>
       </thead>
 
@@ -128,7 +140,7 @@
 
       <tbody>
       <tr *ngFor="let subelement of loadedRatingElement.related_sub_elements">
-         <!---->
+        <!---->
         <td class="rating-element-name">
         </td>
         <td *ngIf="headers[0].is_displayed" class="rating-responsible-name">
@@ -147,7 +159,6 @@
               <li *ngFor="let employee of prefempS.employees"
                   role="menuitem">
                 <a class="dropdown-item"
-                   href="#"
                    (click)='loadedRatingElement.responsible.id !== employee.id && changeElementResponsible(element, employee)'>{{employee.displayName()}}</a>
               </li>
             </ul>
@@ -161,49 +172,49 @@
             <span>{{element.values[region.id]}}</span>
           </td>
         </ng-container>
-        <!--<td *ngIf="headers[1].is_displayed" class="text-center">-->
+        <td *ngIf="headers[1].is_displayed" class="text-center">
           <!--{{element.getAverage()}}-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[2].is_displayed"-->
-            <!--class="rating-element-description textarea-wrapper">-->
-          <!--{{element.rating_element.base_description}}-->
-          <!--<textarea-->
-            <!--*ngIf="auth.user && auth.user.role === 'admin' && !loadedRating.is_approved"-->
-            <!--autosize-->
-            <!--class="form-control"-->
-            <!--[ngClass]="{'element-saved': !pendingSaves['additional_description'], 'element-save-pending': pendingSaves['additional_description']}"-->
-            <!--[ngModel]="element.additional_description"-->
-            <!--(ngModelChange)="emitElementChange(element.id, 'additional_description', $event)"></textarea>-->
-          <!--<span-->
-            <!--*ngIf="!auth.user || auth.user.role !== 'admin' || loadedRating.is_approved">-->
-            <!--{{element.additional_description}}-->
-          <!--</span>-->
-        <!--</td>-->
+        </td>
+        <td *ngIf="headers[2].is_displayed" class="text-center">
+          <!--{{element.getAverage()}}-->
+        </td>
+        <td *ngIf="headers[3].is_displayed" class="text-center">
+          <!--{{element.getAverage()}}-->
+        </td>
+        <td *ngIf="headers[4].is_displayed" class="text-center">
+          <!--{{element.getAverage()}}-->
+        </td>
+        <td *ngIf="headers[5].is_displayed" class="text-center">
+          <!--{{element.getAverage()}}-->
+        </td>
+        <td *ngIf="headers[6].is_displayed" class="text-center">
+          <!--{{element.getAverage()}}-->
+        </td>
         <!--<td *ngIf="headers[3].is_displayed"-->
-            <!--class="rating-negotiator-comment textarea-wrapper">-->
-          <!--<textarea-->
-            <!--*ngIf="auth.user && auth.user.can_approve_rating && !loadedRating.is_approved"-->
-            <!--autosize-->
-            <!--class="form-control"-->
-            <!--[ngClass]="{'element-saved': !pendingSaves['negotiator_comment'], 'element-save-pending': pendingSaves['negotiator_comment']}"-->
-            <!--[ngModel]="element.negotiator_comment"-->
-            <!--(ngModelChange)="emitElementChange(element.id, 'negotiator_comment', $event)"></textarea>-->
-          <!--<span-->
-            <!--*ngIf="!auth.user || !auth.user.can_approve_rating || loadedRating.is_approved">-->
-            <!--{{element.negotiator_comment}}-->
-          <!--</span>-->
+        <!--class="rating-negotiator-comment textarea-wrapper">-->
+        <!--<textarea-->
+        <!--*ngIf="auth.user && auth.user.can_approve_rating && !loadedRating.is_approved"-->
+        <!--autosize-->
+        <!--class="form-control"-->
+        <!--[ngClass]="{'element-saved': !pendingSaves['negotiator_comment'], 'element-save-pending': pendingSaves['negotiator_comment']}"-->
+        <!--[ngModel]="element.negotiator_comment"-->
+        <!--(ngModelChange)="emitElementChange(element.id, 'negotiator_comment', $event)"></textarea>-->
+        <!--<span-->
+        <!--*ngIf="!auth.user || !auth.user.can_approve_rating || loadedRating.is_approved">-->
+        <!--{{element.negotiator_comment}}-->
+        <!--</span>-->
         <!--</td>-->
         <!--<td *ngIf="headers[4].is_displayed"-->
-            <!--class="rating-region-comment textarea-wrapper">-->
-          <!--<textarea-->
-            <!--*ngIf="auth.user && element.responsible.id === auth.user.id && !loadedRating.is_approved"-->
-            <!--autosize-->
-            <!--class="form-control"-->
-            <!--[ngClass]="{'element-saved': !pendingSaves['region_comment'], 'element-save-pending': pendingSaves['region_comment']}"-->
-            <!--[ngModel]="element.region_comment"-->
-            <!--(ngModelChange)="emitElementChange(element.id, 'region_comment', $event)"></textarea>-->
-          <!--<span-->
-            <!--*ngIf="!auth.user || element.responsible.id !== auth.user.id || loadedRating.is_approved">{{element.region_comment}}</span>-->
+        <!--class="rating-region-comment textarea-wrapper">-->
+        <!--<textarea-->
+        <!--*ngIf="auth.user && element.responsible.id === auth.user.id && !loadedRating.is_approved"-->
+        <!--autosize-->
+        <!--class="form-control"-->
+        <!--[ngClass]="{'element-saved': !pendingSaves['region_comment'], 'element-save-pending': pendingSaves['region_comment']}"-->
+        <!--[ngModel]="element.region_comment"-->
+        <!--(ngModelChange)="emitElementChange(element.id, 'region_comment', $event)"></textarea>-->
+        <!--<span-->
+        <!--*ngIf="!auth.user || element.responsible.id !== auth.user.id || loadedRating.is_approved">{{element.region_comment}}</span>-->
         <!--</td>-->
       </tr>
       </tbody>

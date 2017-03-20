@@ -55,16 +55,16 @@ export class MonthlyRatingSubElementValue {
 }
 
 export class MonthlyRatingSubElement {
-  id: number;
-  name: string; // max 1000 symbols
-  date: string; // OPTIONAL YYYY-MM-DD
-  responsible: RatingsUser;
-  values: MonthlyRatingSubElementValue[];
-  best_type: number; // 1 - "min", 2 - "max"
-  description: string;
-  document: string; // URL to file download
+  id?: number;
+  name?: string; // max 1000 symbols
+  date?: string; // OPTIONAL YYYY-MM-DD
+  responsible?: RatingsUser;
+  values?: MonthlyRatingSubElementValue[];
+  best_type?: number; // 1 - "min", 2 - "max"
+  description?: string;
+  document?: string; // URL to file download
 
-  constructor(obj) {
+  constructor(obj?) {
     this.id = obj.id;
     this.name = obj.name;
     this.date = obj.date;
@@ -79,6 +79,7 @@ export class MonthlyRatingSubElement {
 
 }
 
+
 export class MonthlyRatingElement {
   id: number;
   monthly_rating: MonthlyRatingShort;
@@ -88,7 +89,7 @@ export class MonthlyRatingElement {
   negotiator_comment: string;
   region_comment: string;
   related_sub_elements?: MonthlyRatingSubElement[] = [];
-  values: {} = {};
+  values;
 
   constructor(obj) {
     this.id = obj.id;
@@ -103,6 +104,7 @@ export class MonthlyRatingElement {
         this.related_sub_elements.push(new MonthlyRatingSubElement(subElement))
       }
     }
+    this.values = {};
     for (let value of obj.values) {
       let new_value = new MonthlyRatingElementValue(value);
       this.values[new_value.region_id] = new_value.value
@@ -113,8 +115,10 @@ export class MonthlyRatingElement {
     let sum = 0;
     let count = 0;
     for (let region in this.values) {
-      sum += this.values[region];
-      count++;
+      if (this.values.hasOwnProperty(region)){
+        sum += this.values[region];
+        count++;
+      }
     }
     return (sum / count).toFixed(1)
   }

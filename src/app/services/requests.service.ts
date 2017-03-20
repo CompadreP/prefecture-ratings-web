@@ -9,10 +9,12 @@ import {RatingsError} from "../common/classes/error";
 
 @Injectable()
 export class RequestsService {
-  public serverUnavailable$;
+  serverUnavailable$;
+  requestForbidden$;
 
   constructor(public http: Http) {
     this.serverUnavailable$ = new EventEmitter();
+    this.requestForbidden$ = new EventEmitter();
   }
 
   get headers(): Headers {
@@ -61,6 +63,9 @@ export class RequestsService {
     }
     if ([0, 500, 502].indexOf(errMsg.status) > -1) {
       this.serverUnavailable$.emit();
+    }
+    if (errMsg.status === 403) {
+      this.requestForbidden$.emit();
     }
     return Observable.throw(errMsg);
   }

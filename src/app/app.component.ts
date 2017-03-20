@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
       console.log('migration 0')
     },
     () => {
-      this.invalidateLocalStorageKeys(['ratingHeadersDisplay']);
+      this.removeLocalStorageKeys(['ratingHeadersDisplay']);
       console.log('migration 1')
     },
     () => {
@@ -56,6 +56,13 @@ export class AppComponent implements OnInit {
           false
         ))
       }
+    );
+    this.reqS.requestForbidden$.subscribe(
+      _ => {
+        this.authS.user = null;
+        this.removeLocalStorageKeys(['currentUser']);
+        location.reload()
+      }
     )
   }
 
@@ -79,7 +86,7 @@ export class AppComponent implements OnInit {
     }
   };
 
-  invalidateLocalStorageKeys = (keys: string[]): void => {
+  removeLocalStorageKeys = (keys: string[]): void => {
     for (let key of keys) {
       localStorage.removeItem(key)
     }
