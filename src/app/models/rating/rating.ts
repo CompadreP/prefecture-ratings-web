@@ -18,7 +18,6 @@ class RatingElement {
   name: string;
   base_description: string;
   weight: number;
-  sub_elements_display_type: number;
 
   constructor(obj) {
     this.id = obj.id;
@@ -27,7 +26,6 @@ class RatingElement {
     this.name = obj.name;
     this.base_description = obj.base_description;
     this.weight = obj.weight;
-    this.sub_elements_display_type = obj.sub_elements_display_type;
   }
 }
 
@@ -43,14 +41,14 @@ class MonthlyRatingElementValue {
 }
 
 export class MonthlyRatingSubElementValue {
-  region: number;
   is_average: boolean;
   value: number;
+  is_valid: boolean;
 
-  constructor(obj) {
-    this.region = obj.region;
-    this.is_average = obj.is_average;
-    this.value = obj.value
+  constructor(is_average: boolean = null, value: number = null, is_valid: boolean = true) {
+    this.is_average = is_average;
+    this.value = value;
+    this.is_valid = is_valid;
   }
 }
 
@@ -59,22 +57,89 @@ export class MonthlyRatingSubElement {
   name?: string; // max 1000 symbols
   date?: string; // OPTIONAL YYYY-MM-DD
   responsible?: RatingsUser;
-  values?: MonthlyRatingSubElementValue[];
+  values?;
   best_type?: number; // 1 - "min", 2 - "max"
+  display_type: number; // 1 - decimal, 2 - percent
   description?: string;
   document?: string; // URL to file download
 
+  best: number;
+  min: number;
+  max: number;
+
   constructor(obj?) {
-    this.id = obj.id;
-    this.name = obj.name;
-    this.date = obj.date;
-    this.responsible = new RatingsUser(obj.responsible);
-    for (let value of obj.values) {
-      this.values.push(new MonthlyRatingSubElementValue(value))
+    this.values = {};
+    if (obj) {
+      this.id = obj.id;
+      this.name = obj.name;
+      this.date = obj.date;
+      this.responsible = new RatingsUser(obj.responsible);
+      for (let value in obj.values) {
+        if (obj.values.hasOwnProperty(value)) {
+          this.values[value['region_id']] = new MonthlyRatingSubElementValue(value['is_average'], value['value']);
+        }
+      }
+      this.best_type = obj.best_type;
+      this.display_type = obj.display_type;
+      this.description = obj.description;
+      this.document = obj.document;
     }
-    this.best_type = obj.best_type;
-    this.description = obj.description;
-    this.document = obj.document;
+  }
+
+  updateBestValue = () => {
+    let best = null;
+    if (this.best_type === 1) {
+      best = this.min
+    } else if (this.best_type === 2) {
+      best = this.max
+    }
+    this.best = best;
+  };
+
+  getMinValue = () => {
+    let min = null;
+      for (let value in this.values) {
+        if (this.values.hasOwnProperty(value)) {
+          if (min) {
+            if (this.values[value].value && this.values[value].value < min) {
+              min = this.values[value].value
+            }
+          } else if(this.values[value].value) {
+            min = this.values[value].value
+          }
+        }
+      }
+    return min
+  };
+
+  updateMinValue = () => {
+    this.min = this.getMinValue()
+  };
+
+  getMaxValue = () => {
+    let max = null;
+      for (let value in this.values) {
+        if (this.values.hasOwnProperty(value)) {
+          if (max) {
+            if (this.values[value].value && this.values[value].value > max) {
+              max = this.values[value].value
+            }
+          } else if(this.values[value].value) {
+            max = this.values[value].value
+          }
+        }
+      }
+    return max
+  };
+
+  updateMaxValue = () => {
+    this.max = this.getMaxValue()
+  };
+
+  updateCalculatedFields = () => {
+    this.updateMinValue();
+    this.updateMaxValue();
+    this.updateBestValue();
   }
 
 }
@@ -88,7 +153,7 @@ export class MonthlyRatingElement {
   additional_description: string;
   negotiator_comment: string;
   region_comment: string;
-  related_sub_elements?: MonthlyRatingSubElement[] = [];
+  related_sub_elements?: MonthlyRatingSubElement[];
   values;
 
   constructor(obj) {
@@ -99,6 +164,7 @@ export class MonthlyRatingElement {
     this.additional_description = obj.additional_description;
     this.negotiator_comment = obj.negotiator_comment;
     this.region_comment = obj.region_comment;
+    this.related_sub_elements = [];
     if (obj.related_sub_elements) {
       for (let subElement of obj.related_sub_elements) {
         this.related_sub_elements.push(new MonthlyRatingSubElement(subElement))
@@ -115,7 +181,7 @@ export class MonthlyRatingElement {
     let sum = 0;
     let count = 0;
     for (let region in this.values) {
-      if (this.values.hasOwnProperty(region)){
+      if (this.values.hasOwnProperty(region)) {
         sum += this.values[region];
         count++;
       }
@@ -150,10 +216,10 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
 
   constructor(obj) {
     super(obj);
-    if(obj) {
+    if (obj) {
       this.base_document = new BaseDocument(obj.base_document);
       this.approved_by = new RatingsUser(obj.approved_by);
-      if (obj.elements){
+      if (obj.elements) {
         for (let element of obj.elements) {
           let new_elements = [];
           new_elements[element.rating_element.number] = new MonthlyRatingElement(element);

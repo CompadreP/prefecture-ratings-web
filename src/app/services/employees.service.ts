@@ -11,9 +11,10 @@ import {RatingsUser} from "../models/auth";
 export class PrefectureEmployeesService {
   private apiUrl: string = `${ROOT_API_URL}/api/employees/prefecture_employees/`;
 
-  employees: RatingsUser[] = [];
+  employees: RatingsUser[];
 
   constructor(private reqS: RequestsService) {
+    this.employees = [];
   }
 
   loadEmployees = () => {

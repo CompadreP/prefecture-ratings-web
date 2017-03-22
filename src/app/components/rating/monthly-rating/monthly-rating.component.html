@@ -203,7 +203,7 @@
               <li *ngFor="let employee of prefempS.employees"
                   role="menuitem">
                 <a class="dropdown-item"
-                   (click)='element.responsible.id !== employee.id && changeElementResponsible(element, employee)'>{{employee.displayName()}}</a>
+                   (click)="element.responsible.id !== employee.id && changeElementResponsibleAndSave(element, employee)">{{employee.displayName()}}</a>
               </li>
             </ul>
           </div>

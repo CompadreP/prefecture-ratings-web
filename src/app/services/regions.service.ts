@@ -10,10 +10,13 @@ import {Region} from "../models/map";
 export class RegionsService {
   private regionsUrl: string = `${ROOT_API_URL}/api/map/regions/`;
 
-  regions: Region[] = [];
+  regions: Region[];
+  regionsNumbers;
 
   constructor(private reqS: RequestsService) {
     this.loadRegions();
+    this.regions = [];
+    this.regionsNumbers = {};
   }
 
   loadRegions = () => {
@@ -29,6 +32,11 @@ export class RegionsService {
             if (regions.hasOwnProperty(region)) {
               this.regions.push(new Region(regions[region]))
             }
+          }
+          let n = 0;
+          for (let region of this.regions) {
+            this.regionsNumbers[region.id] = n;
+            n++;
           }
           if (this.isRegionsInLocalStorageValid()) {
             this.regions = JSON.parse(localStorage.getItem('regionsDisplay'))

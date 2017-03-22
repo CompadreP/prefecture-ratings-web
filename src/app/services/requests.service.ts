@@ -64,8 +64,12 @@ export class RequestsService {
     if ([0, 500, 502].indexOf(errMsg.status) > -1) {
       this.serverUnavailable$.emit();
     }
-    if (errMsg.status === 403) {
-      this.requestForbidden$.emit();
+    if (errMsg.status && errMsg.status === 403) {
+      // reload page and delete saved user credentials if it was not login attempt
+      let suffix = '/api/auth/login';
+      if (error.url.indexOf(suffix, error.url.length - suffix.length) === -1) {
+        this.requestForbidden$.emit();
+      }
     }
     return Observable.throw(errMsg);
   }

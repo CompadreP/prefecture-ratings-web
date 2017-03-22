@@ -75,7 +75,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
 
   ngOnInit() {
     this.loadRating(this.currentRatingUrl);
-    if (this.auth.user && this.auth.user.role === 'admin') {
+    if (this.auth.user && this.auth.user.role === 'admin' && this.prefempS.employees.length === 0) {
       this.prefempS.loadEmployees()
     }
   }

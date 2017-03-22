@@ -76,7 +76,7 @@ export abstract class BaseTableComponent implements OnDestroy {
       );
   };
 
-  changeElementResponsible = (element, newResponsible) => {
+  changeElementResponsibleAndSave = (element, newResponsible) => {
     this.pendingSaves[element.id]['responsible'] = true;
     this.saveElementProperty([element.id, 'responsible', newResponsible.id]);
     element.responsible = newResponsible

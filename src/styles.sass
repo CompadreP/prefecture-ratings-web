@@ -17,6 +17,15 @@ a
 rating, rating-element
   @extend .box
 
+input[type='number']
+    -moz-appearance: textfield
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button
+    -webkit-appearance: none
+
+
 .rating-label
   font-size: 16px
   text-align: center
@@ -25,6 +34,7 @@ rating, rating-element
   button
     font-size: inherit
     padding: 3px 5px
+    min-width: 55px
   ul, li
     font-size: inherit
     a
@@ -88,6 +98,9 @@ rating, rating-element
   min-width: 150px
   vertical-align: middle
 
+.rating-element-description
+  min-width: 400px
+
 .menu-only
   width: 20px !important
   min-width: 20px !important
@@ -103,3 +116,12 @@ rating, rating-element
   padding: 3px
   width: 100%
   height: 100%
+
+.invalid-input
+  background-color: red !important
+
+.element-value
+  min-width: 42px
+
+.dropdown-menu
+  min-width: 60px !important
