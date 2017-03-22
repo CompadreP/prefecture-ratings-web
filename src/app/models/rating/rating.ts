@@ -2,6 +2,7 @@
  * Created by evgeniy on 2017-03-12.
  */
 import {RatingsUser} from "../auth";
+import {number} from "ng2-validation/dist/number";
 
 class BaseDocument {
   description_imp: string;
@@ -42,18 +43,20 @@ class MonthlyRatingElementValue {
 
 export class MonthlyRatingSubElementValue {
   is_average: boolean;
-  value: number;
+  value: string;
   is_valid: boolean;
 
   constructor(is_average: boolean = null, value: number = null, is_valid: boolean = true) {
     this.is_average = is_average;
-    this.value = value;
+    this.value = value ? value.toString().replace('.', ',') : null;
     this.is_valid = is_valid;
   }
 }
 
 export class MonthlyRatingSubElement {
   id?: number;
+  tempId: string;
+  isUnsaved: boolean;
   name?: string; // max 1000 symbols
   date?: string; // OPTIONAL YYYY-MM-DD
   responsible?: RatingsUser;
@@ -62,10 +65,12 @@ export class MonthlyRatingSubElement {
   display_type: number; // 1 - decimal, 2 - percent
   description?: string;
   document?: string; // URL to file download
+  documentFileName: string;
 
-  best: number;
-  min: number;
-  max: number;
+  best: string;
+  min: string;
+  max: string;
+  avg: string;
 
   constructor(obj?) {
     this.values = {};
@@ -83,6 +88,7 @@ export class MonthlyRatingSubElement {
       this.display_type = obj.display_type;
       this.description = obj.description;
       this.document = obj.document;
+      this.isUnsaved = obj.isUnsaved
     }
   }
 
@@ -98,17 +104,17 @@ export class MonthlyRatingSubElement {
 
   getMinValue = () => {
     let min = null;
-      for (let value in this.values) {
-        if (this.values.hasOwnProperty(value)) {
-          if (min) {
-            if (this.values[value].value && this.values[value].value < min) {
-              min = this.values[value].value
-            }
-          } else if(this.values[value].value) {
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (min) {
+          if (this.values[value].value && !this.values[value].is_average && +this.values[value].value < +min) {
             min = this.values[value].value
           }
+        } else if (this.values[value].value && !this.values[value].is_average) {
+          min = this.values[value].value
         }
       }
+    }
     return min
   };
 
@@ -118,17 +124,17 @@ export class MonthlyRatingSubElement {
 
   getMaxValue = () => {
     let max = null;
-      for (let value in this.values) {
-        if (this.values.hasOwnProperty(value)) {
-          if (max) {
-            if (this.values[value].value && this.values[value].value > max) {
-              max = this.values[value].value
-            }
-          } else if(this.values[value].value) {
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (max) {
+          if (this.values[value].value && !this.values[value].is_average && +this.values[value].value > +max) {
             max = this.values[value].value
           }
+        } else if (this.values[value].value && !this.values[value].is_average) {
+          max = this.values[value].value
         }
       }
+    }
     return max
   };
 
@@ -136,11 +142,43 @@ export class MonthlyRatingSubElement {
     this.max = this.getMaxValue()
   };
 
+  getAverageValue = () => {
+    let avg = null;
+    let sum = null;
+    let cnt = 0;
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (this.values[value].value && !this.values[value].is_average) {
+          sum += +this.values[value].value;
+          cnt++;
+        }
+      }
+    }
+    if (sum !== null && (cnt > 0)) {
+      avg = sum / cnt
+    }
+    if (typeof avg === 'number')
+      avg = avg.toFixed(2).toString().replace('.', ',');
+    return avg;
+  };
+
+  updateAverageValues = () => {
+    this.avg = this.getAverageValue();
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (this.values[value].is_average) {
+          this.values[value].value = this.avg;
+        }
+      }
+    }
+  };
+
   updateCalculatedFields = () => {
     this.updateMinValue();
     this.updateMaxValue();
     this.updateBestValue();
-  }
+    this.updateAverageValues();
+  };
 
 }
 
@@ -167,6 +205,7 @@ export class MonthlyRatingElement {
     this.related_sub_elements = [];
     if (obj.related_sub_elements) {
       for (let subElement of obj.related_sub_elements) {
+        subElement.isUnsaved = false;
         this.related_sub_elements.push(new MonthlyRatingSubElement(subElement))
       }
     }

@@ -18,13 +18,48 @@ rating, rating-element
   @extend .box
 
 input[type='number']
-    -moz-appearance: textfield
-
+  -moz-appearance: textfield
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button
-    -webkit-appearance: none
+  -webkit-appearance: none
 
+.input-file-wrapper
+  cursor: pointer
+  display: inline-block
+
+  label
+    cursor: inherit
+    //width: 100%
+    //height: 100%
+    margin: 0
+    font-size: inherit
+    font-weight: inherit
+    color: inherit
+    background-color: white
+    display: inline-block
+    border: 1px solid #d0d0d0
+    border-radius: 3px
+    padding-left: 3px
+    padding-right: 3px
+
+  .inputfile
+    display: none
+    width: 100%
+    height: 100%
+    opacity: 0
+    z-index: -1
+
+  //
+  //.inputfile:focus + label,
+  //.inputfile + label:hover
+
+
+.btn:focus
+  outline: none
+
+.btn:active:focus
+  outline: none
 
 .rating-label
   font-size: 16px

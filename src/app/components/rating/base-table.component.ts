@@ -55,10 +55,10 @@ export abstract class BaseTableComponent implements OnDestroy {
     localStorage.setItem('regionsDisplay', JSON.stringify(this.regionsS.regions))
   };
 
-  saveElementProperty = ([elementId, property, $event]) => {
+  saveElementProperty = ([elementId, property, value]) => {
     let url = `${this._elementSaveUrl}${elementId}/`;
     let data = {};
-    data[property] = $event;
+    data[property] = value;
     this.reqS.http.patch(
       url,
       data,

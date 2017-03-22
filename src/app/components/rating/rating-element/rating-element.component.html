@@ -32,6 +32,9 @@
 
       <thead>
       <tr>
+        <ng-container>
+          <th class="remove-sign" *ngIf="userCanChangeElement"></th>
+        </ng-container>
         <th class="text-center rating-element-name">
           <div class="complex-header">
             <div>Наименование<br>компонента</div>
@@ -144,7 +147,9 @@
       <!-- ############################# SECOND HEADER ###########################-->
 
       <tr class="element-second-header">
-        <!---->
+        <ng-container>
+          <td class="remove-sign" *ngIf="userCanChangeElement"></td>
+        </ng-container>
         <td class="rating-element-name text-center">
           Итоговый показатель
         </td>
@@ -208,25 +213,36 @@
       <!--</tr>-->
 
       <!-- ############################# BODY ####################################-->
-
+      <!--glyphicon glyphicon-remove-sign-->
       <tr class="subelement-row"
           *ngFor="let subElement of loadedRatingElement.related_sub_elements"
           [ngClass]="{'element-saved': (subElement.id !== undefined) && !pendingSaves[subElement.id],
                       'element-save-pending': (subElement.id === undefined) || pendingSaves[subElement.id]}">
+        <ng-container>
+          <td class="remove-sign" *ngIf="userCanChangeElement">
+            <div>
+              <span class="glyphicon glyphicon-remove-sign"
+                    aria-hidden="true"
+                    (click)="removeSubElement(subElement)">
+              </span>
+            </div>
+          </td>
+        </ng-container>
         <td class="rating-element-name"
             [ngSwitch]="userCanChangeSubElement(subElement)">
           <textarea class="form-control"
                     *ngSwitchCase="true"
                     autosize
+                    [ngClass]="{'invalid-input': !subElement.name}"
                     [ngModel]="subElement.name"
-                    (ngModelChange)="emitElementChange(subElement.id)"></textarea>
+                    (ngModelChange)="changeElementProperty(subElement, 'name', $event)"></textarea>
           <span *ngSwitchCase="false">
             {{subElement.name}}
           </span>
         </td>
         <td class="rating-responsible-name"
             *ngIf="headers[0].is_displayed"
-            [ngSwitch]="userCanChangeElement()">
+            [ngSwitch]="userCanChangeElement">
           <div class="btn-group responsible-select"
                *ngSwitchCase="true"
                dropdown>
@@ -241,7 +257,7 @@
               <li *ngFor="let employee of prefempS.employees"
                   role="menuitem">
                 <a class="dropdown-item"
-                   (click)='(!subElement.responsible || subElement.responsible.id !== employee.id) && changeNewElementResponsible(subElement, employee)'>
+                   (click)="(!subElement.responsible || subElement.responsible.id !== employee.id) && changeElementProperty(subElement, 'responsible', employee)">
                   {{employee.displayName()}}
                 </a>
               </li>
@@ -265,13 +281,13 @@
                 aria-labelledby="display-type-button">
               <li role="menuitem">
                 <a class="dropdown-item"
-                   (click)='subElement.display_type = 1'>
+                   (click)="changeElementProperty(subElement, 'display_type', 1)">
                   {{displayableDisplayType(1)}}
                 </a>
               </li>
               <li role="menuitem">
                 <a class="dropdown-item"
-                   (click)='subElement.display_type = 2'>
+                   (click)="changeElementProperty(subElement, 'display_type', 2)">
                   {{displayableDisplayType(2)}}
                 </a>
               </li>
@@ -282,13 +298,17 @@
           <td class="subelement-value"
               *ngIf="region.is_displayed"
               [ngSwitch]="userCanChangeSubElement(subElement)">
-            <input type="text" class="form-control text-center"
-                   *ngSwitchCase="true"
-                   [ngClass]="{'invalid-input': !subElement.values[region.id].is_valid}"
-                   [ngModel]="displayableValue(subElement.values[region.id].value)"
-                   (ngModelChange)="changeValueInput(subElement, subElement.values[region.id], $event)">
+            <div *ngSwitchCase="true"
+                 [contextMenu]="valueMenu"
+                 [contextMenuSubject]="[subElement, subElement.values[region.id]]">
+              <input type="text" class="form-control text-center"
+                     [disabled]="subElement.values[region.id].is_average"
+                     [ngClass]="{'invalid-input': !subElement.values[region.id].is_valid}"
+                     [ngModel]="subElement.values[region.id].value"
+                     (ngModelChange)="changeValueInput(subElement, subElement.values[region.id], $event)">
+            </div>
             <span *ngSwitchCase="false">
-              {{displayableValue(subElement.values[region.id].value)}}
+              subElement.values[region.id].value)
             </span>
           </td>
         </ng-container>
@@ -305,13 +325,13 @@
                 aria-labelledby="min-max-button">
               <li role="menuitem">
                 <a class="dropdown-item"
-                   (click)='(subElement.best_type = 1) && subElement.updateCalculatedFields()'>
+                   (click)="changeElementProperty(subElement, 'best_type', 1)">
                   {{displayableMinMaxType(1)}}
                 </a>
               </li>
               <li role="menuitem">
                 <a class="dropdown-item"
-                   (click)='(subElement.best_type = 2) && subElement.updateCalculatedFields()'>
+                   (click)="changeElementProperty(subElement, 'best_type', 2)">
                   {{displayableMinMaxType(2)}}
                 </a>
               </li>
@@ -334,26 +354,64 @@
                     *ngSwitchCase="true"
                     autosize
                     [ngModel]="subElement.description"
-                    (ngModelChange)="emitElementChange(subElement.id)"></textarea>
+                    (ngModelChange)="changeElementProperty(subElement, 'description', $event)"></textarea>
           <span *ngSwitchCase="false">
             {{subElement.description}}
           </span>
         </td>
-        <td *ngIf="headers[6].is_displayed" class="text-center">
-          <!--{{element.getAverage()}}-->
+        <td *ngIf="headers[6].is_displayed" class="text-center text-nowrap">
+          <div class="remove-sign remove-sign-inline"
+               *ngIf="subElement.documentFileName">
+            <div>
+              <span class="glyphicon glyphicon-remove-sign"
+                    aria-hidden="true"
+                    (click)="removeDocument(subElement)">
+              </span>
+            </div>
+          </div>
+          <div class="input-file-wrapper">
+            <input type="file" accept="*"
+                   id="{{subElement.id ? subElement.id : subElement.tempId}}-file"
+                   class="inputfile"
+                   (change)="readFileToBase64(subElement, $event)">
+            <label
+              for="{{subElement.id ? subElement.id : subElement.tempId}}-file">
+              {{subElement.documentFileName ? subElement.documentFileName :
+              'Выберите&nbsp;файл...'}}
+            </label>
+          </div>
         </td>
       </tr>
-      <tr class="add-sub-element"
-          *ngIf="userCanChangeElement()">
-        <td colspan="25">
-          <span class="glyphicon glyphicon-plus-sign"
-                aria-hidden="true"
-                (click)="addSubElement()">
-          </span>
+      <tr class="add-sub-element-row"
+          *ngIf="userCanChangeElement">
+        <td>
+          <div>
+            <span class="glyphicon glyphicon-plus-sign"
+                  aria-hidden="true"
+                  (click)="addSubElement()">
+            </span>
+          </div>
+        </td>
+        <td class="save-button">
+          <div>
+            <button class="btn btn-sm btn-primary" (click)="saveAllChanges()"
+                    onclick="this.blur();">Сохранить
+            </button>
+          </div>
+        </td>
+        <td colspan="24">
         </td>
       </tr>
       </tbody>
     </table>
   </div>
 
+  <context-menu #valueMenu style="pointer-events:all" class="value-context-menu">
+    <template contextMenuItem (execute)="setValueIsAverage($event.item[0], $event.item[1], true, $event)">
+      Среднее
+    </template>
+    <template contextMenuItem (execute)="setValueIsAverage($event.item[0], $event.item[1], false, $event)">
+      Обычное
+    </template>
+  </context-menu>
 </div>

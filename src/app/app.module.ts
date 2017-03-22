@@ -9,6 +9,7 @@ import {ModalModule} from 'ng2-bootstrap/modal';
 import {DropdownModule} from 'ng2-bootstrap/dropdown';
 import {Autosize} from 'angular2-autosize/angular2-autosize';
 import {CustomFormsModule} from 'ng2-validation'
+import {ContextMenuModule} from "angular2-contextmenu";
 
 import {AppComponent} from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
@@ -27,9 +28,10 @@ import {AppRoutingModule} from './app-routing.module';
     FormsModule,
     CustomFormsModule,
     CollapseModule,
+    ContextMenuModule,
     ModalModule.forRoot(),
     DropdownModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
   ],
   declarations: [
     Autosize,

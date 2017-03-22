@@ -1,8 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
 import 'rxjs/add/operator/switchMap';
 
-import {displayableMonth} from "../../../common/functions";
+import {ContextMenuService, ContextMenuComponent} from 'angular2-contextmenu';
+
+import {displayableMonth, generateGuid} from "../../../common/functions";
 import {RatingElementsService} from "../../../services/rating-element.service";
 import {RequestsService} from "../../../services/requests.service";
 import {
@@ -13,7 +15,8 @@ import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {AuthenticationService} from "../../../services/authentication.service";
 import {BaseTableComponent} from "../base-table.component";
 import {RegionsService} from "../../../services/regions.service";
-import {register} from "ts-node/dist";
+import {ROOT_API_URL} from "../../../../settings";
+
 
 @Component({
   selector: 'rating-element',
@@ -21,8 +24,12 @@ import {register} from "ts-node/dist";
   styleUrls: ['./rating-element.component.sass']
 })
 export class RatingElementComponent extends BaseTableComponent implements OnInit {
-  _elementSaveUrl = '/api/ratings/monthly/sub_elements/';
+  _elementSaveUrl = `${ROOT_API_URL}/api/ratings/monthly/sub_elements/`;
   _localStorageHeadersKey = 'ratingElementsHeadersDisplay';
+  userCanChangeElement: boolean;
+
+  @ViewChild('valueMenu') valueMenu: ContextMenuComponent;
+
   headers = [
     {
       is_displayed: true,
@@ -85,6 +92,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
               this.prefempS.loadEmployees()
             }
           }
+          this.userCanChangeElement = this.checkIfUserCanChangeElement()
         },
         error => {
           console.log(error);
@@ -92,24 +100,20 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       );
   }
 
-  userCanChangeElement = () => {
+  checkIfUserCanChangeElement = (): boolean => {
     return this.auth.user
-           && (this.auth.user.id === this.loadedRatingElement.responsible.id)
-           && !this.loadedRatingElement.monthly_rating.is_approved
+      && (this.auth.user.id === this.loadedRatingElement.responsible.id)
+      && !this.loadedRatingElement.monthly_rating.is_approved
   };
 
-  userCanChangeSubElement = (subElement) => {
+  userCanChangeSubElement = (subElement: MonthlyRatingSubElement): boolean => {
     return this.auth.user
-           && ((this.auth.user.id === subElement.responsible.id)
-                || (this.auth.user.id === this.loadedRatingElement.responsible.id))
-           && !this.loadedRatingElement.monthly_rating.is_approved
+      && ((this.auth.user.id === subElement.responsible.id)
+      || (this.auth.user.id === this.loadedRatingElement.responsible.id))
+      && !this.loadedRatingElement.monthly_rating.is_approved
   };
 
-  displayableValue = (value) => {
-    value ? value.toString().replace('.', ',') : value
-  };
-
-  displayableDisplayType = (displayType) => {
+  displayableDisplayType = (displayType): string => {
     if (displayType === 1) {
       return 'число'
     } else if (displayType === 2) {
@@ -117,7 +121,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   };
 
-  displayableMinMaxType = (displayType) => {
+  displayableMinMaxType = (displayType): string => {
     if (displayType === 1) {
       return 'мин'
     } else if (displayType === 2) {
@@ -126,26 +130,49 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   };
 
   emitElementChange = (elementId) => {
-    this.pendingSaves[elementId] = true;
+    //this.pendingSaves[elementId] = true;
     //this._valueChangeWatchers[elementId][property].next([elementId, property, value])
   };
 
-  addSubElement = () => {
+  addSubElement = (): void => {
     let newSubElement = new MonthlyRatingSubElement();
+    newSubElement.tempId = generateGuid();
     newSubElement.responsible = this.loadedRatingElement.responsible;
     newSubElement.best_type = 1;
     newSubElement.display_type = 1;
     for (let region of this.regionsS.regions) {
       newSubElement.values[region.id] = new MonthlyRatingSubElementValue()
     }
-    this.loadedRatingElement.related_sub_elements.push(newSubElement)
+    this.loadedRatingElement.related_sub_elements.push(newSubElement);
+    newSubElement.isUnsaved = true;
   };
 
-  changeNewElementResponsible = (element, newResponsible) => {
-    element.responsible = newResponsible
+  removeSubElement = (subElement: MonthlyRatingSubElement): void => {
+    if (subElement.tempId) {
+      this.loadedRatingElement.related_sub_elements.forEach((item, index) => {
+        if (item.tempId === subElement.tempId) {
+          this.loadedRatingElement.related_sub_elements.splice(index, 1);
+        }
+      })
+    } else if (subElement.id) {
+      //TODO
+    }
+    subElement.isUnsaved = true;
   };
 
-  changeValueInput = (subElement, elementValueObject, scalarValue: string) => {
+  changeElementProperty = (subElement: MonthlyRatingSubElement,
+                           property: string,
+                           value): void => {
+    subElement[property] = value;
+    subElement.isUnsaved = true;
+    if (['best_type'].indexOf(property) > -1) {
+      subElement.updateCalculatedFields();
+    }
+  };
+
+  changeValueInput = (subElement: MonthlyRatingSubElement,
+                      elementValueObject: MonthlyRatingSubElementValue,
+                      scalarValue: string): void => {
     if ((scalarValue !== null) && (scalarValue !== '')) {
       let regex = /^(\d{1,3}(,(\d{1,2})?)?)?$/;
       if (regex.test(scalarValue)) {
@@ -153,7 +180,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
         if (toNum < -100 || toNum > 100) {
           elementValueObject.is_valid = false;
         } else {
-          elementValueObject.value = toNum;
+          elementValueObject.value = toNum.toString().replace('.', ',');
           elementValueObject.is_valid = true;
         }
       } else {
@@ -169,6 +196,91 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     if (elementValueObject.is_valid) {
       subElement.updateCalculatedFields();
     }
+    subElement.isUnsaved = true;
+  };
+
+  readFileToBase64 = (subElement: MonthlyRatingSubElement, $event): void => {
+    let file: File = $event.target.files[0];
+    let myReader: FileReader = new FileReader();
+    myReader.onloadend = (_) => {
+      subElement.document = myReader.result;
+      subElement.documentFileName = $event.target.files[0].name;
+    };
+    myReader.readAsDataURL(file);
+    subElement.isUnsaved = true;
+  };
+
+  removeDocument = (subElement: MonthlyRatingSubElement): void => {
+    if (subElement.id && subElement.document) {
+      // TODO send request on file delete
+      subElement.document = null;
+    } else if (subElement.tempId) {
+      // Dirty hack
+      let domEl = document.getElementById(`${subElement.tempId}-file`) as any;
+      domEl.value = '';
+
+      subElement.document = null;
+      subElement.documentFileName = null;
+    }
+  };
+
+  //dump
+
+  saveAllChanges = (): void => {
+    console.log(this.loadedRatingElement.related_sub_elements);
+    for (let subElement of this.loadedRatingElement.related_sub_elements) {
+      if (subElement.tempId) {
+        // creating new subelement
+        let data = {};
+        data['name'] = subElement.name;
+        // TODO
+        data['date'] = null;
+        data['responsible'] = subElement.responsible.id;
+        data['best_type'] = subElement.best_type;
+        data['description'] = subElement.description ? subElement.description : null;
+        data['document'] = subElement.document ? subElement.document : null;
+        data['values'] = [];
+        for (let value of subElement.values) {
+          if (subElement.values.hasOwnProperty(value)) {
+            data['values'].push(
+              {
+                'region': value,
+                'is_average': value.is_average,
+                'value': value.is_average ? null : value.value
+              }
+            )
+          }
+        }
+        console.log(data);
+        let url = `${this._elementSaveUrl}?element_id=${this.loadedRatingElement.id}`;
+        console.log(url);
+        this.reqS.http.post(
+          url,
+          data,
+          this.reqS.options
+        )
+          .map(this.reqS.extractData)
+          .catch(this.reqS.handleError)
+          .subscribe(
+            response => {
+              this.removeSubElement(subElement);
+              this.loadedRatingElement.related_sub_elements.push(new MonthlyRatingSubElement(response));
+              console.log(response)
+            },
+            error => {
+              console.log(error);
+            }
+          )
+      }
+    }
+  };
+
+  setValueIsAverage = (subElement: MonthlyRatingSubElement,
+                       value: MonthlyRatingSubElementValue,
+                       isAverage: boolean) => {
+    value.is_average = isAverage;
+    subElement.updateCalculatedFields();
+    subElement.isUnsaved = true;
   };
 
 }

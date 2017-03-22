@@ -7,12 +7,14 @@
   border-bottom: 2px solid #ddd
   background: #e5e5e5 !important
 
-.add-sub-element
+.add-sub-element-row
   background-color: transparent !important
-  span
-    font-size: 18px
-    color: #ffa828
-    cursor: pointer
+  td
+    padding-right: 0
+    span
+      font-size: 18px
+      color: #ffa828
+      cursor: pointer
 
 .subelement-value
   @extend .element-value
@@ -30,3 +32,33 @@
 
 .display-type-button
   min-width: 73px !important
+
+.flex-container
+  display: flex
+  align-items: center
+  justify-content: center
+
+.remove-sign
+  padding-right: 0
+  div
+    @extend .flex-container
+    span
+      color: #e11204
+      cursor: pointer
+
+.remove-sign-inline
+  display: inline-block
+
+
+.save-button
+  div
+    @extend .flex-container
+
+.angular2-contextmenu
+  li, a
+    font-size: 12px !important
+    padding: 2px !important
+  //ul.dropdown-menu
+  //  li
+  //    font-size: 12px !important
+  //    padding: 2px !important
