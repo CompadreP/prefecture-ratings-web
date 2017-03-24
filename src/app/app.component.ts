@@ -40,7 +40,10 @@ export class AppComponent implements OnInit {
 
   constructor(private authS: AuthenticationService,
               private reqS: RequestsService,
-              private notiS: NotificationService) {
+              private notiS: NotificationService,
+              private ratingelS: RatingElementsService,
+              public regionsS: RegionsService,
+              public prefempS: PrefectureEmployeesService) {
   }
 
   ngOnInit() {

@@ -33,6 +33,16 @@ export class NotificationService {
 
   hideModal = () => {
     this.hideModal$.emit()
-  }
+  };
+
+  hideModalAndUnsubscribe = (subscriptions: any, keys: string[]) => {
+    this.hideModal();
+    for (let key of keys) {
+      if (subscriptions[key]) {
+        subscriptions[key].unsubscribe();
+        delete subscriptions[key];
+      }
+    }
+  };
 
 }

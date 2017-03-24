@@ -37,4 +37,15 @@ export class PrefectureEmployeesService {
         }
       )
   };
+
+  getEmployeeById = (id) => {
+    if (this.employees && this.employees.length > 0) {
+      for (let employee of this.employees) {
+        if (employee.id === +id) {
+          return employee
+        }
+      }
+    }
+    return null;
+  }
 }

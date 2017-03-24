@@ -20,6 +20,7 @@ export abstract class BaseTableComponent implements OnDestroy {
     negotiated: 'Рейтинг согласован',
     approved: 'Рейтинг утвержден'
   };
+  notificationSubscriptionKeys = ['notificationOkSubscription', 'notificationCancelSubscription'];
 
   constructor(public regionsS: RegionsService,
               public reqS: RequestsService) {

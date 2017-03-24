@@ -33,3 +33,26 @@ export class Notification {
     this.cancelButtonText = cancelButtonText;
   }
 }
+
+export class AreYouSureNotification extends Notification {
+  constructor(header: string, body: string) {
+    super(
+      NotificationTypeEnum.WARNING,
+      header,
+      body,
+      false,
+      true,
+      undefined,
+      true)
+  }
+}
+
+export class AreYouSureSimpleNotification extends AreYouSureNotification {
+  constructor() {
+    super(
+        'Внимание!',
+        'Вы собираетесь совершить действие, которое будет невозможно отменить. ' +
+        'Вы уверены?',
+    )
+  }
+}

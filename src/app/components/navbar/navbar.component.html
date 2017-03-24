@@ -20,7 +20,7 @@
         <li *ngSwitchDefault role="presentation" class="dropdown" dropdown>
           <a class="dropdown-toggle" dropdownToggle role="button"
              aria-haspopup="true" aria-expanded="false">
-            {{authS.user.displayName()}} <span class="caret"></span>
+            {{authS.user.fullDisplayName}} <span class="caret"></span>
           </a>
           <ul dropdownMenu class="dropdown-menu">
             <li><a (click)="logout()">Выйти</a></li>

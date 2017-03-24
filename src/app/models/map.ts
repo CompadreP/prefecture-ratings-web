@@ -32,7 +32,7 @@ export class District {
 export class Organization {
   id: number;
   name: string;
-  region: Region | null;
+  region: Region;
   district: District;
 
   constructor(id: number, name: string, region: Region = null, district: District) {

@@ -1,22 +1,17 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {RequestsService} from "../../../services/requests.service";
-import {
-  MonthlyRatingFull,
-  AvailableRating
-} from "../../../models/rating/rating";
-import {ROOT_API_URL, DEBOUNCE_TIME} from "../../../../settings";
-import {RegionsService} from "../../../services/regions.service";
-import {AuthenticationService} from "../../../services/authentication.service";
 import {Subject} from "rxjs";
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
+
+import {RequestsService} from "../../../services/requests.service";
+import {MonthlyRatingFull, AvailableRating} from "../../../models/rating/rating";
+import {ROOT_API_URL, DEBOUNCE_TIME} from "../../../../settings";
+import {RegionsService} from "../../../services/regions.service";
+import {AuthenticationService} from "../../../services/authentication.service";
 import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {NotificationService} from "../../../services/notification.service";
-import {
-  Notification,
-  NotificationTypeEnum
-} from "../../../models/notification";
+import {AreYouSureSimpleNotification} from "../../../models/notification";
 import {BaseTableComponent} from "../base-table.component";
 
 @Component({
@@ -218,39 +213,18 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
       this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
         () => {
           this.saveRatingState(state);
-          this.notiS.hideModal();
-          this._subscriptions['notificationOkSubscription'].unsubscribe();
-          delete this._subscriptions['notificationOkSubscription'];
-          if (this._subscriptions['notificationCancelSubscription']) {
-            this._subscriptions['notificationCancelSubscription'].unsubscribe();
-            delete this._subscriptions['notificationCancelSubscription'];
-          }
+          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
         }
       );
     }
     if (!this._subscriptions['notificationCancelSubscription']) {
       this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
         () => {
-          this.notiS.hideModal();
-          this._subscriptions['notificationCancelSubscription'].unsubscribe();
-          delete this._subscriptions['notificationCancelSubscription'];
-          if (this._subscriptions['notificationOkSubscription']) {
-            this._subscriptions['notificationOkSubscription'].unsubscribe();
-            delete this._subscriptions['notificationOkSubscription'];
-          }
+          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
         }
       );
     }
-    this.notiS.notificate(new Notification(
-      NotificationTypeEnum.WARNING,
-      'Внимание!',
-      'Вы собираетесь совершить действие, которое будет невозможно отменить. ' +
-      'Вы уверены?',
-      false,
-      true,
-      undefined,
-      true
-    ))
+    this.notiS.notificate(new AreYouSureSimpleNotification())
   };
 
   private saveRatingState = (state) => {

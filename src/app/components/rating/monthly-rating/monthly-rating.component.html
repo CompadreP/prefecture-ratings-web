@@ -195,7 +195,7 @@
               [ngClass]="{'element-saved': !pendingSaves[element.id]['responsible'], 'element-save-pending': pendingSaves[element.id]['responsible']}"
               id="responsible-button" type="button" class="btn btn-default"
               dropdownToggle>
-              {{element.responsible.displayName()}} <span
+              {{element.responsible.displayName}} <span
               class="caret"></span>
             </button>
             <ul dropdownMenu role="menu"
@@ -203,12 +203,12 @@
               <li *ngFor="let employee of prefempS.employees"
                   role="menuitem">
                 <a class="dropdown-item"
-                   (click)="element.responsible.id !== employee.id && changeElementResponsibleAndSave(element, employee)">{{employee.displayName()}}</a>
+                   (click)="element.responsible.id !== employee.id && changeElementResponsibleAndSave(element, employee)">{{employee.displayName}}</a>
               </li>
             </ul>
           </div>
           <span
-            *ngIf="!auth.user || auth.user.role !== 'admin' || loadedRating.is_approved">{{element.responsible.displayName()}}</span>
+            *ngIf="!auth.user || auth.user.role !== 'admin' || loadedRating.is_approved">{{element.responsible.displayName}}</span>
         </td>
         <td></td>
         <ng-container *ngFor="let region of regionsS.regions">

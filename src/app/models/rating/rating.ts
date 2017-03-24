@@ -3,6 +3,7 @@
  */
 import {RatingsUser} from "../auth";
 import {number} from "ng2-validation/dist/number";
+import {getColor} from "../../common/functions";
 
 class BaseDocument {
   description_imp: string;
@@ -42,15 +43,27 @@ class MonthlyRatingElementValue {
 }
 
 export class MonthlyRatingSubElementValue {
+  id: number;
   is_average: boolean;
-  value: string;
+  _value: number;
   is_valid: boolean;
+  color: string;
 
-  constructor(is_average: boolean = null, value: number = null, is_valid: boolean = true) {
+  constructor(id: number = null, is_average: boolean = null, value: number = null, is_valid: boolean = true) {
+    this.id = id;
     this.is_average = is_average;
-    this.value = value ? value.toString().replace('.', ',') : null;
+    this._value = value ? Number(value) : null;
     this.is_valid = is_valid;
   }
+
+  get value() {
+    return this._value ? this._value.toString().replace('.', ',') : null
+  }
+
+  set value(val) {
+    this._value = val ? Number(val.replace(',', '.')) : null;
+  }
+
 }
 
 export class MonthlyRatingSubElement {
@@ -66,11 +79,28 @@ export class MonthlyRatingSubElement {
   description?: string;
   document?: string; // URL to file download
   documentFileName: string;
+  isDocumentSaved: boolean;
 
-  best: string;
-  min: string;
-  max: string;
-  avg: string;
+  _best: number;
+  _min: number;
+  _max: number;
+  _avg: number;
+
+  get best() {
+    return this._best ? this._best.toString().replace('.', ',') : null
+  }
+
+  get min() {
+    return this._min ? this._min.toString().replace('.', ',') : null
+  }
+
+  get max() {
+    return this._max ? this._max.toString().replace('.', ',') : null
+  }
+
+  get avg() {
+    return this._avg ? this._avg.toString().replace('.', ',') : null
+  }
 
   constructor(obj?) {
     this.values = {};
@@ -81,25 +111,33 @@ export class MonthlyRatingSubElement {
       this.responsible = new RatingsUser(obj.responsible);
       for (let value in obj.values) {
         if (obj.values.hasOwnProperty(value)) {
-          this.values[value['region_id']] = new MonthlyRatingSubElementValue(value['is_average'], value['value']);
+          this.values[obj.values[value]['region']] =
+            new MonthlyRatingSubElementValue(
+              obj.values[value]['id'],
+              obj.values[value]['is_average'],
+              obj.values[value]['value']
+            );
         }
       }
       this.best_type = obj.best_type;
       this.display_type = obj.display_type;
       this.description = obj.description;
       this.document = obj.document;
-      this.isUnsaved = obj.isUnsaved
+      if (this.document) {
+        this.isDocumentSaved = true;
+      }
+      this.isUnsaved = obj.isUnsaved;
     }
   }
 
   updateBestValue = () => {
     let best = null;
     if (this.best_type === 1) {
-      best = this.min
+      best = this._min
     } else if (this.best_type === 2) {
-      best = this.max
+      best = this._max
     }
-    this.best = best;
+    this._best = best;
   };
 
   getMinValue = () => {
@@ -107,11 +145,11 @@ export class MonthlyRatingSubElement {
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
         if (min) {
-          if (this.values[value].value && !this.values[value].is_average && +this.values[value].value < +min) {
-            min = this.values[value].value
+          if (this.values[value]._value && !this.values[value].is_average && this.values[value]._value < min) {
+            min = this.values[value]._value
           }
-        } else if (this.values[value].value && !this.values[value].is_average) {
-          min = this.values[value].value
+        } else if (this.values[value]._value && !this.values[value].is_average) {
+          min = this.values[value]._value
         }
       }
     }
@@ -119,7 +157,7 @@ export class MonthlyRatingSubElement {
   };
 
   updateMinValue = () => {
-    this.min = this.getMinValue()
+    this._min = this.getMinValue()
   };
 
   getMaxValue = () => {
@@ -127,11 +165,11 @@ export class MonthlyRatingSubElement {
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
         if (max) {
-          if (this.values[value].value && !this.values[value].is_average && +this.values[value].value > +max) {
-            max = this.values[value].value
+          if (this.values[value]._value && !this.values[value].is_average && this.values[value]._value > max) {
+            max = this.values[value]._value
           }
-        } else if (this.values[value].value && !this.values[value].is_average) {
-          max = this.values[value].value
+        } else if (this.values[value]._value && !this.values[value].is_average) {
+          max = this.values[value]._value
         }
       }
     }
@@ -139,7 +177,7 @@ export class MonthlyRatingSubElement {
   };
 
   updateMaxValue = () => {
-    this.max = this.getMaxValue()
+    this._max = this.getMaxValue()
   };
 
   getAverageValue = () => {
@@ -148,8 +186,8 @@ export class MonthlyRatingSubElement {
     let cnt = 0;
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
-        if (this.values[value].value && !this.values[value].is_average) {
-          sum += +this.values[value].value;
+        if (this.values[value]._value && !this.values[value].is_average) {
+          sum += this.values[value]._value;
           cnt++;
         }
       }
@@ -157,18 +195,27 @@ export class MonthlyRatingSubElement {
     if (sum !== null && (cnt > 0)) {
       avg = sum / cnt
     }
-    if (typeof avg === 'number')
+    if (typeof avg === 'number') {
       avg = avg.toFixed(2).toString().replace('.', ',');
+    }
     return avg;
   };
 
   updateAverageValues = () => {
-    this.avg = this.getAverageValue();
+    this._avg = this.getAverageValue();
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
         if (this.values[value].is_average) {
-          this.values[value].value = this.avg;
+          this.values[value].value = this._avg;
         }
+      }
+    }
+  };
+
+  setColors = () => {
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        this.values[value].color = getColor(this.values[value].value, this._min, this._max, this.best_type)
       }
     }
   };
@@ -178,6 +225,7 @@ export class MonthlyRatingSubElement {
     this.updateMaxValue();
     this.updateBestValue();
     this.updateAverageValues();
+    this.setColors();
   };
 
 }
@@ -210,9 +258,11 @@ export class MonthlyRatingElement {
       }
     }
     this.values = {};
-    for (let value of obj.values) {
-      let new_value = new MonthlyRatingElementValue(value);
-      this.values[new_value.region_id] = new_value.value
+    if (obj.values) {
+      for (let value of obj.values) {
+        let new_value = new MonthlyRatingElementValue(value);
+        this.values[new_value.region_id] = new_value.value
+      }
     }
   }
 

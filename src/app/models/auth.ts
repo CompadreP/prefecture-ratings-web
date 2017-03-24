@@ -18,6 +18,8 @@ export class RatingsUser {
   patronymic?: string;
   organization?: Organization;
   can_approve_rating?: boolean = false;
+  displayName: string;
+  fullDisplayName: string;
 
   constructor(obj) {
     if (obj !== null) {
@@ -31,10 +33,20 @@ export class RatingsUser {
       if (obj.can_approve_rating) {
         this.can_approve_rating = obj.can_approve_rating;
       }
+      this.displayName = this._displayName();
+      this.fullDisplayName = this._fullDisplayName();
     }
   }
 
-  displayName = () => {
+  _fullDisplayName(): string {
+    let name = this.displayName;
+    if (this.organization && this.organization.name) {
+      name += ' | ' + this.organization.name
+    }
+    return name
+  };
+
+  _displayName(): string {
     let name = '';
     if (this.last_name) {
       name += this.last_name
@@ -44,9 +56,6 @@ export class RatingsUser {
     }
     if (this.patronymic) {
       name += this.patronymic.charAt(0) + '.'
-    }
-    if (this.organization && this.organization.name) {
-      name += ' | ' + this.organization.name
     }
     return name
   }

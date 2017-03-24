@@ -19,17 +19,9 @@ export class RatingElementsService {
       url = `${url}?include_sub_elements=true`
     }
     return this.reqS.http.get(
-      `${this.url}${elementId}/`,
+      url,
       this.reqS.options
     )
       .catch(this.reqS.handleError);
-      // .subscribe(
-      //   data => {
-      //     console.log(data);
-      //   },
-      //   error => {
-      //     console.log(error)
-      //   }
-      // )
   };
 }
