@@ -34,6 +34,19 @@ export class Notification {
   }
 }
 
+export class SimpleTextNotification extends Notification {
+  constructor(type: NotificationTypeEnum, header: string, body: string) {
+    super(
+      type,
+      header,
+      body,
+      true,
+      false,
+      undefined,
+      false)
+  }
+}
+
 export class AreYouSureNotification extends Notification {
   constructor(header: string, body: string) {
     super(
@@ -51,8 +64,38 @@ export class AreYouSureSimpleNotification extends AreYouSureNotification {
   constructor() {
     super(
         'Внимание!',
-        'Вы собираетесь совершить действие, которое будет невозможно отменить. ' +
-        'Вы уверены?',
+        '<p>Вы собираетесь совершить действие, которое будет невозможно отменить.<p>' +
+        '<p class="text-center">Вы уверены?</p>',
     )
   }
 }
+
+  //     if (!this._subscriptions['notificationOkSubscription']) {
+  //       this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
+  //         () => {
+  //           this.reqS.http.patch(
+  //             `${this._elementSaveUrl}${subElement.id}/`,
+  //             {'document': null},
+  //             this.reqS.options
+  //           )
+  //             .map(this.reqS.extractData)
+  //             .catch(this.reqS.handleError)
+  //             .subscribe(
+  //               _ => {
+  //                 subElement.document = null;
+  //               },
+  //               error => {
+  //                 console.log(error);
+  //               }
+  //             );
+  //           this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
+  //         }
+  //       );
+  //     }
+  //     if (!this._subscriptions['notificationCancelSubscription']) {
+  //       this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
+  //         () => {
+  //           this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
+  //         }
+  //       );
+  //     }

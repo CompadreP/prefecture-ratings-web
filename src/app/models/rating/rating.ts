@@ -48,6 +48,7 @@ export class MonthlyRatingSubElementValue {
   _value: number;
   is_valid: boolean;
   color: string;
+  minusZero: boolean;
 
   constructor(id: number = null, is_average: boolean = null, value: number = null, is_valid: boolean = true) {
     this.id = id;
@@ -57,11 +58,23 @@ export class MonthlyRatingSubElementValue {
   }
 
   get value() {
-    return this._value ? this._value.toString().replace('.', ',') : null
+    if (this._value !== null && this._value !== undefined) {
+      if (this.minusZero) {
+        return '-'
+      } else {
+        return this._value.toString().replace('.', ',')
+      }
+    } else {
+      return null
+    }
   }
 
   set value(val) {
-    this._value = val ? Number(val.replace(',', '.')) : null;
+    if (val !== null && val !== undefined) {
+      this._value = Number(val.replace(',', '.'));
+    } else {
+      this._value = null;
+    }
   }
 
 }
@@ -69,7 +82,7 @@ export class MonthlyRatingSubElementValue {
 export class MonthlyRatingSubElement {
   id?: number;
   tempId: string;
-  isUnsaved: boolean;
+  isSaved: boolean;
   name?: string; // max 1000 symbols
   date?: string; // OPTIONAL YYYY-MM-DD
   responsible?: RatingsUser;
@@ -126,7 +139,7 @@ export class MonthlyRatingSubElement {
       if (this.document) {
         this.isDocumentSaved = true;
       }
-      this.isUnsaved = obj.isUnsaved;
+      this.isSaved = obj.isSaved;
     }
   }
 
@@ -215,7 +228,14 @@ export class MonthlyRatingSubElement {
   setColors = () => {
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
-        this.values[value].color = getColor(this.values[value].value, this._min, this._max, this.best_type)
+        if (this.values[value]._value === null) {
+          this.values[value].color = null;
+        } else if (this.values[value].is_average) {
+          this.values[value].color = '#d6d6d6'
+        } else {
+          this.values[value].color = getColor(this.values[value]._value, this._min, this._max, this.best_type)
+        }
+
       }
     }
   };
@@ -253,7 +273,7 @@ export class MonthlyRatingElement {
     this.related_sub_elements = [];
     if (obj.related_sub_elements) {
       for (let subElement of obj.related_sub_elements) {
-        subElement.isUnsaved = false;
+        subElement.isSaved = false;
         this.related_sub_elements.push(new MonthlyRatingSubElement(subElement))
       }
     }

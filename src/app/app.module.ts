@@ -18,6 +18,7 @@ import {RatingComponent} from './components/rating/monthly-rating/monthly-rating
 import {NotificationModalComponent} from './components/notification-modal/notification-modal.component';
 import {RatingElementComponent} from './components/rating/rating-element/rating-element.component';
 import {AppRoutingModule} from './app-routing.module';
+import {TooltipModule} from "ng2-bootstrap";
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import {AppRoutingModule} from './app-routing.module';
     ContextMenuModule,
     ModalModule.forRoot(),
     DropdownModule.forRoot(),
+    TooltipModule.forRoot(),
     AppRoutingModule,
   ],
   declarations: [

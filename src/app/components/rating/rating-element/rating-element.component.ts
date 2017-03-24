@@ -1,15 +1,16 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
 import 'rxjs/add/operator/switchMap';
 
 import {ContextMenuComponent} from 'angular2-contextmenu';
 
-import {displayableMonth, generateGuid, getColor} from "../../../common/functions";
+import {generateGuid} from "../../../common/functions";
 import {RatingElementsService} from "../../../services/rating-element.service";
 import {RequestsService} from "../../../services/requests.service";
 import {
   MonthlyRatingElement,
-  MonthlyRatingSubElement, MonthlyRatingSubElementValue
+  MonthlyRatingSubElement,
+  MonthlyRatingSubElementValue
 } from "../../../models/rating/rating";
 import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {AuthenticationService} from "../../../services/authentication.service";
@@ -17,7 +18,12 @@ import {BaseTableComponent} from "../base-table.component";
 import {RegionsService} from "../../../services/regions.service";
 import {ROOT_API_URL} from "../../../../settings";
 import {NotificationService} from "../../../services/notification.service";
-import {AreYouSureSimpleNotification} from "../../../models/notification";
+import {
+  AreYouSureSimpleNotification,
+  SimpleTextNotification, NotificationTypeEnum
+} from "../../../models/notification";
+
+declare let $: any;
 
 
 @Component({
@@ -25,10 +31,12 @@ import {AreYouSureSimpleNotification} from "../../../models/notification";
   templateUrl: './rating-element.component.html',
   styleUrls: ['./rating-element.component.sass']
 })
-export class RatingElementComponent extends BaseTableComponent implements OnInit {
+export class RatingElementComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   _elementSaveUrl = `${ROOT_API_URL}/api/ratings/monthly/sub_elements/`;
   _localStorageHeadersKey = 'ratingElementsHeadersDisplay';
   userCanChangeElement: boolean;
+  userCanChangeOneOfSubelements: boolean;
+  isFileUploading: boolean;
 
   @ViewChild('valueMenu') valueMenu: ContextMenuComponent;
 
@@ -76,12 +84,13 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   }
 
   ngOnInit() {
+    this.isFileUploading = false;
     this.route.params
       .switchMap((params: Params) => this.ratingelS.loadRatingElement(+params['id'], true))
       .map(this.reqS.extractData)
       .subscribe(
         data => {
-          console.log(data)
+          console.log(data);
           this.loadedRatingElement = new MonthlyRatingElement(data);
           console.log(this.loadedRatingElement);
           if (!this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
@@ -97,9 +106,22 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
             }
           }
           this.userCanChangeElement = this.checkIfUserCanChangeElement();
-          console.log(this.loadedRatingElement.related_sub_elements);
           for (let subElement of this.loadedRatingElement.related_sub_elements) {
+            if (this.userCanChangeSubElement(subElement)) {
+              this.userCanChangeOneOfSubelements = true;
+            }
+            if (subElement.display_type === 2) {
+              for (let value in subElement.values) {
+                if (subElement.values.hasOwnProperty(value)) {
+                  if (subElement.values[value]._value !== null && subElement.values[value]._value !== undefined) {
+                    subElement.values[value]._value = Number((subElement.values[value]._value * 100).toFixed(2));
+                  }
+                }
+              }
+            }
             subElement.updateCalculatedFields();
+            subElement.isSaved = true;
+            subElement.isDocumentSaved = true;
           }
         },
         error => {
@@ -107,6 +129,29 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
         }
       );
   }
+
+  ngAfterViewInit() {
+    /** WaitMe for file upload **/
+    //TODO
+    $('#file_loader').waitMe({
+      effect: 'bounce',
+      text: '',
+      bg: 'rgba(255,255,255,0.7)',
+      color: '#000',
+      maxSize: '',
+      textPos: 'vertical',
+      fontSize: '',
+      source: ''
+    });
+  }
+
+  getFullDocumentLink = (subElement: MonthlyRatingSubElement): string => {
+    return `${ROOT_API_URL}${subElement.document}`
+  };
+
+  getDocumentName = (documentLink: string): string => {
+    return decodeURI(documentLink.substring(documentLink.lastIndexOf("/") + 1))
+  };
 
   checkIfUserCanChangeElement = (): boolean => {
     return !!this.authS.user
@@ -152,7 +197,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       newSubElement.values[region.id] = new MonthlyRatingSubElementValue()
     }
     this.loadedRatingElement.related_sub_elements.push(newSubElement);
-    newSubElement.isUnsaved = true;
+    newSubElement.isSaved = false;
   };
 
   removeSubElement = (subElement: MonthlyRatingSubElement): void => {
@@ -205,7 +250,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                            property: string,
                            value): void => {
     subElement[property] = value;
-    subElement.isUnsaved = true;
+    subElement.isSaved = false;
     if (['best_type'].indexOf(property) > -1) {
       subElement.updateCalculatedFields();
     }
@@ -217,166 +262,218 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     if ((scalarValue !== null) && (scalarValue !== '')) {
       let regex = /^(-)?(\d{1,3}(,(\d{1,2})?)?)?$/;
       if (regex.test(scalarValue)) {
-        let toNum = +scalarValue.replace(',', '.');
-        if (toNum < -100 || toNum > 100) {
+        if (scalarValue === '-') {
+          elementValueObject.value = '0';
+          elementValueObject.minusZero = true;
           elementValueObject.is_valid = false;
         } else {
-          elementValueObject.value = toNum.toString().replace('.', ',');
-          elementValueObject.is_valid = true;
+          elementValueObject.minusZero = false;
+          let toNum = +scalarValue.replace(',', '.');
+          if (toNum < -100 || toNum > 100) {
+            elementValueObject.is_valid = false;
+          } else {
+            elementValueObject.value = toNum.toString().replace('.', ',');
+            elementValueObject.is_valid = true;
+          }
         }
       } else {
+        elementValueObject.minusZero = false;
         elementValueObject.is_valid = false;
       }
     } else {
       if (scalarValue === '') {
         scalarValue = null
       }
+      elementValueObject.minusZero = false;
       elementValueObject.value = scalarValue;
       elementValueObject.is_valid = true;
     }
     if (elementValueObject.is_valid) {
       subElement.updateCalculatedFields();
     }
-    subElement.isUnsaved = true;
+    subElement.isSaved = false;
   };
 
   readFileToBase64 = (subElement: MonthlyRatingSubElement, $event): void => {
     let file: File = $event.target.files[0];
     let myReader: FileReader = new FileReader();
+    this.isFileUploading = true;
+    subElement.isDocumentSaved = false;
     myReader.onloadend = (_) => {
       subElement.document = myReader.result;
       subElement.documentFileName = $event.target.files[0].name;
+      this.isFileUploading = false;
     };
     myReader.readAsDataURL(file);
-    subElement.isUnsaved = true;
+    subElement.isSaved = false;
   };
 
-  removeDocument = (subElement: MonthlyRatingSubElement): void => {
-    console.log('removing document!');
-    if (subElement.isDocumentSaved) {
-      if (!this._subscriptions['notificationOkSubscription']) {
-        this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
-          () => {
-            this.reqS.http.patch(
-              `${this._elementSaveUrl}${subElement.id}/`,
-              {'document': null},
+  removeSubElementDocument = (subElement: MonthlyRatingSubElement) => {
+    let subElementId = subElement.id ? subElement.id : subElement.tempId;
+    let input = document.getElementById(`${subElementId}-file`) as any;
+    if (input) {
+      input.value = '';
+    }
+    subElement.documentFileName = null;
+    this.changeElementProperty(subElement, 'document', null);
+  };
+
+  validateSubElement = (subElement): string[] => {
+    let validationErrors = [];
+    if (!subElement.name) {
+      validationErrors.push('Название компонента является обязательным параметром')
+    }
+    for (let value in subElement.values) {
+      if (subElement.values.hasOwnProperty(value)) {
+        if (!subElement.values[value].is_valid) {
+          validationErrors.push(
+            'Значение компонента для района не может быть нечисловым, ' +
+            'либо быть менее -100 или более 100'
+          )
+        }
+      }
+    }
+    return validationErrors
+  };
+
+  saveAllChanges = (): void => {
+    let validationErrorsText = '';
+    for (let subElement of this.loadedRatingElement.related_sub_elements) {
+      if (!subElement.isSaved) {
+        let subElementValidationErrors = this.validateSubElement(subElement);
+        if (subElementValidationErrors.length > 0) {
+          for (let error of subElementValidationErrors) {
+            validationErrorsText += `<li>${error}</li>`
+          }
+        } else {
+          //preparing data
+          let data = {};
+          data['name'] = subElement.name;
+          // TODO
+          data['date'] = null;
+          data['responsible'] = subElement.responsible.id;
+          data['display_type'] = subElement.display_type;
+          data['best_type'] = subElement.best_type;
+          data['description'] = subElement.description ? subElement.description : null;
+          if (subElement.documentFileName) {
+            data['document'] = {
+              file_name: subElement.documentFileName,
+              data: subElement.document
+            }
+          } else if (subElement.document === null) {
+            data['document'] = null
+          }
+          data['values'] = [];
+          for (let value in subElement.values) {
+            if (subElement.values.hasOwnProperty(value)) {
+              let scalarValue;
+              if (subElement.values[value].is_average) {
+                scalarValue = null
+              } else {
+                if (subElement.display_type === 1) {
+                  if (subElement.values[value]._value !== null && subElement.values[value]._value !== undefined) {
+                    scalarValue = subElement.values[value]._value
+                  } else {
+                    scalarValue = null
+                  }
+                } else if (subElement.display_type === 2) {
+                  if (subElement.values[value]._value !== null && subElement.values[value]._value !== undefined) {
+                    scalarValue = subElement.values[value]._value / 100
+                  } else {
+                    scalarValue = null
+                  }
+                }
+              }
+              let preparedValue = {
+                'region': value,
+                'is_average': !!subElement.values[value].is_average,
+                'value': scalarValue,
+              };
+              if (subElement.values[value].id) {
+                preparedValue['id'] = subElement.values[value].id
+              }
+              data['values'].push(preparedValue)
+            }
+          }
+          /** creating new subElement **/
+          if (subElement.tempId) {
+            let url = `${this._elementSaveUrl}?element_id=${this.loadedRatingElement.id}`;
+            this.reqS.http.post(
+              url,
+              data,
               this.reqS.options
             )
               .map(this.reqS.extractData)
               .catch(this.reqS.handleError)
               .subscribe(
-                _ => {
-                  subElement.document = null;
+                data => {
+                  this.removeSubElement(subElement);
+                  data.responsible = this.prefempS.getEmployeeById(data.responsible);
+                  for (let value of data.values) {
+                    value.is_valid = true;
+                  }
+                  let newSubElement = new MonthlyRatingSubElement(data);
+                  this.loadedRatingElement.related_sub_elements.push(newSubElement);
+                  newSubElement.updateCalculatedFields();
+                  newSubElement.isSaved = true;
+                  newSubElement.isDocumentSaved = true;
+                  this.notificateSuccess()
                 },
                 error => {
                   console.log(error);
                 }
               );
-            this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
+            /** updating existent subElement **/
+          } else if (subElement.id && !subElement.isSaved) {
+            let url = `${this._elementSaveUrl}${subElement.id}/`;
+            this.reqS.http.patch(
+              url,
+              data,
+              this.reqS.options
+            )
+              .map(this.reqS.extractData)
+              .catch(this.reqS.handleError)
+              .subscribe(
+                data => {
+                  console.log(data.document);
+                  subElement.document = data.document;
+                  subElement.isDocumentSaved = true;
+                  subElement.isSaved = true;
+                  this.notificateSuccess()
+                },
+                error => {
+                  console.log(error);
+                }
+              )
           }
-        );
+        }
       }
-      if (!this._subscriptions['notificationCancelSubscription']) {
-        this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
-          () => {
-            this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
-          }
-        );
-      }
-      this.notiS.notificate(new AreYouSureSimpleNotification());
-    } else if (!subElement.isDocumentSaved) {
-      // Dirty hack
-      let subElementId = subElement.tempId ? subElement.tempId : subElement.id;
-      let domEl = document.getElementById(`${subElementId}-file`) as any;
-      domEl.value = '';
-      subElement.document = null;
-      subElement.documentFileName = null;
+    }
+    if (validationErrorsText !== '') {
+      this.notiS.notificate(new SimpleTextNotification(
+        NotificationTypeEnum.WARNING,
+        'Ошибка!',
+        'Не все изменения удалось сохранить.<br>' +
+        'Проверьте правильность введенных данных и попробуйте снова.<br><br>' +
+        'Список ошибок:<br>' +
+        `<ul>${validationErrorsText}</ul>`
+      ))
     }
   };
 
-  saveAllChanges = (): void => {
-    console.log(this.loadedRatingElement.related_sub_elements);
+  notificateSuccess = () => {
+    let allSaved = true;
     for (let subElement of this.loadedRatingElement.related_sub_elements) {
-      // TODO validation and notification on invalid values
-      //preparing data
-      let data = {};
-      data['name'] = subElement.name;
-      // TODO
-      data['date'] = null;
-      data['responsible'] = subElement.responsible.id;
-      data['display_type'] = subElement.display_type;
-      data['best_type'] = subElement.best_type;
-      data['description'] = subElement.description ? subElement.description : null;
-      data['document'] = subElement.document ? subElement.document : null;
-      data['values'] = [];
-      for (let value in subElement.values) {
-        if (subElement.values.hasOwnProperty(value)) {
-          let scalarValue;
-          if (subElement.values[value].is_average) {
-            scalarValue = null
-          } else {
-            if (subElement.display_type === 1) {
-              scalarValue = subElement.values[value]._value ? subElement.values[value]._value : null
-            } else if (subElement.display_type === 2) {
-              scalarValue = subElement.values[value]._value ? subElement.values[value]._value / 100 : null
-            }
-          }
-          let preparedValue = {
-            'region': value,
-            'is_average': !!subElement.values[value].is_average,
-            'value': scalarValue,
-          };
-          if (subElement.values[value].id){
-            preparedValue['id'] = subElement.values[value].id
-          }
-          data['values'].push(preparedValue)
-        }
+      if (!subElement.isSaved) {
+        allSaved = false
       }
-      if (subElement.tempId) {
-        // creating new subelement
-        let url = `${this._elementSaveUrl}?element_id=${this.loadedRatingElement.id}`;
-        this.reqS.http.post(
-          url,
-          data,
-          this.reqS.options
-        )
-          .map(this.reqS.extractData)
-          .catch(this.reqS.handleError)
-          .subscribe(
-            data => {
-              this.removeSubElement(subElement);
-              data.responsible = this.prefempS.getEmployeeById(data.responsible);
-              for (let value of data.values) {
-                value.is_valid = true;
-              }
-              let newSubElement = new MonthlyRatingSubElement(data);
-              this.loadedRatingElement.related_sub_elements.push(newSubElement);
-              newSubElement.updateCalculatedFields();
-              console.log(newSubElement);
-            },
-            error => {
-              console.log(error);
-            }
-          )
-      } else if (subElement.id && subElement.isUnsaved) {
-        let url = `${this._elementSaveUrl}${subElement.id}/`;
-        console.log(data);
-        this.reqS.http.patch(
-          url,
-          data,
-          this.reqS.options
-        )
-          .map(this.reqS.extractData)
-          .catch(this.reqS.handleError)
-          .subscribe(
-            _ => {
-              subElement.isUnsaved = false
-            },
-            error => {
-              console.log(error);
-            }
-          )
-      }
+    }
+    if (allSaved) {
+      this.notiS.notificate(new SimpleTextNotification(
+        NotificationTypeEnum.SUCCESS,
+        'Успешно!',
+        '<p class="text-center">Все внесенные изменения сохранены.</p>'
+      ))
     }
   };
 
@@ -385,7 +482,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                        isAverage: boolean): void => {
     value.is_average = isAverage;
     subElement.updateCalculatedFields();
-    subElement.isUnsaved = true;
+    subElement.isSaved = false;
   };
 
 }

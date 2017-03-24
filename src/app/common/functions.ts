@@ -38,43 +38,40 @@ export function generateGuid() {
   });
 }
 
-let cnt = 0;
-
 export function getColor(value: number, min: number, max: number, type: number): string {
-  // let newMin = 0;
-  if (value) {
-    cnt++;
+  let alpha = 0.5;
+  if (max === min) {
+    return `rgba(0, 220, 0, ${alpha})`
+  } else if ((value !== null) || (value !== undefined)) {
     let newMax;
     let newValue;
-    if (min < 0) {
-      newMax = max + min;
-      newValue = value + min;
+    let multiplexer;
+    newMax = max - min;
+    newValue = value - min;
+    if (newMax !== 0) {
+      multiplexer = 1 / Math.abs(newMax);
     } else {
-      newMax = max - min;
-      newValue = value - min;
+      multiplexer = 1
     }
-    let multiplexer = 1 / Math.abs(newMax);
     newValue = newValue * multiplexer;
     let result;
     if (type === 1) {
       if (newValue <= 0.5) {
-        result = `rgba(${Math.round(newValue * 220)}, 220, 0, 0.5)`
+        result = `rgba(${Math.round(newValue * 2 * 220)}, 220, 0, ${alpha})`
       } else {
-        result = `rgba(220, ${Math.round((1 - newValue) * 2 * 220)}, 0, 0.5)`
+        result = `rgba(220, ${Math.round((1 - newValue) * 2 * 220)}, 0, ${alpha})`
       }
-      console.log(result)
-
+      //console.log(value, min, max, newValue, result)
     } else if (type === 2) {
-      console.log(value, newValue);
       if (newValue <= 0.5) {
-        result = `rgba(${Math.round(newValue * 220)}, 220, 0, 0.5)`
+        result = `rgba(220, ${Math.round(newValue * 2 * 220)}, 0, ${alpha})`
       } else {
-        result = `rgba(220, ${Math.round((1 - newValue) * 2 * 220)}, 0, 0.5)`
+        result = `rgba(${Math.round((1 - newValue) * 2 * 220)}, 220, 0, ${alpha})`
       }
-      console.log(result)
+      //console.log(value, min, max, newValue, result)
     }
     return result;
   } else {
-    return 'none'
+    return null
   }
 }
