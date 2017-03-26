@@ -181,14 +181,14 @@
 
       <tbody>
       <tr *ngFor="let element of loadedRating.elements">
-        <td class="rating-element-name">
+        <td class="rating-element-name blue-background">
           <a routerLink="/rating-element/{{element.id}}"
              routerLinkActive="active">
             {{element.rating_element.number}})
             {{element.rating_element.name}}
           </a>
         </td>
-        <td *ngIf="headers[0].is_displayed" class="rating-responsible-name">
+        <td *ngIf="headers[0].is_displayed" class="rating-responsible-name blue-background">
           <div
             *ngIf="auth.user && auth.user.role === 'admin' && !loadedRating.is_approved"
             class="btn-group responsible-select" dropdown>
@@ -230,7 +230,7 @@
           </div>
         </td>
         <td *ngIf="headers[2].is_displayed"
-            class="rating-element-description textarea-wrapper">
+            class="rating-element-description blue-background textarea-wrapper">
           {{element.rating_element.base_description}}
           <textarea
             *ngIf="auth.user && auth.user.role === 'admin' && !loadedRating.is_approved"
@@ -245,7 +245,7 @@
           </span>
         </td>
         <td *ngIf="headers[3].is_displayed"
-            class="rating-negotiator-comment textarea-wrapper">
+            class="rating-negotiator-comment light-red-background textarea-wrapper">
           <textarea
             *ngIf="auth.user && auth.user.can_approve_rating && !loadedRating.is_approved"
             autosize
@@ -259,7 +259,7 @@
           </span>
         </td>
         <td *ngIf="headers[4].is_displayed"
-            class="rating-region-comment textarea-wrapper">
+            class="rating-region-comment light-gray-background textarea-wrapper">
           <textarea
             *ngIf="auth.user && element.responsible.id === auth.user.id && !loadedRating.is_approved"
             autosize
