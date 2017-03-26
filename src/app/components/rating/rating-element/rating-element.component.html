@@ -6,12 +6,15 @@
   <div class="box rating-element-wrapper">
     <div class="text-center">
       <h5 class="sub-header">
-        Исходные данные для расчета комплексного показателя<br>
-        №{{loadedRatingElement.rating_element.number}}
-        "{{loadedRatingElement.rating_element.name}}"<br>
+        Исходные данные для расчета комплексного показателя
+        №{{loadedRatingElement.rating_element.number}}<br>
+        <p class="rating-element-name-label"><span class="label label-primary">{{loadedRatingElement.rating_element.name}}</span>
+        </p>
         рейтинга управ районов САО в части показателей ЖКХ за<br>
-        {{displayableMonth(loadedRatingElement.monthly_rating.month)}}
-        {{loadedRatingElement.monthly_rating.year}} года <br>
+        <p class="rating-year-month"><a
+          routerLink="/rating/{{loadedRatingElement.monthly_rating.id}}">
+          {{displayableMonth(loadedRatingElement.monthly_rating.month)}}
+          {{loadedRatingElement.monthly_rating.year}} года </a></p>
         в соответствии с
         {{loadedRatingElement.rating_element.base_document.description_imp}}
       </h5>
@@ -19,13 +22,12 @@
 
     <div class="rating-label">
       <div>
-      <span
-        class="label"
-        [ngClass]="{
+      <span class="label"
+            [ngClass]="{
               'label-warning': !loadedRatingElement.monthly_rating.is_approved && !loadedRatingElement.monthly_rating.is_negotiated,
               'label-info': !loadedRatingElement.monthly_rating.is_approved && loadedRatingElement.monthly_rating.is_negotiated,
-              'label-success': loadedRatingElement.monthly_rating.is_approved
-            }">{{loadedRatingElement.monthly_rating.state}}
+              'label-success': loadedRatingElement.monthly_rating.is_approved}">
+        {{loadedRatingElement.monthly_rating.state}}
       </span>
       </div>
     </div>
@@ -154,7 +156,7 @@
 
         <!-- ############################# SECOND HEADER ###########################-->
 
-        <tr class="element-second-header">
+        <tr class="element-header">
           <ng-container *ngIf="userCanChangeElement">
             <td class="remove-sign"></td>
           </ng-container>
@@ -166,17 +168,34 @@
           </td>
           <td></td>
           <ng-container *ngFor="let region of regionsS.regions">
-            <td *ngIf="region.is_displayed">
-              <span>{{loadedRatingElement.values[region.id]}}</span>
+            <td class="fake-input"
+                *ngIf="region.is_displayed">
+              <div
+                [style.background-color]="loadedRatingElement.values[region.id]?.color"
+                class="text-center form-control">
+                {{loadedRatingElement.values[region.id]?.value}}
+              </div>
             </td>
           </ng-container>
           <td *ngIf="headers[1].is_displayed" class="text-center">
           </td>
-          <td *ngIf="headers[2].is_displayed" class="text-center">
+          <td *ngIf="headers[2].is_displayed"
+              class="fake-input">
+            <div class="text-center form-control strong-green-background">
+              {{loadedRatingElement.best}}
+            </div>
           </td>
-          <td *ngIf="headers[3].is_displayed" class="text-center">
+          <td *ngIf="headers[3].is_displayed"
+              class="fake-input left-padding-only">
+            <div class="text-center form-control strong-red-background">
+              {{loadedRatingElement.min}}
+            </div>
           </td>
-          <td *ngIf="headers[4].is_displayed" class="text-center">
+          <td *ngIf="headers[4].is_displayed">
+              <!--class="fake-input side-padding-only">-->
+            <!--<div class="text-center form-control">-->
+              <!--{{loadedRatingElement.max}}-->
+            <!--</div>-->
           </td>
           <td *ngIf="headers[5].is_displayed" class="text-center">
           </td>
@@ -220,6 +239,25 @@
         <!--</td>-->
         <!--</tr>-->
 
+        <tr class="element-second-header">
+          <ng-container *ngIf="userCanChangeElement">
+            <td>
+            </td>
+          </ng-container>
+          <td class="text-center col-num">
+            1
+          </td>
+          <td class="text-center col-num">
+            2
+          </td>
+          <td class="text-center col-num">
+          </td>
+          <td class="text-center col-num"
+              *ngFor="let col of colNums">
+            {{col}}
+          </td>
+        </tr>
+
         <!-- ############################# BODY ####################################-->
         <tr class="subelement-row"
             *ngFor="let subElement of loadedRatingElement.related_sub_elements"
@@ -243,7 +281,7 @@
                       autosize
                       [ngClass]="{'invalid-input': !subElement.name}"
                       [ngModel]="subElement.name"
-                      (ngModelChange)="changeElementProperty(subElement, 'name', $event)"></textarea>
+                      (ngModelChange)="changeSubElementProperty(subElement, 'name', $event)"></textarea>
               <span *ngSwitchCase="false">
               {{subElement.name}}
             </span>
@@ -267,7 +305,7 @@
                   <li *ngFor="let employee of prefempS.employees"
                       role="menuitem">
                     <a class="dropdown-item"
-                       (click)="(!subElement.responsible || subElement.responsible.id !== employee.id) && changeElementProperty(subElement, 'responsible', employee)">
+                       (click)="(!subElement.responsible || subElement.responsible.id !== employee.id) && changeSubElementProperty(subElement, 'responsible', employee)">
                       {{employee.displayName}}
                     </a>
                   </li>
@@ -292,13 +330,13 @@
                   aria-labelledby="display-type-button">
                 <li role="menuitem">
                   <a class="dropdown-item"
-                     (click)="changeElementProperty(subElement, 'display_type', 1)">
+                     (click)="changeSubElementProperty(subElement, 'display_type', 1)">
                     {{displayableDisplayType(1)}}
                   </a>
                 </li>
                 <li role="menuitem">
                   <a class="dropdown-item"
-                     (click)="changeElementProperty(subElement, 'display_type', 2)">
+                     (click)="changeSubElementProperty(subElement, 'display_type', 2)">
                     {{displayableDisplayType(2)}}
                   </a>
                 </li>
@@ -306,8 +344,9 @@
             </div>
           </td>
           <ng-container *ngFor="let region of regionsS.regions">
-            <td class="subelement-value"
+            <td class="subelement-value-input"
                 *ngIf="region.is_displayed"
+                [ngClass]="{'region-value': !userCanChangeSubElement(subElement)}"
                 [ngSwitch]="userCanChangeSubElement(subElement)">
               <div *ngSwitchCase="true"
                    [contextMenu]="valueMenu"
@@ -319,21 +358,19 @@
                        [ngModel]="subElement.values[region.id]?.value"
                        (ngModelChange)="changeValueInput(subElement, subElement.values[region.id], $event)">
               </div>
-              <div class="text-center value-label"
+              <div class="text-center form-control"
+                   [style.background-color]="subElement.values[region.id].color"
                    *ngSwitchCase="false">
-                <div class="img-thumbnail value-label"
-                     [style.background-color]="subElement.values[region.id].color">
-                  {{subElement.values[region.id].value}}<span
-                  *ngIf="subElement.values[region.id].value && subElement.display_type === 2">%</span>
-                </div>
+                {{subElement.values[region.id].value}}<span
+                *ngIf="subElement.values[region.id].value && subElement.display_type === 2">%</span>
               </div>
             </td>
           </ng-container>
           <td *ngIf="headers[1].is_displayed" class="text-center">
             <div class="btn-group responsible-select"
-                 dropdown
                  [ngSwitch]="userCanChangeSubElement(subElement)">
-              <div *ngSwitchCase="true">
+              <div *ngSwitchCase="true"
+                   dropdown>
                 <button id="min-max-button" type="button"
                         class="btn btn-default"
                         dropdownToggle>
@@ -344,52 +381,45 @@
                     aria-labelledby="min-max-button">
                   <li role="menuitem">
                     <a class="dropdown-item"
-                       (click)="changeElementProperty(subElement, 'best_type', 1)">
+                       (click)="changeSubElementProperty(subElement, 'best_type', 1)">
                       {{displayableMinMaxType(1)}}
                     </a>
                   </li>
                   <li role="menuitem">
                     <a class="dropdown-item"
-                       (click)="changeElementProperty(subElement, 'best_type', 2)">
+                       (click)="changeSubElementProperty(subElement, 'best_type', 2)">
                       {{displayableMinMaxType(2)}}
                     </a>
                   </li>
                 </ul>
               </div>
               <span *ngSwitchCase="false">
-              {{displayableMinMaxType(subElement.best_type)}}
-            </span>
+                {{displayableMinMaxType(subElement.best_type)}}
+              </span>
             </div>
           </td>
           <td *ngIf="headers[2].is_displayed"
-              class="subelement-value green-background">
-            <div class="text-center">
-              <div class=""
-                   [style.background-color]="'rgba(0, 220, 0, 0.5)'">
-                {{subElement.best}}<span
-                *ngIf="subElement.display_type === 2">%</span>
-              </div>
+              class="green-background calculated-value">
+            <div class="text-center form-control strong-green-background">
+              {{subElement.best}}<span
+              *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
           <td *ngIf="headers[3].is_displayed"
-              class="subelement-value light-blue-background left-padding-only">
-            <div class="text-center value-label">
-              <div class="img-thumbnail value-label">
-                {{subElement.min}}<span
-                *ngIf="subElement.display_type === 2">%</span>
-              </div>
+              class="light-blue-background calculated-value left-padding-only">
+            <div class="text-center form-control">
+              {{subElement.min}}<span
+              *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
           <td *ngIf="headers[4].is_displayed"
-              class="subelement-value light-red-background side-padding-only">
-            <div class="text-center value-label">
-              <div class="img-thumbnail value-label">
-                {{subElement.max}}<span
-                *ngIf="subElement.display_type === 2">%</span>
-              </div>
+              class="light-red-background calculated-value side-padding-only">
+            <div class="text-center form-control">
+              {{subElement.max}}<span
+              *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
-          <td class="rating-element-name blue-background"
+          <td class="rating-element-description blue-background"
               *ngIf="headers[5].is_displayed"
               [ngSwitch]="userCanChangeSubElement(subElement)">
             <div>
@@ -397,7 +427,7 @@
                       *ngSwitchCase="true"
                       autosize
                       [ngModel]="subElement.description"
-                      (ngModelChange)="changeElementProperty(subElement, 'description', $event)"></textarea>
+                      (ngModelChange)="changeSubElementProperty(subElement, 'description', $event)"></textarea>
               <span *ngSwitchCase="false">
               {{subElement.description}}
             </span>
@@ -425,20 +455,16 @@
                        (change)="readFileToBase64(subElement, $event)">
                 <label
                   for="{{subElement.id ? subElement.id : subElement.tempId}}-file">
-                  {{subElement.documentFileName ? subElement.documentFileName :
+                  {{subElement.documentFileName ? getShortString(subElement.documentFileName) :
                   'Выберите&nbsp;файл...'}}
                 </label>
               </div>
-              <!--<div class="input-file-wrapper"-->
-                   <!--*ngIf="!subElement.document && subElement.isDocumentSaved">-->
-                <!--<span>{{subElement.documentFileName}}</span>-->
-              <!--</div>-->
               <div class="input-file-wrapper"
                    *ngIf="subElement.document && subElement.isDocumentSaved">
                 <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
               </div>
             </div>
-            <span *ngSwitchCase="false">{{subElement.document}}</span>
+            <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
           </td>
         </tr>
         <tr class="add-sub-element-row"
@@ -456,7 +482,7 @@
               <button class="btn btn-sm btn-primary"
                       onclick="this.blur();"
                       (click)="saveAllChanges()"
-                      [disabled]="isFileUploading"
+                      [disabled]="isFileUploading || saveAllPending"
               >Сохранить
               </button>
             </div>

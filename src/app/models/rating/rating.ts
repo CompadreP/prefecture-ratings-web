@@ -32,12 +32,19 @@ class RatingElement {
 }
 
 class MonthlyRatingElementValue {
-  region_id: number;
-  value: number;
+  _value: number;
+  color: string;
 
-  constructor(obj) {
-    this.region_id = obj.region_id;
-    this.value = obj.value;
+  constructor(value: number) {
+    this._value = value;
+  }
+
+  get value() {
+    if (this._value === null || this._value === undefined) {
+      return null
+    } else {
+      return this._value.toFixed(2).replace('.', ',')
+    }
   }
 
 }
@@ -260,7 +267,30 @@ export class MonthlyRatingElement {
   negotiator_comment: string;
   region_comment: string;
   related_sub_elements?: MonthlyRatingSubElement[];
+  best_type: number;
+  isSaved: boolean;
   values;
+
+  _min: number;
+  _max: number;
+  _best: number;
+  _avg: number;
+
+  get best() {
+    return this._best ? this._best.toFixed(2).replace('.', ',') : null
+  }
+
+  get min() {
+    return this._min ? this._min.toFixed(2).replace('.', ',') : null
+  }
+
+  get max() {
+    return this._max ? this._max.toFixed(2).replace('.', ',') : null
+  }
+
+  get avg() {
+    return this._avg ? this._avg.toFixed(2).replace('.', ',') : null
+  }
 
   constructor(obj) {
     this.id = obj.id;
@@ -270,6 +300,7 @@ export class MonthlyRatingElement {
     this.additional_description = obj.additional_description;
     this.negotiator_comment = obj.negotiator_comment;
     this.region_comment = obj.region_comment;
+    this.best_type = obj.best_type;
     this.related_sub_elements = [];
     if (obj.related_sub_elements) {
       for (let subElement of obj.related_sub_elements) {
@@ -278,25 +309,107 @@ export class MonthlyRatingElement {
       }
     }
     this.values = {};
-    if (obj.values) {
-      for (let value of obj.values) {
-        let new_value = new MonthlyRatingElementValue(value);
-        this.values[new_value.region_id] = new_value.value
-      }
-    }
+    this.setValues(obj)
   }
 
-  getAverage = () => {
-    let sum = 0;
-    let count = 0;
-    for (let region in this.values) {
-      if (this.values.hasOwnProperty(region)) {
-        sum += this.values[region];
-        count++;
+  weightedValue = (val) => {
+    return (val * this.rating_element.weight).toFixed(2).replace('.', ',')
+  };
+
+  setValues = (obj) => {
+    if (obj.values) {
+      for (let value in obj.values) {
+        if (obj.values.hasOwnProperty(value)) {
+          this.values[value] = new MonthlyRatingElementValue(obj.values[value])
+        }
       }
     }
-    return (sum / count).toFixed(1)
-  }
+  };
+
+  updateCalculatedFields = () => {
+    this.updateMinValue();
+    this.updateMaxValue();
+    this.updateBestValue();
+    this.updateAvgValue();
+    this.setValuesColors();
+  };
+
+  setValuesColors = () => {
+    if (this.values) {
+      for (let value in this.values) {
+        if (this.values.hasOwnProperty(value)) {
+          this.values[value].color = getColor(this.values[value]._value, this._min, this._max, 2);
+        }
+      }
+    }
+  };
+
+  setValuesColorsToInvalid = () => {
+    if (this.values) {
+      for (let value in this.values) {
+        if (this.values.hasOwnProperty(value)) {
+          this.values[value].color = '#d6d6d6'
+        }
+      }
+    }
+  };
+
+  updateBestValue = () => {
+    this._best = this._max;
+  };
+
+  getMinValue = () => {
+    let min = null;
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (!min || this.values[value]._value < min) {
+          min = this.values[value]._value
+        }
+      }
+    }
+    return min
+  };
+
+  updateMinValue = () => {
+    this._min = this.getMinValue()
+  };
+
+  getMaxValue = () => {
+    let max = null;
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        if (!max || this.values[value]._value > max) {
+          max = this.values[value]._value
+        }
+      }
+    }
+    return max
+  };
+
+  updateMaxValue = () => {
+    this._max = this.getMaxValue()
+  };
+
+  getAverageValue = () => {
+    let avg = null;
+    let sum = null;
+    let cnt = 0;
+    for (let value in this.values) {
+      if (this.values.hasOwnProperty(value)) {
+        sum += this.values[value]._value;
+        cnt++;
+      }
+    }
+    if (sum !== null && (cnt > 0)) {
+      avg = sum / cnt
+    }
+    return avg;
+  };
+
+  updateAvgValue = () => {
+    this._avg = this.getAverageValue()
+  };
+
 }
 
 export class MonthlyRatingShort {

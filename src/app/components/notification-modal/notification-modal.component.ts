@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import {NotificationService} from "../../services/notification.service";
-import {Notification} from "../../models/notification";
+import {Notification, NotificationTypeEnum} from "../../models/notification";
 
 @Component({
   selector: 'notification-modal',
@@ -17,6 +17,9 @@ export class NotificationModalComponent implements OnInit, OnDestroy {
     notiS.notification$.subscribe(
       notification => {
         this.notification = notification;
+        if (this.notification.type !== NotificationTypeEnum.SUCCESS) {
+          this.notificationModal.config = {backdrop: 'static'}
+        }
         this.notificationModal.show();
       });
     notiS.hideModal$.subscribe(
@@ -33,11 +36,13 @@ export class NotificationModalComponent implements OnInit, OnDestroy {
   }
 
   okButtonAction = () => {
-    this.notiS.notificateOk()
+    this.notiS.notificateOk();
+    this.notiS.notificateResult(true);
   };
 
   cancelButtonAction = () => {
-    this.notiS.notificateCancel()
+    this.notiS.notificateCancel();
+    this.notiS.notificateResult(false);
   };
 
 }

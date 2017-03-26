@@ -19,6 +19,8 @@ import {NotificationModalComponent} from './components/notification-modal/notifi
 import {RatingElementComponent} from './components/rating/rating-element/rating-element.component';
 import {AppRoutingModule} from './app-routing.module';
 import {TooltipModule} from "ng2-bootstrap";
+import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
+import { CurrentRatingLoaderComponent } from './components/current-rating-loader/current-rating-loader.component';
 
 
 @NgModule({
@@ -43,6 +45,10 @@ import {TooltipModule} from "ng2-bootstrap";
     LoginModalComponent,
     RatingComponent,
     RatingElementComponent,
+    CurrentRatingLoaderComponent,
+  ],
+  providers: [
+    ConfirmDeactivateGuard
   ],
   bootstrap: [AppComponent]
 })

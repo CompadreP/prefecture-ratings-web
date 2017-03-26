@@ -13,6 +13,9 @@ import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {NotificationService} from "../../../services/notification.service";
 import {AreYouSureSimpleNotification} from "../../../models/notification";
 import {BaseTableComponent} from "../base-table.component";
+import {AvailableRatingsService} from "../../../services/available-ratings.service";
+import {ActivatedRoute, Params} from "@angular/router";
+import {MonthlyRatingService} from "../../../services/monthly-rating.service";
 
 @Component({
   selector: 'rating',
@@ -20,8 +23,6 @@ import {BaseTableComponent} from "../base-table.component";
   styleUrls: ['monthly-rating.component.sass']
 })
 export class RatingComponent extends BaseTableComponent implements OnInit, OnDestroy {
-  private availableYearMonths: Map<number, number[]>;
-
   _elementSaveUrl: string = `${ROOT_API_URL}/api/ratings/monthly/elements/`;
   _localStorageHeadersKey = 'ratingHeadersDisplay';
   headers = [
@@ -46,60 +47,40 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
       text: 'Замечания<br>районов'
     }
   ];
-  currentRatingUrl = `${ROOT_API_URL}/api/ratings/monthly/current/`;
-  lastApprovedRatingUrl = `${ROOT_API_URL}/api/ratings/monthly/last_approved/`;
-  availableRatingsUrl = `${ROOT_API_URL}/api/ratings/monthly/`;
   loadedRating: MonthlyRatingFull = null;
-  availableRatings: AvailableRating[];
-  availableRatingsLoaded: boolean;
+
   pickedYear: number;
   pickedMonth: number;
-  availableYears: number[];
-  availableMonths: number[];
 
   constructor(public reqS: RequestsService,
               public regionsS: RegionsService,
               public auth: AuthenticationService,
               public prefempS: PrefectureEmployeesService,
+              public availratS: AvailableRatingsService,
+              private monthratS: MonthlyRatingService,
+              private route: ActivatedRoute,
               private notiS: NotificationService) {
     super(regionsS, reqS);
-    this.availableRatings = [];
-    this.availableYears = [];
-    this.availableMonths = [];
   }
 
   ngOnInit() {
-    this.loadRating(this.currentRatingUrl);
+    this.route.params
+      .switchMap((params: Params) => this.monthratS.loadMonthlyRating(+params['id']))
+      .map(this.reqS.extractData)
+      .subscribe(
+        data => {
+          console.log(data);
+          this.loadedRating = new MonthlyRatingFull(data);
+          this.proceedLoadedRating();
+        },
+        error => {
+          console.log(error);
+        });
     if (this.auth.user && this.auth.user.role === 'admin' && this.prefempS.employees.length === 0) {
       this.prefempS.loadEmployees()
     }
   }
 
-  loadRating = (url) => {
-    this.reqS.http.get(
-      url,
-      this.reqS.options
-    )
-      .map(this.reqS.extractData)
-      .catch(this.reqS.handleError)
-      .subscribe(
-        data => {
-          this.loadedRating = new MonthlyRatingFull(data);
-          this.proceedLoadedRating();
-        },
-        error => {
-          if (error.status === 404) {
-            if (error.text) {
-              let errorDetail = JSON.parse(error.text)['detail'];
-              if (errorDetail === 'no_current_rating') {
-                this.loadRating(this.lastApprovedRatingUrl)
-              }
-            }
-          }
-          console.log(error);
-        }
-      )
-  };
 
   proceedLoadedRating = () => {
     if (!this.loadedRating.is_negotiated && !this.loadedRating.is_approved) {
@@ -111,15 +92,13 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     }
     if (this.loadedRating.elements) {
       for (let element of this.loadedRating.elements) {
+        element.updateCalculatedFields();
         this.pendingSaves[element.id] = {}
       }
     }
     this.setNewElementsChangeWatchers();
     this.pickedYear = this.loadedRating.year;
     this.pickedMonth = this.loadedRating.month;
-    if (!this.availableRatingsLoaded) {
-      this.loadAvailableRatings();
-    }
     if (this.isLocalStorageHeadersValid()) {
       this.headers = JSON.parse(localStorage.getItem(this._localStorageHeadersKey))
     }
@@ -163,36 +142,10 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     }
   };
 
-  loadAvailableRatings = () => {
-    this.reqS.http.get(
-      this.availableRatingsUrl,
-      this.reqS.options
-    )
-      .map(this.reqS.extractData)
-      .catch(this.reqS.handleError)
-      .subscribe(
-        data => {
-          for (let rating of data) {
-            this.availableRatings.push(new AvailableRating(rating))
-          }
-          this.availableYearMonths = AvailableRating.getYearsAndMonthsList(this.availableRatings);
-          for (let year in this.availableYearMonths) {
-            this.availableYears.push(parseInt(year, 10))
-          }
-          this.availableMonths = this.availableYearMonths[this.loadedRating.year];
-          this.availableRatingsLoaded = true;
-        },
-        error => {
-          console.log(error);
-        }
-      )
-  };
-
   yearPicked = (year) => {
     if (this.pickedYear !== year) {
       this.pickedYear = year;
       this.pickedMonth = null;
-      this.availableMonths = this.availableYearMonths[year]
     }
   };
 
@@ -201,10 +154,19 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     let pickedRatingId = AvailableRating.getIdByYearAndMonth(
       this.pickedYear,
       this.pickedMonth,
-      this.availableRatings
+      this.availratS.availableRatings
     );
     if (pickedRatingId !== this.loadedRating.id) {
-      this.loadRating(`${this.availableRatingsUrl}${pickedRatingId}/`)
+    this.monthratS.loadMonthlyRating(+pickedRatingId)
+      .map(this.reqS.extractData)
+      .subscribe(
+        data => {
+          this.loadedRating = new MonthlyRatingFull(data);
+          this.proceedLoadedRating();
+        },
+        error => {
+          console.log(error);
+        });
     }
   };
 

@@ -32,7 +32,8 @@ export abstract class BaseTableComponent implements OnDestroy {
   ngOnDestroy() {
     for (let sub in this._subscriptions) {
       if (this._subscriptions.hasOwnProperty(sub)) {
-        this._subscriptions[sub].unsubscribe()
+        this._subscriptions[sub].unsubscribe();
+        delete this._subscriptions[sub];
       }
     }
   }
@@ -116,6 +117,22 @@ export abstract class BaseTableComponent implements OnDestroy {
       }
     }
     return true
+  };
+
+  displayableDisplayType = (displayType): string => {
+    if (displayType === 1) {
+      return 'число'
+    } else if (displayType === 2) {
+      return 'процент'
+    }
+  };
+
+  displayableMinMaxType = (displayType): string => {
+    if (displayType === 1) {
+      return 'мин'
+    } else if (displayType === 2) {
+      return 'макс'
+    }
   };
 
 }

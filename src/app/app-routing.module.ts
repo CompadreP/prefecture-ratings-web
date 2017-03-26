@@ -7,18 +7,20 @@ import {RouterModule, Routes}  from '@angular/router';
 
 import {RatingComponent} from "./components/rating/monthly-rating/monthly-rating.component";
 import {RatingElementComponent} from "./components/rating/rating-element/rating-element.component";
+import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
+import {CurrentRatingLoaderComponent} from "./components/current-rating-loader/current-rating-loader.component";
+
 
 const appRoutes: Routes = [
-  {path: 'current', component: RatingComponent},
+  {path: 'current', component: CurrentRatingLoaderComponent},
   {path: 'rating/:id', component: RatingComponent},
-  {path: 'rating-element/:id', component: RatingElementComponent},
+  {path: 'rating-element/:id', component: RatingElementComponent, canDeactivate:[ConfirmDeactivateGuard]},
   {
     path: '',
     redirectTo: '/current',
     pathMatch: 'full'
   },
 ];
-
 
 @NgModule({
   imports: [

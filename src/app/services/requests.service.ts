@@ -5,7 +5,7 @@
 import {Response, Headers, RequestOptions, Http} from "@angular/http";
 import {Observable} from "rxjs";
 import {Injectable, EventEmitter} from "@angular/core";
-import {RatingsError} from "../common/classes/error";
+import {RatingsError} from "../common/error";
 
 @Injectable()
 export class RequestsService {

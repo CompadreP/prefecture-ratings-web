@@ -22,6 +22,14 @@ export class RatingElementsService {
       url,
       this.reqS.options
     )
-      .catch(this.reqS.handleError);
+
   };
+
+  loadRatingElementValues = (elementId) => {
+    let url = `${this.url}${elementId}/values/`;
+    return this.reqS.http.get(
+      url,
+      this.reqS.options
+    )
+  }
 }

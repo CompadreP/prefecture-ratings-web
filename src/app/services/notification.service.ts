@@ -7,6 +7,7 @@ import {Notification} from "../models/notification";
 
 @Injectable()
 export class NotificationService {
+  public result$;
   public notification$;
   public notificationOk$;
   public notificationCancel$;
@@ -14,6 +15,7 @@ export class NotificationService {
 
   constructor() {
     this.notification$ = new EventEmitter();
+    this.result$ = new EventEmitter();
     this.notificationOk$ = new EventEmitter();
     this.notificationCancel$ = new EventEmitter();
     this.hideModal$ = new EventEmitter();
@@ -21,6 +23,10 @@ export class NotificationService {
 
   notificate = (notification: Notification) => {
     this.notification$.emit(notification)
+  };
+
+  notificateResult = (result) => {
+    this.result$.emit(result)
   };
 
   notificateOk = () => {

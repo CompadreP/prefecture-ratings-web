@@ -116,6 +116,8 @@ input::-webkit-inner-spin-button
   min-width: 200px
   border-left: 0 !important
 
+
+
 .complex-header
   width: 100%
   display: table
@@ -142,8 +144,12 @@ input::-webkit-inner-spin-button
   min-width: 150px
   vertical-align: middle
 
+.col-num
+  font-weight: 500
+
 .rating-element-description
   min-width: 400px
+  border-left: 0 !important
 
 .menu-only
   width: 20px !important
@@ -166,6 +172,44 @@ input::-webkit-inner-spin-button
 
 .element-value
   min-width: 42px
+
+.fake-input
+  background-color: inherit
+  min-width: 42px
+  padding: 1px !important
+  font-size: inherit !important
+  cursor: default
+  display: table-cell
+  vertical-align: middle
+  div
+    padding: 8px 0
+    font-size: inherit !important
+    background-color: #d6d6d6
+
+.element-average
+  @extend .fake-input
+  div
+    margin: auto
+    max-width: 42px
+
+
+.region-value
+  @extend .fake-input
+  min-width: 51px
+  div
+    min-width: 51px
+
+
+.calculated-value
+  @extend .region-value
+  div
+    background-color: #d6d6d6
+
+.strong-green-background
+  background-color: rgba(0, 220, 0, 0.5) !important
+
+.strong-red-background
+  background-color: rgba(220, 0, 0, 0.5) !important
 
 .dropdown-menu
   min-width: 60px !important
@@ -193,7 +237,7 @@ input::-webkit-inner-spin-button
     background-color: #deffe2
 
 
-.value-label
+.value-label + div
   min-width: 53px
   height: 100% !important
   width: 100% !important

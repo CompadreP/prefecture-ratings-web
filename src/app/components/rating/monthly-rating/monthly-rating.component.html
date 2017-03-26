@@ -177,12 +177,13 @@
       </tr>
       </thead>
 
-       <!--############################# TABLE BODY ##############################-->
+      <!--############################# TABLE BODY ##############################-->
 
       <tbody>
       <tr *ngFor="let element of loadedRating.elements">
         <td class="rating-element-name">
-          <a routerLink="/rating-element/{{element.id}}" routerLinkActive="active">
+          <a routerLink="/rating-element/{{element.id}}"
+             routerLinkActive="active">
             {{element.rating_element.number}})
             {{element.rating_element.name}}
           </a>
@@ -212,12 +213,21 @@
         </td>
         <td></td>
         <ng-container *ngFor="let region of regionsS.regions">
-          <td *ngIf="region.is_displayed">
-            <span>{{element.values[region.id]}}</span>
+          <td class="fake-input"
+              *ngIf="region.is_displayed">
+            <div
+              [style.background-color]="element.values[region.id]?.color"
+              class="text-center form-control">
+              {{element.weightedValue(element.values[region.id]._value)}}
+            </div>
           </td>
         </ng-container>
-        <td *ngIf="headers[1].is_displayed" class="text-center">
-          {{element.getAverage()}}
+
+        <td *ngIf="headers[1].is_displayed"
+            class="element-average">
+          <div class="text-center form-control">
+            {{element.weightedValue(element._avg)}}
+          </div>
         </td>
         <td *ngIf="headers[2].is_displayed"
             class="rating-element-description textarea-wrapper">

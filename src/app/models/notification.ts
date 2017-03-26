@@ -10,14 +10,15 @@ export const enum NotificationTypeEnum {
 }
 
 export class Notification {
-  type: NotificationTypeEnum = null;
-  header: string = null;
-  body: string = null;
-  closeSymbol: boolean = null;
-  okButton: boolean = null;
-  okButtonText: string = null;
-  cancelButton: boolean = null;
-  cancelButtonText: string = null;
+  type: NotificationTypeEnum;
+  header: string;
+  body: string;
+  closeSymbol: boolean;
+  okButton: boolean;
+  okButtonText: string;
+  cancelButton: boolean;
+  cancelButtonText: string;
+  isStatic: boolean;
 
   constructor(type: NotificationTypeEnum, header: string, body: string,
               closeSymbol: boolean = true, okButton: boolean = true,

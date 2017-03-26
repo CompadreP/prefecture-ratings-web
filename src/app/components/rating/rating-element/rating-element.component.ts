@@ -1,16 +1,19 @@
-import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+import {
+  Component, OnInit, ViewChild, AfterViewInit,
+  HostListener
+} from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
 import 'rxjs/add/operator/switchMap';
 
 import {ContextMenuComponent} from 'angular2-contextmenu';
 
-import {generateGuid} from "../../../common/functions";
+import {generateGuid, getShortString} from "../../../common/functions";
 import {RatingElementsService} from "../../../services/rating-element.service";
 import {RequestsService} from "../../../services/requests.service";
 import {
   MonthlyRatingElement,
   MonthlyRatingSubElement,
-  MonthlyRatingSubElementValue
+  MonthlyRatingSubElementValue, AvailableRating
 } from "../../../models/rating/rating";
 import {PrefectureEmployeesService} from "../../../services/employees.service";
 import {AuthenticationService} from "../../../services/authentication.service";
@@ -22,6 +25,8 @@ import {
   AreYouSureSimpleNotification,
   SimpleTextNotification, NotificationTypeEnum
 } from "../../../models/notification";
+import {CanComponentDeactivate} from "../../../common/confirm-deactivate.guard";
+import {AvailableRatingsService} from "../../../services/available-ratings.service";
 
 declare let $: any;
 
@@ -31,14 +36,18 @@ declare let $: any;
   templateUrl: './rating-element.component.html',
   styleUrls: ['./rating-element.component.sass']
 })
-export class RatingElementComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+export class RatingElementComponent extends BaseTableComponent implements OnInit, AfterViewInit, CanComponentDeactivate {
   _elementSaveUrl = `${ROOT_API_URL}/api/ratings/monthly/sub_elements/`;
   _localStorageHeadersKey = 'ratingElementsHeadersDisplay';
   userCanChangeElement: boolean;
   userCanChangeOneOfSubelements: boolean;
   isFileUploading: boolean;
+  saveAllPending: boolean = false;
+  getShortString = getShortString;
 
   @ViewChild('valueMenu') valueMenu: ContextMenuComponent;
+
+  colNums = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
 
   headers = [
     {
@@ -76,6 +85,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
               private router: Router,
               private ratingelS: RatingElementsService,
               private notiS: NotificationService,
+              private availratS: AvailableRatingsService,
               public reqS: RequestsService,
               public regionsS: RegionsService,
               public authS: AuthenticationService,
@@ -87,12 +97,13 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     this.isFileUploading = false;
     this.route.params
       .switchMap((params: Params) => this.ratingelS.loadRatingElement(+params['id'], true))
+      .catch(this.reqS.handleError)
       .map(this.reqS.extractData)
       .subscribe(
         data => {
           console.log(data);
           this.loadedRatingElement = new MonthlyRatingElement(data);
-          console.log(this.loadedRatingElement);
+          //console.log(this.loadedRatingElement);
           if (!this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
             this.loadedRatingElement.monthly_rating.state = this.ratingStates.on_negotiation
           } else if (this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
@@ -122,7 +133,12 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
             subElement.updateCalculatedFields();
             subElement.isSaved = true;
             subElement.isDocumentSaved = true;
+            if (this.isLocalStorageHeadersValid()) {
+              this.headers = JSON.parse(localStorage.getItem(this._localStorageHeadersKey))
+            }
           }
+          this.loadedRatingElement.isSaved = true;
+          this.loadedRatingElement.updateCalculatedFields();
         },
         error => {
           console.log(error);
@@ -145,12 +161,52 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     });
   }
 
+  canDeactivate() {
+    if (this.checkIfUnsaved()) {
+        this.notiS.notificate(new AreYouSureSimpleNotification());
+        if (!this._subscriptions['notificationResultSubscription']) {
+          this._subscriptions['notificationResultSubscription'] = this.notiS.result$.subscribe(
+            () => {
+              this.notiS.hideModalAndUnsubscribe(this._subscriptions, ['notificationResultSubscription']);
+            }
+          )
+        }
+        return this.notiS.result$;
+    } else {
+      return true
+    }
+  }
+
+  checkIfUnsaved() {
+    for (let subElement of this.loadedRatingElement.related_sub_elements) {
+      if (!subElement.isSaved) {
+        return true
+      }
+    }
+    // if (thi)
+    return false
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  beforeUnloadHander(event) {
+    if (this.checkIfUnsaved()) {
+      let dialogText = "You have unsaved data changes. Are you sure to close the page?";
+      event.returnValue = dialogText;
+      return dialogText;
+    }
+  }
+
   getFullDocumentLink = (subElement: MonthlyRatingSubElement): string => {
-    return `${ROOT_API_URL}${subElement.document}`
+    if (subElement.document.indexOf('http') === 0) {
+      return subElement.document
+    } else {
+      return `${ROOT_API_URL}${subElement.document}`
+    }
+
   };
 
   getDocumentName = (documentLink: string): string => {
-    return decodeURI(documentLink.substring(documentLink.lastIndexOf("/") + 1))
+    return getShortString(decodeURI(documentLink.substring(documentLink.lastIndexOf("/") + 1)))
   };
 
   checkIfUserCanChangeElement = (): boolean => {
@@ -164,22 +220,6 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       && ((this.authS.user.id === subElement.responsible.id)
       || (this.authS.user.id === this.loadedRatingElement.responsible.id))
       && !this.loadedRatingElement.monthly_rating.is_approved;
-  };
-
-  displayableDisplayType = (displayType): string => {
-    if (displayType === 1) {
-      return 'число'
-    } else if (displayType === 2) {
-      return 'процент'
-    }
-  };
-
-  displayableMinMaxType = (displayType): string => {
-    if (displayType === 1) {
-      return 'мин'
-    } else if (displayType === 2) {
-      return 'макс'
-    }
   };
 
   emitElementChange = (elementId) => {
@@ -246,14 +286,29 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   };
 
-  changeElementProperty = (subElement: MonthlyRatingSubElement,
-                           property: string,
-                           value): void => {
+  // changeElementProperty = (element: MonthlyRatingElement,
+  //                          property: string,
+  //                          value): void => {
+  //   element[property] = value;
+  //   element.isSaved = false;
+  //   if (['best_type'].indexOf(property) > -1) {
+  //     element.updateCalculatedFields();
+  //   }
+  // };
+
+  invalidateElementCalculatedValues = (): void => {
+    this.loadedRatingElement.setValuesColorsToInvalid()
+  };
+
+  changeSubElementProperty = (subElement: MonthlyRatingSubElement,
+                              property: string,
+                              value): void => {
     subElement[property] = value;
     subElement.isSaved = false;
     if (['best_type'].indexOf(property) > -1) {
       subElement.updateCalculatedFields();
     }
+    this.invalidateElementCalculatedValues()
   };
 
   changeValueInput = (subElement: MonthlyRatingSubElement,
@@ -290,6 +345,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
     if (elementValueObject.is_valid) {
       subElement.updateCalculatedFields();
+      this.invalidateElementCalculatedValues()
     }
     subElement.isSaved = false;
   };
@@ -315,7 +371,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       input.value = '';
     }
     subElement.documentFileName = null;
-    this.changeElementProperty(subElement, 'document', null);
+    this.changeSubElementProperty(subElement, 'document', null);
   };
 
   validateSubElement = (subElement): string[] => {
@@ -417,7 +473,10 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                   newSubElement.updateCalculatedFields();
                   newSubElement.isSaved = true;
                   newSubElement.isDocumentSaved = true;
-                  this.notificateSuccess()
+                  if (this.checkIfAllSaved()) {
+                    this.saveAllPending = false;
+                    this.proceedSuccessSaveAll()
+                  }
                 },
                 error => {
                   console.log(error);
@@ -435,11 +494,13 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
               .catch(this.reqS.handleError)
               .subscribe(
                 data => {
-                  console.log(data.document);
                   subElement.document = data.document;
                   subElement.isDocumentSaved = true;
                   subElement.isSaved = true;
-                  this.notificateSuccess()
+                  if (this.checkIfAllSaved()) {
+                    this.saveAllPending = false;
+                    this.proceedSuccessSaveAll()
+                  }
                 },
                 error => {
                   console.log(error);
@@ -461,20 +522,40 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   };
 
-  notificateSuccess = () => {
+  checkIfAllSaved = () => {
     let allSaved = true;
     for (let subElement of this.loadedRatingElement.related_sub_elements) {
       if (!subElement.isSaved) {
         allSaved = false
       }
     }
-    if (allSaved) {
-      this.notiS.notificate(new SimpleTextNotification(
-        NotificationTypeEnum.SUCCESS,
-        'Успешно!',
-        '<p class="text-center">Все внесенные изменения сохранены.</p>'
-      ))
-    }
+    return allSaved
+  };
+
+  proceedSuccessSaveAll = (): void => {
+    this.ratingelS.loadRatingElementValues(this.loadedRatingElement.id)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
+      .subscribe(
+        data => {
+          this.loadedRatingElement.setValues(
+            {values: data}
+          );
+          this.loadedRatingElement.setValuesColors();
+          this.notificateSuccessSaveAll()
+        },
+        error => {
+          console.log(error)
+        })
+
+  };
+
+  notificateSuccessSaveAll = (): void => {
+    this.notiS.notificate(new SimpleTextNotification(
+      NotificationTypeEnum.SUCCESS,
+      'Успешно!',
+      '<p class="text-center">Все внесенные изменения сохранены.</p>'
+    ))
   };
 
   setValueIsAverage = (subElement: MonthlyRatingSubElement,
