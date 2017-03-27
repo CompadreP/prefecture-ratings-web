@@ -127,7 +127,7 @@
           <th *ngIf="headers[2].is_displayed" class="text-center"
               [innerHTML]="headers[2].text">
           </th>
-          <th *ngIf="headers[3].is_displayed" class="text-center"
+          <th *ngIf="headers[3].is_displayed" class="text-center left-padding-only"
               [innerHTML]="headers[3].text">
           </th>
           <th *ngIf="headers[4].is_displayed" class="text-center"
@@ -179,11 +179,11 @@
           </ng-container>
           <td *ngIf="headers[1].is_displayed" class="text-center">
           </td>
-          <td *ngIf="headers[2].is_displayed"
-              class="fake-input">
-            <div class="text-center form-control strong-green-background">
-              {{loadedRatingElement.best}}
-            </div>
+          <td *ngIf="headers[2].is_displayed">
+              <!--class="fake-input">-->
+            <!--<div class="text-center form-control strong-green-background">-->
+              <!--{{loadedRatingElement.best}}-->
+            <!--</div>-->
           </td>
           <td *ngIf="headers[3].is_displayed"
               class="fake-input left-padding-only">
@@ -191,11 +191,11 @@
               {{loadedRatingElement.min}}
             </div>
           </td>
-          <td *ngIf="headers[4].is_displayed">
-              <!--class="fake-input side-padding-only">-->
-            <!--<div class="text-center form-control">-->
-              <!--{{loadedRatingElement.max}}-->
-            <!--</div>-->
+          <td *ngIf="headers[4].is_displayed"
+              class="fake-input side-padding-only">
+            <div class="text-center form-control strong-green-background">
+              {{loadedRatingElement.max}}
+            </div>
           </td>
           <td *ngIf="headers[5].is_displayed" class="text-center">
           </td>
@@ -464,11 +464,9 @@
                 <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
               </div>
             </div>
-            <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
           </td>
         </tr>
-        <tr class="add-sub-element-row"
-            *ngIf="userCanChangeElement || userCanChangeOneOfSubelements">
+        <tr class="add-sub-element-row">
           <td *ngIf="userCanChangeElement">
             <div>
             <span class="glyphicon glyphicon-plus-sign"
@@ -477,7 +475,8 @@
             </span>
             </div>
           </td>
-          <td class="save-button">
+          <td class="save-button"
+              *ngIf="userCanChangeElement || userCanChangeOneOfSubelements">
             <div>
               <button class="btn btn-sm btn-primary"
                       onclick="this.blur();"

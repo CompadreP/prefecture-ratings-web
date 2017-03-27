@@ -7,20 +7,19 @@ import {HttpModule} from '@angular/http';
 import {CollapseModule} from 'ng2-bootstrap/collapse';
 import {ModalModule} from 'ng2-bootstrap/modal';
 import {DropdownModule} from 'ng2-bootstrap/dropdown';
+import {TooltipModule} from "ng2-bootstrap";
 import {Autosize} from 'angular2-autosize/angular2-autosize';
-import {CustomFormsModule} from 'ng2-validation'
 import {ContextMenuModule} from "angular2-contextmenu";
 
 import {AppComponent} from './app.component';
 import {NavbarComponent} from "./components/navbar/navbar.component";
-import {LoginModalComponent} from "./components/authentication/login-modal.component";
+import {AuthenticationComponent} from "./components/authentication/authentication.component";
 import {RatingComponent} from './components/rating/monthly-rating/monthly-rating.component';
-import {NotificationModalComponent} from './components/notification-modal/notification-modal.component';
+import {NotificationModalComponent} from './components/notification/notification.component';
 import {RatingElementComponent} from './components/rating/rating-element/rating-element.component';
 import {AppRoutingModule} from './app-routing.module';
-import {TooltipModule} from "ng2-bootstrap";
 import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
-import { CurrentRatingLoaderComponent } from './components/current-rating-loader/current-rating-loader.component';
+import {CurrentRatingLoaderComponent} from './components/rating/current-rating-loader/current-rating-loader.component';
 
 
 @NgModule({
@@ -29,7 +28,6 @@ import { CurrentRatingLoaderComponent } from './components/current-rating-loader
     HttpModule,
     BrowserModule,
     FormsModule,
-    CustomFormsModule,
     CollapseModule,
     ContextMenuModule,
     ModalModule.forRoot(),
@@ -42,7 +40,7 @@ import { CurrentRatingLoaderComponent } from './components/current-rating-loader
     AppComponent,
     NotificationModalComponent,
     NavbarComponent,
-    LoginModalComponent,
+    AuthenticationComponent,
     RatingComponent,
     RatingElementComponent,
     CurrentRatingLoaderComponent,

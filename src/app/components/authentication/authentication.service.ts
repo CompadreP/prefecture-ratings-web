@@ -4,36 +4,37 @@
 
 import {Injectable, EventEmitter} from '@angular/core';
 import 'rxjs/add/operator/map';
-import {RequestsService} from "./requests.service";
-import {RatingsUser} from "../models/auth";
-import {ROOT_API_URL} from "../../settings";
+import {RequestsService} from "../../common/services/requests.service";
+import {RatingsUser} from "./authentication.models";
+import {ROOT_API_URL} from "../../../settings";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable()
 export class AuthenticationService {
   private loginUrl: string = `${ROOT_API_URL}/api/auth/login`;
   private logoutUrl: string = `${ROOT_API_URL}/api/auth/logout`;
 
-  public loginRequest$;
-  public successfulLogin$;
-  public failedLogin$;
+  loginRequest$;
+  successfulLogin$;
+  failedLogin$;
+  user: RatingsUser;
 
-  public user: RatingsUser;
-
-  constructor(private requestsService: RequestsService) {
+  constructor(private reqS: RequestsService,
+              private notiS: NotificationService) {
     this.loginRequest$ = new EventEmitter();
     this.successfulLogin$ = new EventEmitter();
     this.failedLogin$ = new EventEmitter();
   }
 
-  login = (email: string, password: string) => {
-    return this.requestsService.http.post(
+  public login = (email: string, password: string): void => {
+    this.reqS.http.post(
       this.loginUrl,
       {
         email: email,
         password: password
-      }, this.requestsService.options)
-      .map(this.requestsService.extractData)
-      .catch(this.requestsService.handleError)
+      }, this.reqS.options)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
       .subscribe(
         user => {
           this.user = new RatingsUser(user);
@@ -48,24 +49,25 @@ export class AuthenticationService {
       )
   };
 
-  logout = () => {
-    return this.requestsService.http.post(
+  public logout = (): void => {
+    this.reqS.http.post(
       this.logoutUrl,
       {})
-      .map(this.requestsService.extractData)
-      .catch(this.requestsService.handleError)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
       .subscribe(
         _ => {
           localStorage.removeItem('currentUser');
           location.reload();
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error)
         }
       )
   };
 
-  checkExistingAuth = () => {
+  public checkExistingAuth = (): void => {
     let user;
     let savedUser = localStorage.getItem('currentUser');
     if (savedUser !== null) {

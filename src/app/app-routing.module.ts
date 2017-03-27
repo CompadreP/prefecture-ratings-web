@@ -8,7 +8,7 @@ import {RouterModule, Routes}  from '@angular/router';
 import {RatingComponent} from "./components/rating/monthly-rating/monthly-rating.component";
 import {RatingElementComponent} from "./components/rating/rating-element/rating-element.component";
 import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
-import {CurrentRatingLoaderComponent} from "./components/current-rating-loader/current-rating-loader.component";
+import {CurrentRatingLoaderComponent} from "./components/rating/current-rating-loader/current-rating-loader.component";
 
 
 const appRoutes: Routes = [

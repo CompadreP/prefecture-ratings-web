@@ -3,8 +3,10 @@
  */
 import {Injectable} from "@angular/core";
 import {RequestsService} from "./requests.service";
-import {ROOT_API_URL} from "../../settings";
+import {ROOT_API_URL} from "../../../settings";
 import {Region} from "../models/map";
+import {NotificationService} from "../../components/notification/notification.service";
+
 
 @Injectable()
 export class RegionsService {
@@ -13,7 +15,8 @@ export class RegionsService {
   regions: Region[];
   regionsNumbers;
 
-  constructor(private reqS: RequestsService) {
+  constructor(private reqS: RequestsService,
+              private notiS: NotificationService) {
     this.loadRegions();
     this.regions = [];
     this.regionsNumbers = {};
@@ -43,6 +46,7 @@ export class RegionsService {
           }
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         }
       )

@@ -3,7 +3,8 @@
  */
 
 import {Injectable, EventEmitter} from '@angular/core';
-import {Notification} from "../models/notification";
+import {ErrorNotification, Notification} from "./notification.models";
+import {RatingsError} from "../../common/models/error";
 
 @Injectable()
 export class NotificationService {
@@ -23,6 +24,10 @@ export class NotificationService {
 
   notificate = (notification: Notification) => {
     this.notification$.emit(notification)
+  };
+
+  notificateError = (error: RatingsError) => {
+    this.notification$.emit(new ErrorNotification(error))
   };
 
   notificateResult = (result) => {

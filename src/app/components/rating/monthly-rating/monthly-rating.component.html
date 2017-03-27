@@ -6,25 +6,25 @@
     </h5>
     <div>
       <div class="btn-group" dropdown>
-        <button id="yearDropDown" class="btn btn-default" type="button"
+        <button id="monthDropDown" class="btn btn-default" type="button"
                 dropdownToggle>
           {{displayableMonth(pickedMonth)}}
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu year-dropdown-menu" dropdownMenu>
-          <li class="year-dropdown-menu" *ngFor="let month of availableMonths"
+          <li class="year-dropdown-menu" *ngFor="let month of availratS.availableMonths"
               (click)="monthPicked(month)"><a>{{displayableMonth(month)}}</a>
           </li>
         </ul>
       </div>
       <div class="btn-group" dropdown>
-        <button id="monthDropDown" class="btn btn-default" type="button"
+        <button id="yearDropDown" class="btn btn-default" type="button"
                 dropdownToggle>
           {{pickedYear}}
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu year-dropdown-menu" dropdownMenu>
-          <li class="year-dropdown-menu" *ngFor="let year of availableYears"
+          <li class="year-dropdown-menu" *ngFor="let year of availratS.availableYears"
               (click)="yearPicked(year)"><a>{{year}}</a></li>
         </ul>
       </div>
@@ -84,97 +84,136 @@
       <!-- ############################# TABLE HEAD ##############################-->
 
       <thead>
-      <tr>
-        <th class="text-center rating-element-name">
-          <div class="complex-header">
-            <div>Наименование<br>показателя</div>
-            <div class="rating-menu-elements">
-              <span dropdown>
-                  <a href id="elements-dropdown" dropdownToggle
-                     class="glyphicon glyphicon-menu-hamburger"
-                     aria-hidden="true">
-                  </a>
-                  <ul class="dropdown-menu elements-dropdown-choices"
-                      dropdownMenu
-                      aria-labelledby="elements-dropdown">
-                    <li role="menuitem">
-                        <div class="elements-dropdown-choices-text choose-all"
-                             (click)="displayAllHeaders()">
-                          <span>Выбрать все</span>
+        <tr>
+          <th class="text-center rating-element-name">
+            <div class="complex-header">
+              <div>Наименование<br>показателя</div>
+              <div class="rating-menu-elements">
+                <span dropdown>
+                    <a href id="elements-dropdown" dropdownToggle
+                       class="glyphicon glyphicon-menu-hamburger"
+                       aria-hidden="true">
+                    </a>
+                    <ul class="dropdown-menu elements-dropdown-choices"
+                        dropdownMenu
+                        aria-labelledby="elements-dropdown">
+                      <li role="menuitem">
+                          <div class="elements-dropdown-choices-text choose-all"
+                               (click)="displayAllHeaders()">
+                            <span>Выбрать все</span>
+                          </div>
+                      </li>
+                      <li class="divider dropdown-divider"></li>
+                      <li role="menuitem" *ngFor="let header of headers">
+                        <div class="elements-dropdown-choices-checkbox">
+                          <input type="checkbox" [checked]="header.is_displayed"
+                                 (change)="toggleHeader(header)">
                         </div>
-                    </li>
-                    <li class="divider dropdown-divider"></li>
-                    <li role="menuitem" *ngFor="let header of headers">
-                      <div class="elements-dropdown-choices-checkbox">
-                        <input type="checkbox" [checked]="header.is_displayed"
-                               (change)="toggleHeader(header)">
-                      </div>
-                      <div>
-                        <div class="elements-dropdown-choices-text"
-                             [innerHTML]="header.text.replace('<br>', ' ')"></div>
-                      </div>
-                    </li>
-                  </ul>
-              </span>
-            </div>
-          </div>
-        </th>
-        <th *ngIf="headers[0].is_displayed"
-            class="text-center rating-responsible-name"
-            [innerHTML]="headers[0].text"></th>
-        <th class="text-center rating-element-name menu-only">
-          <div class="complex-header">
-            <div class="rating-menu-elements">
-              <span dropdown>
-                  <a href id="regions-dropdown" dropdownToggle
-                     class="glyphicon glyphicon-menu-hamburger"
-                     aria-hidden="true">
-                  </a>
-                  <ul class="dropdown-menu elements-dropdown-choices"
-                      dropdownMenu
-                      aria-labelledby="regions-dropdown">
-                    <li role="menuitem">
-                        <div class="elements-dropdown-choices-text choose-all"
-                             (click)="displayAllRegions()">
-                          <span>Выбрать все</span>
+                        <div>
+                          <div class="elements-dropdown-choices-text"
+                               [innerHTML]="header.text.replace('<br>', ' ')"></div>
                         </div>
-                    </li>
-                    <li class="divider dropdown-divider"></li>
-                    <li role="menuitem"
-                        *ngFor="let region of regionsS.regions">
-                      <div class="elements-dropdown-choices-checkbox">
-                        <input type="checkbox" [checked]="region.is_displayed"
-                               (change)="toggleRegion(region)">
-                      </div>
-                      <div>
-                        <div class="elements-dropdown-choices-text"
-                             [innerHTML]="region.name"></div>
-                      </div>
-                    </li>
-                  </ul>
-              </span>
+                      </li>
+                    </ul>
+                </span>
+              </div>
             </div>
-          </div>
-        </th>
-        <ng-container *ngFor="let region of regionsS.regions">
-          <th class="text-center" *ngIf="region.is_displayed">
-            <span>{{region.name.slice(0, 3)}}</span>
           </th>
-        </ng-container>
-        <th *ngIf="headers[1].is_displayed" class="text-center"
-            [innerHTML]="headers[1].text"></th>
-        <th *ngIf="headers[2].is_displayed"
-            class="text-center rating-element-description"
-            [innerHTML]="headers[2].text">
-        </th>
-        <th *ngIf="headers[3].is_displayed"
-            class="text-center rating-negotiator-comment"
-            [innerHTML]="headers[3].text">
-        </th>
-        <th *ngIf="headers[4].is_displayed"
-            class="text-center rating-region-comment"
-            [innerHTML]="headers[4].text">
-      </tr>
+          <th *ngIf="headers[0].is_displayed"
+              class="text-center rating-responsible-name"
+              [innerHTML]="headers[0].text"></th>
+          <th class="text-center rating-element-name menu-only">
+            <div class="complex-header">
+              <div class="rating-menu-elements">
+                <span dropdown>
+                    <a href id="regions-dropdown" dropdownToggle
+                       class="glyphicon glyphicon-menu-hamburger"
+                       aria-hidden="true">
+                    </a>
+                    <ul class="dropdown-menu elements-dropdown-choices"
+                        dropdownMenu
+                        aria-labelledby="regions-dropdown">
+                      <li role="menuitem">
+                          <div class="elements-dropdown-choices-text choose-all"
+                               (click)="displayAllRegions()">
+                            <span>Выбрать все</span>
+                          </div>
+                      </li>
+                      <li class="divider dropdown-divider"></li>
+                      <li role="menuitem"
+                          *ngFor="let region of regionsS.regions">
+                        <div class="elements-dropdown-choices-checkbox">
+                          <input type="checkbox" [checked]="region.is_displayed"
+                                 (change)="toggleRegion(region)">
+                        </div>
+                        <div>
+                          <div class="elements-dropdown-choices-text"
+                               [innerHTML]="region.name"></div>
+                        </div>
+                      </li>
+                    </ul>
+                </span>
+              </div>
+            </div>
+          </th>
+          <ng-container *ngFor="let region of regionsS.regions">
+            <th class="text-center" *ngIf="region.is_displayed">
+              <span>{{region.name.slice(0, 3)}}</span>
+            </th>
+          </ng-container>
+          <th *ngIf="headers[1].is_displayed" class="text-center"
+              [innerHTML]="headers[1].text"></th>
+          <th *ngIf="headers[2].is_displayed"
+              class="text-center rating-element-description"
+              [innerHTML]="headers[2].text">
+          </th>
+          <th *ngIf="headers[3].is_displayed"
+              class="text-center rating-negotiator-comment"
+              [innerHTML]="headers[3].text">
+          </th>
+          <th *ngIf="headers[4].is_displayed"
+              class="text-center rating-region-comment"
+              [innerHTML]="headers[4].text">
+        </tr>
+        <tr>
+          <th class="text-center">Суммарный показатель</th>
+          <th *ngIf="headers[0].is_displayed"></th>
+          <th></th>
+          <ng-container *ngFor="let region of regionsS.regions">
+            <th class="text-center fake-input" *ngIf="region.is_displayed">
+              <div class="text-center form-control"
+                [style.background-color]="loadedRating.sum_values[region.id][1]">
+                {{loadedRating.sum_values[region.id][0].toFixed(1).replace('.', ',')}}
+              </div>
+            </th>
+          </ng-container>
+          <th *ngIf="headers[1].is_displayed"
+              class="element-average">
+          <div class="text-center form-control">
+            {{loadedRating.avg_value}}
+          </div>
+          </th>
+          <th *ngIf="headers[2].is_displayed"></th>
+          <th *ngIf="headers[3].is_displayed"></th>
+          <th *ngIf="headers[4].is_displayed"></th>
+        </tr>
+        <tr class="rating-max-available-header">
+          <th class="text-center">Максимально возможный<br>показатель</th>
+          <th *ngIf="headers[0].is_displayed"></th>
+          <th></th>
+          <ng-container *ngFor="let region of regionsS.regions">
+            <th class="element-average">
+              <div class="text-center form-control">
+                {{loadedRating.max_possible_value}}
+              </div>
+            </th>
+          </ng-container>
+          <th *ngIf="headers[1].is_displayed">
+          </th>
+          <th *ngIf="headers[2].is_displayed"></th>
+          <th *ngIf="headers[3].is_displayed"></th>
+          <th *ngIf="headers[4].is_displayed"></th>
+        </tr>
       </thead>
 
       <!--############################# TABLE BODY ##############################-->
@@ -185,10 +224,11 @@
           <a routerLink="/rating-element/{{element.id}}"
              routerLinkActive="active">
             {{element.rating_element.number}})
-            {{element.rating_element.name}}
+            {{element.rating_element.name + '.'}}
           </a>
         </td>
-        <td *ngIf="headers[0].is_displayed" class="rating-responsible-name blue-background">
+        <td *ngIf="headers[0].is_displayed"
+            class="rating-responsible-name blue-background">
           <div
             *ngIf="auth.user && auth.user.role === 'admin' && !loadedRating.is_approved"
             class="btn-group responsible-select" dropdown>
@@ -269,6 +309,10 @@
             (ngModelChange)="emitElementChange(element.id, 'region_comment', $event)"></textarea>
           <span
             *ngIf="!auth.user || element.responsible.id !== auth.user.id || loadedRating.is_approved">{{element.region_comment}}</span>
+        </td>
+      </tr>
+      <tr style="height: 0">
+        <td colspan="23">
         </td>
       </tr>
       </tbody>

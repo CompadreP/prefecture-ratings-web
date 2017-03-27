@@ -2,6 +2,7 @@
  * Created by evgeniy on 2017-03-12.
  */
 
+import {RatingsError} from "../../common/models/error";
 export const enum NotificationTypeEnum {
   INFO = 1,
   SUCCESS = 2,
@@ -48,6 +49,24 @@ export class SimpleTextNotification extends Notification {
   }
 }
 
+export class ErrorNotification extends SimpleTextNotification {
+  constructor(error: RatingsError) {
+    if (error instanceof RatingsError) {
+      super(
+        NotificationTypeEnum.FAIL,
+        'Ошибка!',
+        error.translatedTextAsList()
+      )
+    } else {
+      super(
+        NotificationTypeEnum.FAIL,
+        'Ошибка!',
+        '<p>К сожалению в данный момент сервер недоступен, попробуйте зайти позже.</p>'
+      )
+    }
+  }
+}
+
 export class AreYouSureNotification extends Notification {
   constructor(header: string, body: string) {
     super(
@@ -64,39 +83,19 @@ export class AreYouSureNotification extends Notification {
 export class AreYouSureSimpleNotification extends AreYouSureNotification {
   constructor() {
     super(
-        'Внимание!',
-        '<p>Вы собираетесь совершить действие, которое будет невозможно отменить.<p>' +
-        '<p class="text-center">Вы уверены?</p>',
+      'Внимание!',
+      '<p>Вы собираетесь совершить действие, которое будет невозможно отменить.<p>' +
+      '<p class="text-center">Вы уверены?</p>',
     )
   }
 }
 
-  //     if (!this._subscriptions['notificationOkSubscription']) {
-  //       this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
-  //         () => {
-  //           this.reqS.http.patch(
-  //             `${this._elementSaveUrl}${subElement.id}/`,
-  //             {'document': null},
-  //             this.reqS.options
-  //           )
-  //             .map(this.reqS.extractData)
-  //             .catch(this.reqS.handleError)
-  //             .subscribe(
-  //               _ => {
-  //                 subElement.document = null;
-  //               },
-  //               error => {
-  //                 console.log(error);
-  //               }
-  //             );
-  //           this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
-  //         }
-  //       );
-  //     }
-  //     if (!this._subscriptions['notificationCancelSubscription']) {
-  //       this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
-  //         () => {
-  //           this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
-  //         }
-  //       );
-  //     }
+export class UnsavedChangesNotification extends AreYouSureNotification {
+  constructor() {
+    super(
+      'Внимание!',
+      '<p>На этой странице имеются несохраненные изменения.<p>' +
+      '<p class="text-center">Вы уверены?</p>',
+    )
+  }
+}

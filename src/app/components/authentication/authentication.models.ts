@@ -1,7 +1,7 @@
 /**
  * Created by evgeniy on 05.03.2017.
  */
-import {Organization} from "./map";
+import {Organization} from "../../common/models/map";
 
 
 class User {
@@ -38,7 +38,7 @@ export class RatingsUser {
     }
   }
 
-  _fullDisplayName(): string {
+  private _fullDisplayName(): string {
     let name = this.displayName;
     if (this.organization && this.organization.name) {
       name += ' | ' + this.organization.name
@@ -46,7 +46,7 @@ export class RatingsUser {
     return name
   };
 
-  _displayName(): string {
+  private _displayName(): string {
     let name = '';
     if (this.last_name) {
       name += this.last_name

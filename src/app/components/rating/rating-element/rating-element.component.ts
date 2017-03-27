@@ -8,25 +8,25 @@ import 'rxjs/add/operator/switchMap';
 import {ContextMenuComponent} from 'angular2-contextmenu';
 
 import {generateGuid, getShortString} from "../../../common/functions";
-import {RatingElementsService} from "../../../services/rating-element.service";
-import {RequestsService} from "../../../services/requests.service";
+import {RatingElementsService} from "./rating-element.service";
+import {RequestsService} from "../../../common/services/requests.service";
 import {
   MonthlyRatingElement,
   MonthlyRatingSubElement,
-  MonthlyRatingSubElementValue, AvailableRating
-} from "../../../models/rating/rating";
-import {PrefectureEmployeesService} from "../../../services/employees.service";
-import {AuthenticationService} from "../../../services/authentication.service";
+  MonthlyRatingSubElementValue
+} from "../rating.models";
+import {PrefectureEmployeesService} from "../../../common/services/employees.service";
+import {AuthenticationService} from "../../authentication/authentication.service";
 import {BaseTableComponent} from "../base-table.component";
-import {RegionsService} from "../../../services/regions.service";
+import {RegionsService} from "../../../common/services/regions.service";
 import {ROOT_API_URL} from "../../../../settings";
-import {NotificationService} from "../../../services/notification.service";
+import {NotificationService} from "../../notification/notification.service";
 import {
   AreYouSureSimpleNotification,
-  SimpleTextNotification, NotificationTypeEnum
-} from "../../../models/notification";
+  SimpleTextNotification, NotificationTypeEnum, UnsavedChangesNotification
+} from "../../notification/notification.models";
 import {CanComponentDeactivate} from "../../../common/confirm-deactivate.guard";
-import {AvailableRatingsService} from "../../../services/available-ratings.service";
+import {AvailableRatingsService} from "../available-ratings.service";
 
 declare let $: any;
 
@@ -47,7 +47,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
 
   @ViewChild('valueMenu') valueMenu: ContextMenuComponent;
 
-  colNums = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
+  colNums = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
   headers = [
     {
@@ -84,13 +84,13 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   constructor(private route: ActivatedRoute,
               private router: Router,
               private ratingelS: RatingElementsService,
-              private notiS: NotificationService,
               private availratS: AvailableRatingsService,
+              public  notiS: NotificationService,
               public reqS: RequestsService,
               public regionsS: RegionsService,
               public authS: AuthenticationService,
               public prefempS: PrefectureEmployeesService) {
-    super(regionsS, reqS);
+    super(regionsS, reqS, notiS);
   }
 
   ngOnInit() {
@@ -101,7 +101,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       .map(this.reqS.extractData)
       .subscribe(
         data => {
-          console.log(data);
+          //console.log(data);
           this.loadedRatingElement = new MonthlyRatingElement(data);
           //console.log(this.loadedRatingElement);
           if (!this.loadedRatingElement.monthly_rating.is_negotiated && !this.loadedRatingElement.monthly_rating.is_approved) {
@@ -141,6 +141,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
           this.loadedRatingElement.updateCalculatedFields();
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         }
       );
@@ -163,32 +164,22 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
 
   canDeactivate() {
     if (this.checkIfUnsaved()) {
-        this.notiS.notificate(new AreYouSureSimpleNotification());
-        if (!this._subscriptions['notificationResultSubscription']) {
-          this._subscriptions['notificationResultSubscription'] = this.notiS.result$.subscribe(
-            () => {
-              this.notiS.hideModalAndUnsubscribe(this._subscriptions, ['notificationResultSubscription']);
-            }
-          )
-        }
-        return this.notiS.result$;
+      this.notiS.notificate(new UnsavedChangesNotification());
+      if (!this._subscriptions['notificationResultSubscription']) {
+        this._subscriptions['notificationResultSubscription'] = this.notiS.result$.subscribe(
+          () => {
+            this.notiS.hideModalAndUnsubscribe(this._subscriptions, ['notificationResultSubscription']);
+          }
+        )
+      }
+      return this.notiS.result$;
     } else {
       return true
     }
   }
 
-  checkIfUnsaved() {
-    for (let subElement of this.loadedRatingElement.related_sub_elements) {
-      if (!subElement.isSaved) {
-        return true
-      }
-    }
-    // if (thi)
-    return false
-  }
-
   @HostListener('window:beforeunload', ['$event'])
-  beforeUnloadHander(event) {
+  private beforeUnloadHander(event) {
     if (this.checkIfUnsaved()) {
       let dialogText = "You have unsaved data changes. Are you sure to close the page?";
       event.returnValue = dialogText;
@@ -196,38 +187,113 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  getFullDocumentLink = (subElement: MonthlyRatingSubElement): string => {
-    if (subElement.document.indexOf('http') === 0) {
-      return subElement.document
-    } else {
-      return `${ROOT_API_URL}${subElement.document}`
+  private checkIfUnsaved = () => {
+    for (let subElement of this.loadedRatingElement.related_sub_elements) {
+      if (!subElement.isSaved) {
+        return true
+      }
     }
-
+    return false
   };
 
-  getDocumentName = (documentLink: string): string => {
-    return getShortString(decodeURI(documentLink.substring(documentLink.lastIndexOf("/") + 1)))
-  };
-
-  checkIfUserCanChangeElement = (): boolean => {
+  private checkIfUserCanChangeElement = (): boolean => {
     return !!this.authS.user
       && (this.authS.user.id === this.loadedRatingElement.responsible.id)
       && !this.loadedRatingElement.monthly_rating.is_approved
   };
 
-  userCanChangeSubElement = (subElement: MonthlyRatingSubElement): boolean => {
+  private invalidateElementCalculatedValues = (): void => {
+    this.loadedRatingElement.setValuesColorsToInvalid()
+  };
+
+  private validateSubElement = (subElement): string[] => {
+    let validationErrors = [];
+    if (!subElement.name) {
+      validationErrors.push('Название компонента является обязательным параметром')
+    }
+    for (let value in subElement.values) {
+      if (subElement.values.hasOwnProperty(value)) {
+        if (!subElement.values[value].is_valid) {
+          validationErrors.push(
+            'Значение компонента для района не может быть нечисловым, ' +
+            'либо быть менее -100 или более 100'
+          )
+        }
+      }
+    }
+    return validationErrors
+  };
+
+  private checkIfAllSaved = () => {
+    let allSaved = true;
+    for (let subElement of this.loadedRatingElement.related_sub_elements) {
+      if (!subElement.isSaved) {
+        allSaved = false
+      }
+    }
+    return allSaved
+  };
+
+  private proceedSuccessSaveAll = (): void => {
+    this.ratingelS.loadRatingElementValues(this.loadedRatingElement.id)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
+      .subscribe(
+        data => {
+          this.loadedRatingElement.setValues(
+            {values: data}
+          );
+          this.loadedRatingElement.setValuesColors();
+          this.notificateSuccessSaveAll()
+        },
+        error => {
+          this.notiS.notificateError(error);
+          console.log(error)
+        })
+
+  };
+
+  private notificateSuccessSaveAll = (): void => {
+    this.notiS.notificate(new SimpleTextNotification(
+      NotificationTypeEnum.SUCCESS,
+      'Успешно!',
+      '<p class="text-center">Все внесенные изменения сохранены.</p>'
+    ))
+  };
+
+  public getFullDocumentLink = (subElement: MonthlyRatingSubElement): string => {
+    if (subElement.document) {
+      if (subElement.document.indexOf('http') === 0) {
+        return subElement.document
+      } else {
+        return `${ROOT_API_URL}${subElement.document}`
+      }
+    } else {
+      return null
+    }
+  };
+
+  public getDocumentName = (documentLink: string): string => {
+    if (documentLink) {
+      return getShortString(decodeURI(documentLink.substring(documentLink.lastIndexOf("/") + 1)))
+    } else {
+      return null
+    }
+  };
+
+  public userCanChangeSubElement = (subElement: MonthlyRatingSubElement): boolean => {
     return !!this.authS.user
       && ((this.authS.user.id === subElement.responsible.id)
       || (this.authS.user.id === this.loadedRatingElement.responsible.id))
       && !this.loadedRatingElement.monthly_rating.is_approved;
   };
 
-  emitElementChange = (elementId) => {
+  public emitElementChange = (elementId) => {
     //this.pendingSaves[elementId] = true;
     //this._valueChangeWatchers[elementId][property].next([elementId, property, value])
   };
 
-  addSubElement = (): void => {
+  public addSubElement = (): void => {
     let newSubElement = new MonthlyRatingSubElement();
     newSubElement.tempId = generateGuid();
     newSubElement.responsible = this.loadedRatingElement.responsible;
@@ -240,7 +306,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     newSubElement.isSaved = false;
   };
 
-  removeSubElement = (subElement: MonthlyRatingSubElement): void => {
+  public removeSubElement = (subElement: MonthlyRatingSubElement): void => {
     if (subElement.tempId) {
       this.loadedRatingElement.related_sub_elements.forEach((item, index) => {
         if (item.tempId === subElement.tempId) {
@@ -268,6 +334,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                   })
                 },
                 error => {
+                  this.notiS.notificateError(error);
                   console.log(error);
                 }
               );
@@ -296,11 +363,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   //   }
   // };
 
-  invalidateElementCalculatedValues = (): void => {
-    this.loadedRatingElement.setValuesColorsToInvalid()
-  };
-
-  changeSubElementProperty = (subElement: MonthlyRatingSubElement,
+  public changeSubElementProperty = (subElement: MonthlyRatingSubElement,
                               property: string,
                               value): void => {
     subElement[property] = value;
@@ -311,7 +374,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     this.invalidateElementCalculatedValues()
   };
 
-  changeValueInput = (subElement: MonthlyRatingSubElement,
+  public changeValueInput = (subElement: MonthlyRatingSubElement,
                       elementValueObject: MonthlyRatingSubElementValue,
                       scalarValue: string): void => {
     if ((scalarValue !== null) && (scalarValue !== '')) {
@@ -350,7 +413,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     subElement.isSaved = false;
   };
 
-  readFileToBase64 = (subElement: MonthlyRatingSubElement, $event): void => {
+  public readFileToBase64 = (subElement: MonthlyRatingSubElement, $event): void => {
     let file: File = $event.target.files[0];
     let myReader: FileReader = new FileReader();
     this.isFileUploading = true;
@@ -364,7 +427,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     subElement.isSaved = false;
   };
 
-  removeSubElementDocument = (subElement: MonthlyRatingSubElement) => {
+  public removeSubElementDocument = (subElement: MonthlyRatingSubElement) => {
     let subElementId = subElement.id ? subElement.id : subElement.tempId;
     let input = document.getElementById(`${subElementId}-file`) as any;
     if (input) {
@@ -374,25 +437,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     this.changeSubElementProperty(subElement, 'document', null);
   };
 
-  validateSubElement = (subElement): string[] => {
-    let validationErrors = [];
-    if (!subElement.name) {
-      validationErrors.push('Название компонента является обязательным параметром')
-    }
-    for (let value in subElement.values) {
-      if (subElement.values.hasOwnProperty(value)) {
-        if (!subElement.values[value].is_valid) {
-          validationErrors.push(
-            'Значение компонента для района не может быть нечисловым, ' +
-            'либо быть менее -100 или более 100'
-          )
-        }
-      }
-    }
-    return validationErrors
-  };
-
-  saveAllChanges = (): void => {
+  public saveAllChanges = (): void => {
     let validationErrorsText = '';
     for (let subElement of this.loadedRatingElement.related_sub_elements) {
       if (!subElement.isSaved) {
@@ -479,6 +524,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                   }
                 },
                 error => {
+                  this.notiS.notificateError(error);
                   console.log(error);
                 }
               );
@@ -503,6 +549,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                   }
                 },
                 error => {
+                  this.notiS.notificateError(error);
                   console.log(error);
                 }
               )
@@ -522,43 +569,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   };
 
-  checkIfAllSaved = () => {
-    let allSaved = true;
-    for (let subElement of this.loadedRatingElement.related_sub_elements) {
-      if (!subElement.isSaved) {
-        allSaved = false
-      }
-    }
-    return allSaved
-  };
-
-  proceedSuccessSaveAll = (): void => {
-    this.ratingelS.loadRatingElementValues(this.loadedRatingElement.id)
-      .map(this.reqS.extractData)
-      .catch(this.reqS.handleError)
-      .subscribe(
-        data => {
-          this.loadedRatingElement.setValues(
-            {values: data}
-          );
-          this.loadedRatingElement.setValuesColors();
-          this.notificateSuccessSaveAll()
-        },
-        error => {
-          console.log(error)
-        })
-
-  };
-
-  notificateSuccessSaveAll = (): void => {
-    this.notiS.notificate(new SimpleTextNotification(
-      NotificationTypeEnum.SUCCESS,
-      'Успешно!',
-      '<p class="text-center">Все внесенные изменения сохранены.</p>'
-    ))
-  };
-
-  setValueIsAverage = (subElement: MonthlyRatingSubElement,
+  public setValueIsAverage = (subElement: MonthlyRatingSubElement,
                        value: MonthlyRatingSubElementValue,
                        isAverage: boolean): void => {
     value.is_average = isAverage;

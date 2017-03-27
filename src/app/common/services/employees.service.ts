@@ -4,8 +4,9 @@
 import {Injectable} from "@angular/core";
 
 import {RequestsService} from "./requests.service";
-import {ROOT_API_URL} from "../../settings";
-import {RatingsUser} from "../models/auth";
+import {ROOT_API_URL} from "../../../settings";
+import {RatingsUser} from "../../components/authentication/authentication.models";
+import {NotificationService} from "../../components/notification/notification.service";
 
 @Injectable()
 export class PrefectureEmployeesService {
@@ -13,7 +14,8 @@ export class PrefectureEmployeesService {
 
   employees: RatingsUser[];
 
-  constructor(private reqS: RequestsService) {
+  constructor(private reqS: RequestsService,
+              private notiS: NotificationService) {
     this.employees = [];
   }
 
@@ -33,6 +35,7 @@ export class PrefectureEmployeesService {
           }
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         }
       )

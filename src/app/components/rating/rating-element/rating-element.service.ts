@@ -3,8 +3,8 @@
  */
 
 import {Injectable} from "@angular/core";
-import {ROOT_API_URL} from "../../settings";
-import {RequestsService} from "./requests.service";
+import {ROOT_API_URL} from "../../../../settings";
+import {RequestsService} from "../../../common/services/requests.service";
 
 @Injectable()
 export class RatingElementsService {

@@ -6,10 +6,10 @@
  * Created by evgeniy on 2017-03-13.
  */
 import {Injectable} from "@angular/core";
-import {RequestsService} from "./requests.service";
-import {ROOT_API_URL} from "../../settings";
-import {Region} from "../models/map";
-import {AvailableRating} from "../models/rating/rating";
+import {RequestsService} from "../../common/services/requests.service";
+import {ROOT_API_URL} from "../../../settings";
+import {AvailableRating} from "./rating.models";
+import {NotificationService} from "../notification/notification.service";
 
 @Injectable()
 export class AvailableRatingsService {
@@ -20,7 +20,8 @@ export class AvailableRatingsService {
   availableMonths: number[];
   availableYearMonths: Map<number, number[]>;
 
-  constructor(private reqS: RequestsService) {
+  constructor(private reqS: RequestsService,
+              private notiS: NotificationService) {
     this.availableRatings = [];
     this.availableYears = [];
     this.availableMonths = [];
@@ -28,7 +29,7 @@ export class AvailableRatingsService {
     this.loadAvailableRatings();
   }
 
-  loadAvailableRatings = () => {
+  private loadAvailableRatings = (): void => {
     this.reqS.http.get(
       this.availableRatingsUrl,
       this.reqS.options
@@ -41,11 +42,13 @@ export class AvailableRatingsService {
             this.availableRatings.push(new AvailableRating(rating))
           }
           this.availableYearMonths = AvailableRating.getYearsAndMonthsList(this.availableRatings);
+          // console.log(this.availableYearMonths);
           for (let year in this.availableYearMonths) {
-            this.availableYears.push(parseInt(year, 10))
+            this.availableYears.push(parseInt(year, 10));
           }
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         }
       )

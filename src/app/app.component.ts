@@ -1,14 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 
-import {AuthenticationService} from "./services/authentication.service";
-import {RequestsService} from "./services/requests.service";
-import {NotificationService} from "./services/notification.service";
-import {Notification, NotificationTypeEnum} from "./models/notification";
-import {RegionsService} from "./services/regions.service";
-import {PrefectureEmployeesService} from "./services/employees.service";
-import {RatingElementsService} from "./services/rating-element.service";
-import {AvailableRatingsService} from "./services/available-ratings.service";
-import {MonthlyRatingService} from "./services/monthly-rating.service";
+import {AuthenticationService} from "./components/authentication/authentication.service";
+import {RequestsService} from "./common/services/requests.service";
+import {NotificationService} from "./components/notification/notification.service";
+import {
+  ErrorNotification, Notification,
+  NotificationTypeEnum
+} from "./components/notification/notification.models";
+import {RegionsService} from "./common/services/regions.service";
+import {PrefectureEmployeesService} from "./common/services/employees.service";
+import {RatingElementsService} from "./components/rating/rating-element/rating-element.service";
+import {AvailableRatingsService} from "./components/rating/available-ratings.service";
+import {MonthlyRatingService} from "./components/rating/monthly-rating/monthly-rating.service";
 
 
 @Component({
@@ -54,14 +57,8 @@ export class AppComponent implements OnInit {
     this.checkVersion();
     this.authS.checkExistingAuth();
     this.reqS.serverUnavailable$.subscribe(
-      _ => {
-        this.notiS.notificate(new Notification(
-          NotificationTypeEnum.INFO,
-          'Ошибка!',
-          'К сожалению в данный момент сервер недоступен, попробуйте позже',
-          true,
-          false
-        ))
+      error => {
+        this.notiS.notificate(new ErrorNotification(error))
       }
     );
     this.reqS.requestForbidden$.subscribe(

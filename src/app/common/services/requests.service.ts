@@ -5,7 +5,7 @@
 import {Response, Headers, RequestOptions, Http} from "@angular/http";
 import {Observable} from "rxjs";
 import {Injectable, EventEmitter} from "@angular/core";
-import {RatingsError} from "../common/error";
+import {RatingsError} from "../models/error";
 
 @Injectable()
 export class RequestsService {
@@ -63,6 +63,8 @@ export class RequestsService {
     }
     if ([0, 500, 502].indexOf(errMsg.status) > -1) {
       this.serverUnavailable$.emit();
+    } else {
+      return Observable.throw(errMsg);
     }
     if (errMsg.status && errMsg.status === 403) {
       // reload page and delete saved user credentials if it was not login attempt
@@ -71,7 +73,6 @@ export class RequestsService {
         this.requestForbidden$.emit();
       }
     }
-    return Observable.throw(errMsg);
   }
 
 }

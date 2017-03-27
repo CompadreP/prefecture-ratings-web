@@ -4,18 +4,18 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 
-import {RequestsService} from "../../../services/requests.service";
-import {MonthlyRatingFull, AvailableRating} from "../../../models/rating/rating";
+import {RequestsService} from "../../../common/services/requests.service";
+import {MonthlyRatingFull, AvailableRating} from "../rating.models";
 import {ROOT_API_URL, DEBOUNCE_TIME} from "../../../../settings";
-import {RegionsService} from "../../../services/regions.service";
-import {AuthenticationService} from "../../../services/authentication.service";
-import {PrefectureEmployeesService} from "../../../services/employees.service";
-import {NotificationService} from "../../../services/notification.service";
-import {AreYouSureSimpleNotification} from "../../../models/notification";
+import {RegionsService} from "../../../common/services/regions.service";
+import {AuthenticationService} from "../../authentication/authentication.service";
+import {PrefectureEmployeesService} from "../../../common/services/employees.service";
+import {NotificationService} from "../../notification/notification.service";
+import {AreYouSureSimpleNotification} from "../../notification/notification.models";
 import {BaseTableComponent} from "../base-table.component";
-import {AvailableRatingsService} from "../../../services/available-ratings.service";
+import {AvailableRatingsService} from "../available-ratings.service";
 import {ActivatedRoute, Params} from "@angular/router";
-import {MonthlyRatingService} from "../../../services/monthly-rating.service";
+import {MonthlyRatingService} from "./monthly-rating.service";
 
 @Component({
   selector: 'rating',
@@ -24,7 +24,7 @@ import {MonthlyRatingService} from "../../../services/monthly-rating.service";
 })
 export class RatingComponent extends BaseTableComponent implements OnInit, OnDestroy {
   _elementSaveUrl: string = `${ROOT_API_URL}/api/ratings/monthly/elements/`;
-  _localStorageHeadersKey = 'ratingHeadersDisplay';
+  _localStorageHeadersKey: string = 'ratingHeadersDisplay';
   headers = [
     {
       is_displayed: true,
@@ -44,7 +44,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     },
     {
       is_displayed: true,
-      text: 'Замечания<br>районов'
+      text: 'Информация о <br>замечаниях районов'
     }
   ];
   loadedRating: MonthlyRatingFull = null;
@@ -57,23 +57,26 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
               public auth: AuthenticationService,
               public prefempS: PrefectureEmployeesService,
               public availratS: AvailableRatingsService,
+              public notiS: NotificationService,
               private monthratS: MonthlyRatingService,
-              private route: ActivatedRoute,
-              private notiS: NotificationService) {
-    super(regionsS, reqS);
+              private route: ActivatedRoute) {
+    super(regionsS, reqS, notiS);
   }
 
   ngOnInit() {
     this.route.params
       .switchMap((params: Params) => this.monthratS.loadMonthlyRating(+params['id']))
       .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
       .subscribe(
         data => {
-          console.log(data);
+          //console.log(data);
           this.loadedRating = new MonthlyRatingFull(data);
+          //console.log(this.loadedRating);
           this.proceedLoadedRating();
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         });
     if (this.auth.user && this.auth.user.role === 'admin' && this.prefempS.employees.length === 0) {
@@ -81,8 +84,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     }
   }
 
-
-  proceedLoadedRating = () => {
+  private proceedLoadedRating = (): void => {
     if (!this.loadedRating.is_negotiated && !this.loadedRating.is_approved) {
       this.loadedRating.state = this.ratingStates.on_negotiation
     } else if (this.loadedRating.is_negotiated && !this.loadedRating.is_approved) {
@@ -102,9 +104,13 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     if (this.isLocalStorageHeadersValid()) {
       this.headers = JSON.parse(localStorage.getItem(this._localStorageHeadersKey))
     }
+    this.availratS.availableMonths = [];
+    for (let month of this.availratS.availableYearMonths[this.pickedYear]) {
+      this.availratS.availableMonths.push(month)
+    }
   };
 
-  setNewElementsChangeWatchers = () => {
+  private setNewElementsChangeWatchers = (): void => {
     for (let element of this.loadedRating.elements) {
       if (this.auth.user && element.responsible.id === this.auth.user.id) {
         this._valueChangeWatchers[element.id] = {
@@ -142,55 +148,8 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     }
   };
 
-  yearPicked = (year) => {
-    if (this.pickedYear !== year) {
-      this.pickedYear = year;
-      this.pickedMonth = null;
-    }
-  };
-
-  monthPicked = (month) => {
-    this.pickedMonth = month;
-    let pickedRatingId = AvailableRating.getIdByYearAndMonth(
-      this.pickedYear,
-      this.pickedMonth,
-      this.availratS.availableRatings
-    );
-    if (pickedRatingId !== this.loadedRating.id) {
-    this.monthratS.loadMonthlyRating(+pickedRatingId)
-      .map(this.reqS.extractData)
-      .subscribe(
-        data => {
-          this.loadedRating = new MonthlyRatingFull(data);
-          this.proceedLoadedRating();
-        },
-        error => {
-          console.log(error);
-        });
-    }
-  };
-
-  changeRatingState = (state) => {
-    if (!this._subscriptions['notificationOkSubscription']) {
-      this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
-        () => {
-          this.saveRatingState(state);
-          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
-        }
-      );
-    }
-    if (!this._subscriptions['notificationCancelSubscription']) {
-      this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
-        () => {
-          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
-        }
-      );
-    }
-    this.notiS.notificate(new AreYouSureSimpleNotification())
-  };
-
-  private saveRatingState = (state) => {
-    console.log(state);
+  private saveRatingState = (state): void => {
+    //console.log(state);
     let url = `${ROOT_API_URL}/api/ratings/monthly/${this.loadedRating.id}/change_state/`;
     let data = {};
     if (state == this.ratingStates.negotiated) {
@@ -216,10 +175,64 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
           }
         },
         error => {
+          this.notiS.notificateError(error);
           console.log(error);
         }
       );
 
-  }
+  };
+
+  public yearPicked = (year): void => {
+    if (this.pickedYear !== year) {
+      this.pickedYear = year;
+      this.pickedMonth = null;
+      this.availratS.availableMonths = [];
+      for (let month of this.availratS.availableYearMonths[this.pickedYear]) {
+        this.availratS.availableMonths.push(month)
+      }
+    }
+  };
+
+  public monthPicked = (month): void => {
+    this.pickedMonth = month;
+    let pickedRatingId = AvailableRating.getIdByYearAndMonth(
+      this.pickedYear,
+      this.pickedMonth,
+      this.availratS.availableRatings
+    );
+    if (pickedRatingId !== this.loadedRating.id) {
+    this.monthratS.loadMonthlyRating(+pickedRatingId)
+      .map(this.reqS.extractData)
+      .catch(this.reqS.handleError)
+      .subscribe(
+        data => {
+          this.loadedRating = new MonthlyRatingFull(data);
+          this.proceedLoadedRating();
+        },
+        error => {
+          this.notiS.notificateError(error);
+          console.log(error);
+        });
+    }
+  };
+
+  public changeRatingState = (state): void => {
+    if (!this._subscriptions['notificationOkSubscription']) {
+      this._subscriptions['notificationOkSubscription'] = this.notiS.notificationOk$.subscribe(
+        () => {
+          this.saveRatingState(state);
+          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
+        }
+      );
+    }
+    if (!this._subscriptions['notificationCancelSubscription']) {
+      this._subscriptions['notificationCancelSubscription'] = this.notiS.notificationCancel$.subscribe(
+        () => {
+          this.notiS.hideModalAndUnsubscribe(this._subscriptions, this.notificationSubscriptionKeys);
+        }
+      );
+    }
+    this.notiS.notificate(new AreYouSureSimpleNotification())
+  };
 
 }

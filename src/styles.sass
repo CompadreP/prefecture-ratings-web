@@ -98,9 +98,11 @@ input::-webkit-inner-spin-button
   table
     margin-bottom: 0
   th
-    border-top: 1px solid #d0d0d0 !important
+    border-top: 2px solid #d0d0d0 !important
     vertical-align: middle !important
     white-space: normal !important
+  tr:nth-last-child(2)
+    border-bottom: 2px solid #d0d0d0 !important
   td
     vertical-align: middle !important
     white-space: normal !important
@@ -114,7 +116,16 @@ input::-webkit-inner-spin-button
 
 .rating-element-name
   min-width: 200px
+  width: auto
   border-left: 0 !important
+  a
+    color: #336699
+
+.rating-element-name-label
+  padding: 6px 0
+  margin-bottom: 0
+  span
+    font-size: 14px !important
 
 
 
@@ -149,7 +160,12 @@ input::-webkit-inner-spin-button
 
 .rating-element-description
   min-width: 400px
+  //max-width: 400px
+  width: 100%
+  margin: 0
   border-left: 0 !important
+  div
+    width: auto
 
 .menu-only
   width: 20px !important
@@ -184,11 +200,15 @@ input::-webkit-inner-spin-button
   div
     padding: 8px 0
     font-size: inherit !important
-    background-color: #d6d6d6
+
+.fake-input-grey
+  @extend .fake-input
+  background-color: #d6d6d6
 
 .element-average
   @extend .fake-input
   div
+    background-color: #d6d6d6
     margin: auto
     max-width: 42px
 
@@ -222,8 +242,8 @@ input::-webkit-inner-spin-button
 
 .light-red-background
   background-color: #ffdde5
-  border-left: #ffdde5 1px solid
-  border-right: #ffdde5 1px solid
+  border-left: #fff0f9 1px solid
+  border-right: #fff0f9 1px solid
 
 .light-gray-background
   background-color: #ddd
@@ -259,16 +279,3 @@ input::-webkit-inner-spin-button
 
 .file-loader
   position: absolute
-
-//.rating-element-wrapper
-//  z-index: 0
-
-  //font-size: inherit
-  //font-weight: inherit
-  //color: inherit
-  //background-color: white
-  //display: inline-block
-  //border: 1px solid #d0d0d0
-  //border-radius: 3px
-  //padding-left: 3px
-  //padding-right: 3px
