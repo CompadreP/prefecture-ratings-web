@@ -182,16 +182,16 @@
           <ng-container *ngFor="let region of regionsS.regions">
             <th class="text-center fake-input" *ngIf="region.is_displayed">
               <div class="text-center form-control"
-                [style.background-color]="loadedRating.sum_values[region.id][1]">
-                {{loadedRating.sum_values[region.id][0].toFixed(1).replace('.', ',')}}
+                [style.background-color]="loadedRating.sum_values[region.id] ? loadedRating.sum_values[region.id][1] : 'none'">
+                {{loadedRating.sum_values[region.id] ? loadedRating.sum_values[region.id][0].toFixed(1).replace('.', ',') : ''}}
               </div>
             </th>
           </ng-container>
           <th *ngIf="headers[1].is_displayed"
               class="element-average">
-          <div class="text-center form-control">
-            {{loadedRating.avg_value}}
-          </div>
+            <div class="text-center form-control">
+              {{loadedRating?.avg_value}}
+            </div>
           </th>
           <th *ngIf="headers[2].is_displayed"></th>
           <th *ngIf="headers[3].is_displayed"></th>
@@ -258,7 +258,7 @@
             <div
               [style.background-color]="element.values[region.id]?.color"
               class="text-center form-control">
-              {{element.weightedValue(element.values[region.id]._value)}}
+              {{element.values[region.id] ? element.weightedValue(element.values[region.id]._value) : ''}}
             </div>
           </td>
         </ng-container>

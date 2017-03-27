@@ -326,6 +326,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
               .catch(this.reqS.handleError)
               .subscribe(
                 _ => {
+                  this.proceedSuccessSaveAll();
                   this.loadedRatingElement.related_sub_elements.forEach((item, index) => {
                     if (item.id === subElement.id) {
                       this.loadedRatingElement.related_sub_elements.splice(index, 1);
