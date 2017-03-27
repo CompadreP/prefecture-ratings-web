@@ -75,9 +75,10 @@ export function getColor(value: number, min: number, max: number, type: number):
 }
 
 export function getShortString(str: string): string {
-  if (str && str.length > 15) {
-    return str.substring(0, 13) + '...'
-  } else {
-    return null
-  }
+  // if (str && str.length > 15) {
+  //   return str.substring(0, 13) + '...'
+  // } else {
+  //   return null
+  // }
+  return str
 }

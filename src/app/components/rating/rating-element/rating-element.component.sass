@@ -1,8 +1,8 @@
 @import ../../../../styles
 
 .rating-subelement-description
-  min-width: 200px
-  width: auto
+  @extend .rating-element-description
+  max-width: 300px
 
 .element-header
   margin-bottom: 5px
@@ -55,6 +55,8 @@
 
 .remove-sign-inline
   display: inline-block
+  div:first-of-type
+    margin-top: 2px
 
 
 .save-button

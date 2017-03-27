@@ -127,7 +127,8 @@
           <th *ngIf="headers[2].is_displayed" class="text-center"
               [innerHTML]="headers[2].text">
           </th>
-          <th *ngIf="headers[3].is_displayed" class="text-center left-padding-only"
+          <th *ngIf="headers[3].is_displayed"
+              class="text-center left-padding-only"
               [innerHTML]="headers[3].text">
           </th>
           <th *ngIf="headers[4].is_displayed" class="text-center"
@@ -180,9 +181,9 @@
           <td *ngIf="headers[1].is_displayed" class="text-center">
           </td>
           <td *ngIf="headers[2].is_displayed">
-              <!--class="fake-input">-->
+            <!--class="fake-input">-->
             <!--<div class="text-center form-control strong-green-background">-->
-              <!--{{loadedRatingElement.best}}-->
+            <!--{{loadedRatingElement.best}}-->
             <!--</div>-->
           </td>
           <td *ngIf="headers[3].is_displayed"
@@ -203,58 +204,42 @@
           </td>
         </tr>
 
-        <!-- ############################# NUMERATION ##############################-->
-
-        <!--<tr>-->
-        <!--&lt;!&ndash;&ndash;&gt;-->
-        <!--<td class="rating-element-name text-center">-->
-        <!--1-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[0].is_displayed" class="rating-responsible-name text-center">-->
-        <!--2-->
-        <!--</td>-->
-        <!--<td></td>-->
-        <!--<ng-container *ngFor="let region of regionsS.regions">-->
-        <!--<td *ngIf="region.is_displayed">-->
-        <!--{{regionsS.regionsNumbers[region.id] + 3}}-->
-        <!--</td>-->
-        <!--</ng-container>-->
-        <!--<td *ngIf="headers[1].is_displayed" class="text-center">-->
-        <!--19-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[2].is_displayed" class="text-center">-->
-        <!--20-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[3].is_displayed" class="text-center">-->
-        <!--21-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[4].is_displayed" class="text-center">-->
-        <!--22-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[5].is_displayed" class="text-center">-->
-        <!--23-->
-        <!--</td>-->
-        <!--<td *ngIf="headers[6].is_displayed" class="text-center">-->
-        <!--24-->
-        <!--</td>-->
-        <!--</tr>-->
-
         <tr class="element-second-header">
           <ng-container *ngIf="userCanChangeElement">
-            <td>
-            </td>
+            <td></td>
           </ng-container>
-          <td class="text-center col-num">
+          <td class="col-num text-center">
             1
           </td>
-          <td class="text-center col-num">
+          <td class="col-num text-center"
+              *ngIf="headers[0].is_displayed">
             2
           </td>
-          <td class="text-center col-num">
+          <td class="col-num text-center">3</td>
+          <ng-container
+            *ngFor="let region of regionsS.regions; let idx = index">
+            <td class="col-num text-center"
+                *ngIf="region.is_displayed">
+              {{idx + 4}}
+            </td>
+          </ng-container>
+          <td *ngIf="headers[1].is_displayed" class="col-num text-center">
+            20
           </td>
-          <td class="text-center col-num"
-              *ngFor="let col of colNums">
-            {{col}}
+          <td *ngIf="headers[2].is_displayed" class="col-num text-center">
+            21
+          </td>
+          <td *ngIf="headers[3].is_displayed" class="col-num text-center">
+            22
+          </td>
+          <td *ngIf="headers[4].is_displayed" class="col-num text-center">
+            23
+          </td>
+          <td *ngIf="headers[5].is_displayed" class="col-num text-center">
+            24
+          </td>
+          <td *ngIf="headers[6].is_displayed" class="col-num text-center">
+            25
           </td>
         </tr>
 
@@ -419,7 +404,7 @@
               *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
-          <td class="rating-element-description blue-background"
+          <td class="rating-subelement-description blue-background"
               *ngIf="headers[5].is_displayed"
               [ngSwitch]="userCanChangeSubElement(subElement)">
             <div>
@@ -434,7 +419,7 @@
             </div>
           </td>
           <td *ngIf="headers[6].is_displayed"
-              class="text-center text-nowrap blue-background"
+              class="text-center text-nowrap blue-background subelement-file-upload"
               [ngSwitch]="userCanChangeSubElement(subElement)">
             <div *ngSwitchCase="true">
               <div class="remove-sign remove-sign-inline"
@@ -455,7 +440,8 @@
                        (change)="readFileToBase64(subElement, $event)">
                 <label
                   for="{{subElement.id ? subElement.id : subElement.tempId}}-file">
-                  {{subElement.documentFileName ? getShortString(subElement.documentFileName) :
+                  {{subElement.documentFileName ?
+                  getShortString(subElement.documentFileName) :
                   'Выберите&nbsp;файл...'}}
                 </label>
               </div>

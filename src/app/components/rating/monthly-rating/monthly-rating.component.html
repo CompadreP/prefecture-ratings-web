@@ -1,5 +1,6 @@
 <div class="box" *ngIf="loadedRating">
   <div class="text-center">
+    <div class="excel-btn"></div>
     <h5 class="sub-header">
       Исходные данные для расчета рейтинга управ районов САО в части
       показателей ЖКХ за
@@ -197,12 +198,14 @@
           <th *ngIf="headers[3].is_displayed"></th>
           <th *ngIf="headers[4].is_displayed"></th>
         </tr>
+
         <tr class="rating-max-available-header">
           <th class="text-center">Максимально возможный<br>показатель</th>
           <th *ngIf="headers[0].is_displayed"></th>
           <th></th>
           <ng-container *ngFor="let region of regionsS.regions">
-            <th class="element-average">
+            <th class="element-average"
+                *ngIf="region.is_displayed">
               <div class="text-center form-control">
                 {{loadedRating.max_possible_value}}
               </div>
