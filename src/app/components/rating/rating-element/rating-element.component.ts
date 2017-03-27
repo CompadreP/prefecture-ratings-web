@@ -178,15 +178,6 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  private beforeUnloadHander(event) {
-    if (this.checkIfUnsaved()) {
-      let dialogText = "You have unsaved data changes. Are you sure to close the page?";
-      event.returnValue = dialogText;
-      return dialogText;
-    }
-  }
-
   private checkIfUnsaved = () => {
     for (let subElement of this.loadedRatingElement.related_sub_elements) {
       if (!subElement.isSaved) {
@@ -260,6 +251,15 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
       '<p class="text-center">Все внесенные изменения сохранены.</p>'
     ))
   };
+
+  @HostListener('window:beforeunload', ['$event'])
+  public beforeUnloadHander(event) {
+    if (this.checkIfUnsaved()) {
+      let dialogText = "You have unsaved data changes. Are you sure to close the page?";
+      event.returnValue = dialogText;
+      return dialogText;
+    }
+  }
 
   public getFullDocumentLink = (subElement: MonthlyRatingSubElement): string => {
     if (subElement.document) {
