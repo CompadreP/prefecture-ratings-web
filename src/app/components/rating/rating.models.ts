@@ -2,7 +2,6 @@
  * Created by evgeniy on 2017-03-12.
  */
 import {RatingsUser} from "../authentication/authentication.models";
-import {number} from "ng2-validation/dist/number";
 import {getColor} from "../../common/functions";
 
 class BaseDocument {
