@@ -1,6 +1,6 @@
 <div class="box" *ngIf="loadedRating">
   <div class="text-center">
-    <div class="excel-btn"></div>
+    <div class="excel-btn" (click)="downloadExcel()"></div>
     <h5 class="sub-header">
       Исходные данные для расчета рейтинга управ районов САО в части
       показателей ЖКХ за

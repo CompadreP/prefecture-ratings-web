@@ -16,6 +16,8 @@ import {BaseTableComponent} from "../base-table.component";
 import {AvailableRatingsService} from "../available-ratings.service";
 import {ActivatedRoute, Params} from "@angular/router";
 import {MonthlyRatingService} from "./monthly-rating.service";
+import {saveAs} from "file-saver";
+
 
 @Component({
   selector: 'rating',
@@ -182,6 +184,24 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
 
   };
 
+  public downloadExcel = () => {
+    console.log('downloading!');
+    this.reqS.http.get(
+      `${ROOT_API_URL}/api/ratings/downloads/${this.loadedRating.year}/${this.loadedRating.month}/`,
+      this.reqS.options
+    ).subscribe(
+      data => {
+        console.log(data);
+        let res = data as any;
+        let blob = new Blob([res._body], {type: 'application/ms-excel'});
+        saveAs(blob, 'myCSV_Report.xlsx');
+        // let file = data.blob();
+        // console.log(file.size + " bytes file downloaded. File type: ", file.type);
+        // saveAs(file, 'myCSV_Report.csv');
+      }
+    );
+  };
+
   public yearPicked = (year): void => {
     if (this.pickedYear !== year) {
       this.pickedYear = year;
@@ -201,18 +221,18 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
       this.availratS.availableRatings
     );
     if (pickedRatingId !== this.loadedRating.id) {
-    this.monthratS.loadMonthlyRating(+pickedRatingId)
-      .map(this.reqS.extractData)
-      .catch(this.reqS.handleError)
-      .subscribe(
-        data => {
-          this.loadedRating = new MonthlyRatingFull(data);
-          this.proceedLoadedRating();
-        },
-        error => {
-          this.notiS.notificateError(error);
-          console.log(error);
-        });
+      this.monthratS.loadMonthlyRating(+pickedRatingId)
+        .map(this.reqS.extractData)
+        .catch(this.reqS.handleError)
+        .subscribe(
+          data => {
+            this.loadedRating = new MonthlyRatingFull(data);
+            this.proceedLoadedRating();
+          },
+          error => {
+            this.notiS.notificateError(error);
+            console.log(error);
+          });
     }
   };
 
