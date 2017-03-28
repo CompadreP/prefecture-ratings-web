@@ -32,8 +32,13 @@
                     [disabled]="!loginForm.form.valid">
               Отправить
             </button>
+            <button class="btn btn-warning"
+                    (click)="forgotPassword($event)">
+              Забыл(а)
+            </button>
           </div>
         </form>
+
         <div *ngIf="loginError" class="alert alert-danger login-error"
              role="alert">
           <span class="glyphicon glyphicon-exclamation-sign"
@@ -45,11 +50,17 @@
               Сервер недоступен
             </span>
           <span *ngIf="!([403, 0, 500, 502].indexOf(loginError.status) > -1)">
-              {{loginError?.status}}<br>
-              {{loginError?.statusText}}<br>
-              {{loginError?.text}}<br>
-              {{loginError?.message}}
-            </span>
+            <ng-container *ngIf="loginError?.status">{{loginError?.status}}<br></ng-container>
+            <ng-container *ngIf="loginError?.statusText">{{loginError?.statusText}}<br></ng-container>
+            <ng-container *ngIf="loginError?.text">{{loginError?.text}}<br><br></ng-container>
+            <ng-container *ngIf="loginError?.message">{{loginError?.message}}<br></ng-container>
+          </span>
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success login-error">
+          <span class="glyphicon glyphicon glyphicon-ok-sign"
+                aria-hidden="true"></span>
+          На ваш email выслано писмьо с дальнейшими инструкциями по смене
+          пароля
         </div>
       </div>
     </div>

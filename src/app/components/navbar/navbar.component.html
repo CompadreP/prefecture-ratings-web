@@ -24,7 +24,7 @@
           </a>
           <ul dropdownMenu class="dropdown-menu">
             <li><a (click)="logout()">Выйти</a></li>
-            <li><a>Сменить пароль</a></li>
+            <li><a (click)="changePassword()">Сменить пароль</a></li>
             <li *ngIf="authS.user.role === 'admin'"><a href="/admin">Администрирование</a></li>
           </ul>
         </li>

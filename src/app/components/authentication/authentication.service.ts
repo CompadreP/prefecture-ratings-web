@@ -37,6 +37,7 @@ export class AuthenticationService {
       .catch(this.reqS.handleError)
       .subscribe(
         user => {
+          //user.email = email;
           this.user = new RatingsUser(user);
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.successfulLogin$.emit();

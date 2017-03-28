@@ -1,6 +1,14 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, OnDestroy, ViewChild} from '@angular/core';
 
 import {AuthenticationService} from "./authentication.service";
+import {RequestsService} from "../../common/services/requests.service";
+import {ROOT_API_URL} from "../../../settings";
+import {
+  NotificationTypeEnum,
+  SimpleTextNotification
+} from "../notification/notification.models";
+import {NotificationService} from "../notification/notification.service";
+import {validateEmail} from "../../common/functions";
 
 
 @Component({
@@ -8,7 +16,7 @@ import {AuthenticationService} from "./authentication.service";
   templateUrl: './authentication.component.html',
   styleUrls: ['./authentication.component.sass'],
 })
-export class AuthenticationComponent {
+export class AuthenticationComponent implements OnDestroy{
 
   @ViewChild('loginModal')
   loginModal;
@@ -16,8 +24,11 @@ export class AuthenticationComponent {
   email: string = '';
   password: string = '';
   loginError = null;
+  successMessage = null;
 
-  constructor(private authS: AuthenticationService) {
+  constructor(private authS: AuthenticationService,
+              private reqS: RequestsService,
+              private notiS: NotificationService) {
     authS.loginRequest$.subscribe(
       _ => {
         this.loginModal.show();
@@ -34,9 +45,46 @@ export class AuthenticationComponent {
     )
   }
 
+  ngOnDestroy() {
+    this.email = '';
+    this.password = '';
+    this.loginError = null;
+    this.successMessage = null;
+  }
+
   public onSubmit = (): void => {
     this.authS.login(this.email, this.password);
-  }
+  };
+
+  public forgotPassword = ($event): void => {
+    $event.preventDefault();
+    $event.stopPropagation();
+    if (validateEmail(this.email)) {
+      this.loginError = null;
+      this.reqS.http.post(
+        `${ROOT_API_URL}/api/auth/reset_password/`,
+        {
+          email: this.email
+        },
+        this.reqS.options
+      )
+        .map(this.reqS.extractData)
+        .catch(this.reqS.handleError)
+        .subscribe(
+          _ => {
+            this.loginError = null;
+            this.successMessage = 'На ваш email выслано письмо с дальнейшими инструкциями по смене пароля'
+          },
+          error => {
+            this.loginError = error;
+            this.successMessage = null;
+            console.log(error);
+          })
+    } else {
+      this.loginError = {};
+      this.loginError['message'] = 'Введен некорректный email'
+    }
+  };
 
 
 }
