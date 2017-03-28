@@ -52,6 +52,7 @@ export class AuthenticationService {
   public logout = (): void => {
     this.reqS.http.post(
       this.logoutUrl,
+      {},
       this.reqS.options)
       .map(this.reqS.extractData)
       .catch(this.reqS.handleError)
