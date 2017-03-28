@@ -484,13 +484,13 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
       this.base_document = new BaseDocument(obj.base_document);
       this.approved_by = new RatingsUser(obj.approved_by);
       if (obj.elements) {
-        console.log(obj.elements);
+        //console.log(obj.elements);
         let new_elements = [];
         for (let i = 0; i < obj.elements.length; i++) {
           new_elements[i] = new MonthlyRatingElement(obj.elements[i]);
         }
         this.elements = new_elements.filter(_ => _)
-        console.log(this.elements);
+        //console.log(this.elements);
       }
       this.sum_values = new Map();
       this._max_possible_value = 0;
