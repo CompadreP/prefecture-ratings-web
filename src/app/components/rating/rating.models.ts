@@ -471,7 +471,7 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
   }
 
   get avg_value() {
-    if (this._avg_value === null || this._avg_value === undefined) {
+    if (this._avg_value === null || this._avg_value === undefined ) {
       return null
     } else {
       return this._avg_value.toFixed(1).replace('.', ',')
@@ -484,11 +484,13 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
       this.base_document = new BaseDocument(obj.base_document);
       this.approved_by = new RatingsUser(obj.approved_by);
       if (obj.elements) {
+        console.log(obj.elements);
         let new_elements = [];
         for (let i = 0; i < obj.elements.length; i++) {
           new_elements[i] = new MonthlyRatingElement(obj.elements[i]);
-          this.elements = new_elements.filter(_ => _)
         }
+        this.elements = new_elements.filter(_ => _)
+        console.log(this.elements);
       }
       this.sum_values = new Map();
       this._max_possible_value = 0;
@@ -525,8 +527,10 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
         min_value = this.sum_values[region][0]
       }
     }
-    this._avg_value = sum / cnt;
-    this.calculateColors(min_value, max_value);
+    if (cnt !== 0) {
+      this._avg_value = sum / cnt;
+      this.calculateColors(min_value, max_value);
+    }
   };
 
   calculateColors = (min_value: number, max_value: number): void => {

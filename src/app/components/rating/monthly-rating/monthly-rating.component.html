@@ -269,7 +269,7 @@
         <td *ngIf="headers[1].is_displayed"
             class="element-average">
           <div class="text-center form-control">
-            {{element.weightedValue(element._avg)}}
+            {{element._avg ? element.weightedValue(element._avg) : null}}
           </div>
         </td>
         <td *ngIf="headers[2].is_displayed"
