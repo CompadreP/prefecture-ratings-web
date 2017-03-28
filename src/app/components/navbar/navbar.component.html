@@ -20,11 +20,12 @@
         <li *ngSwitchDefault role="presentation" class="dropdown" dropdown>
           <a class="dropdown-toggle" dropdownToggle role="button"
              aria-haspopup="true" aria-expanded="false">
-            {{authS.user.fullDisplayName}} <span class="caret"></span>
+            {{(authS.user.role === 'admin') ? 'Администратор' : authS.user.fullDisplayName}} <span class="caret"></span>
           </a>
           <ul dropdownMenu class="dropdown-menu">
             <li><a (click)="logout()">Выйти</a></li>
             <li><a>Сменить пароль</a></li>
+            <li *ngIf="authS.user.role === 'admin'"><a href="/admin">Администрирование</a></li>
           </ul>
         </li>
       </ul>
