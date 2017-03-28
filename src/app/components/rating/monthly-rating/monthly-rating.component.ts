@@ -72,9 +72,9 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
       .catch(this.reqS.handleError)
       .subscribe(
         data => {
-          //console.log(data);
+          console.log(data);
           this.loadedRating = new MonthlyRatingFull(data);
-          //console.log(this.loadedRating);
+          console.log(this.loadedRating);
           this.proceedLoadedRating();
         },
         error => {

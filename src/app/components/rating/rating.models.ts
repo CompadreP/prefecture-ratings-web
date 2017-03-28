@@ -14,7 +14,6 @@ class BaseDocument {
 
 class RatingElement {
   id: number;
-  number: number;
   base_document: BaseDocument;
   name: string;
   base_description: string;
@@ -22,7 +21,6 @@ class RatingElement {
 
   constructor(obj) {
     this.id = obj.id;
-    this.number = obj.number;
     this.base_document = new BaseDocument(obj.base_document);
     if (obj.name && (obj.name.slice(-1) === '.')) {
       this.name = obj.name.slice(0, - 1);
@@ -265,6 +263,7 @@ export class MonthlyRatingElement {
   id: number;
   monthly_rating: MonthlyRatingShort;
   rating_element: RatingElement;
+  num: number;
   responsible: RatingsUser;
   additional_description: string;
   negotiator_comment: string;
@@ -311,6 +310,7 @@ export class MonthlyRatingElement {
     this.id = obj.id;
     this.monthly_rating = new MonthlyRatingShort(obj.monthly_rating);
     this.rating_element = new RatingElement(obj.rating_element);
+    this.num = obj.number;
     this.responsible = new RatingsUser(obj.responsible);
     this.additional_description = obj.additional_description;
     this.negotiator_comment = obj.negotiator_comment;
@@ -485,8 +485,8 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
       this.approved_by = new RatingsUser(obj.approved_by);
       if (obj.elements) {
         let new_elements = [];
-        for (let element of obj.elements) {
-          new_elements[element.rating_element.number] = new MonthlyRatingElement(element);
+        for (let i = 0; i < obj.elements.length; i++) {
+          new_elements[i] = new MonthlyRatingElement(obj.elements[i]);
           this.elements = new_elements.filter(_ => _)
         }
       }
