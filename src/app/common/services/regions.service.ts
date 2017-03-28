@@ -55,12 +55,10 @@ export class RegionsService {
   isRegionsInLocalStorageValid = () => {
     let localStorageRegions = JSON.parse(localStorage.getItem('regionsDisplay'));
     if (localStorageRegions === null) {
-      console.log('regions localstorage null');
       return false
     }
     if (this.regions.length !== localStorageRegions.length) {
       localStorage.removeItem('regionsDisplay');
-      console.log('regions different length');
       return false;
     } else {
       let this_regions = {};
@@ -79,7 +77,6 @@ export class RegionsService {
         if (this.regions.hasOwnProperty(region)) {
           if (this_regions[region] !== local_regions[region]) {
             localStorage.removeItem('regionsDisplay');
-            console.log('regions different name', this_regions[region], local_regions[region]);
             return false;
           }
         }

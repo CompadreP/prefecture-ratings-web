@@ -25,7 +25,7 @@ export class CurrentRatingLoaderComponent implements OnInit {
       .catch(this.reqS.handleError)
       .subscribe(
         data => {
-          console.log(data);
+          //console.log(data);
           this.router.navigate(['/rating', data['id']])
         },
         error => {

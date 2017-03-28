@@ -188,9 +188,14 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   };
 
   private checkIfUserCanChangeElement = (): boolean => {
-    return !!this.authS.user
+    let result = !!this.authS.user
       && (this.authS.user.id === this.loadedRatingElement.responsible.id)
       && !this.loadedRatingElement.monthly_rating.is_approved
+    // console.log(!!this.authS.user)
+    // console.log(this.authS.user.id === this.loadedRatingElement.responsible.id)
+    // console.log(!this.loadedRatingElement.monthly_rating.is_approved)
+    // console.log(result, this.authS.user.role)
+    return result
   };
 
   private invalidateElementCalculatedValues = (): void => {
@@ -282,10 +287,13 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   };
 
   public userCanChangeSubElement = (subElement: MonthlyRatingSubElement): boolean => {
-    return !!this.authS.user
+    let result = !!this.authS.user
       && ((this.authS.user.id === subElement.responsible.id)
-      || (this.authS.user.id === this.loadedRatingElement.responsible.id))
+           || (this.authS.user.id === this.loadedRatingElement.responsible.id))
       && !this.loadedRatingElement.monthly_rating.is_approved;
+    //console.log(result)
+    return result
+
   };
 
   public emitElementChange = (elementId) => {

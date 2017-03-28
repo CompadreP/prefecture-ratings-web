@@ -8,8 +8,8 @@
       <h5 class="sub-header">
         Исходные данные для расчета комплексного показателя
         №{{loadedRatingElement.num}}<br>
-        <p class="rating-element-name-label"><span class="label label-primary">{{loadedRatingElement.rating_element.name}}</span>
-        </p>
+        <div class="well well-sm rating-element-name-well">{{loadedRatingElement.rating_element.name}}</div>
+        <!--<p class="rating-element-name-label"><span class="label label-primary">{{loadedRatingElement.rating_element.name}}</span></p>-->
         рейтинга управ районов САО в части показателей ЖКХ за<br>
         <p class="rating-year-month"><a
           routerLink="/rating/{{loadedRatingElement.monthly_rating.id}}">
@@ -187,13 +187,13 @@
             <!--</div>-->
           </td>
           <td *ngIf="headers[3].is_displayed"
-              class="fake-input left-padding-only">
+              class="fake-input left-padding-only region-value">
             <div class="text-center form-control strong-red-background">
               {{loadedRatingElement.min}}
             </div>
           </td>
           <td *ngIf="headers[4].is_displayed"
-              class="fake-input side-padding-only">
+              class="fake-input side-padding-only region-value">
             <div class="text-center form-control strong-green-background">
               {{loadedRatingElement.max}}
             </div>
@@ -229,10 +229,10 @@
           <td *ngIf="headers[2].is_displayed" class="col-num text-center">
             21
           </td>
-          <td *ngIf="headers[3].is_displayed" class="col-num text-center">
+          <td *ngIf="headers[3].is_displayed" class="col-num text-center left-padding-only">
             22
           </td>
-          <td *ngIf="headers[4].is_displayed" class="col-num text-center">
+          <td *ngIf="headers[4].is_displayed" class="col-num text-center side-padding-only">
             23
           </td>
           <td *ngIf="headers[5].is_displayed" class="col-num text-center">
