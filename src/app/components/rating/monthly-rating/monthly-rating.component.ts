@@ -14,7 +14,7 @@ import {NotificationService} from "../../notification/notification.service";
 import {AreYouSureSimpleNotification} from "../../notification/notification.models";
 import {BaseTableComponent} from "../base-table.component";
 import {AvailableRatingsService} from "../available-ratings.service";
-import {ActivatedRoute, Params} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 import {MonthlyRatingService} from "./monthly-rating.service";
 import {saveAs} from "file-saver";
 
@@ -61,7 +61,8 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
               public availratS: AvailableRatingsService,
               public notiS: NotificationService,
               private monthratS: MonthlyRatingService,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private router: Router,) {
     super(regionsS, reqS, notiS);
   }
 
@@ -221,18 +222,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
       this.availratS.availableRatings
     );
     if (pickedRatingId !== this.loadedRating.id) {
-      this.monthratS.loadMonthlyRating(+pickedRatingId)
-        .map(this.reqS.extractData)
-        .catch(this.reqS.handleError)
-        .subscribe(
-          data => {
-            this.loadedRating = new MonthlyRatingFull(data);
-            this.proceedLoadedRating();
-          },
-          error => {
-            this.notiS.notificateError(error);
-            console.log(error);
-          });
+      this.router.navigate(['/rating', pickedRatingId])
     }
   };
 
