@@ -8,7 +8,9 @@
       <h5 class="sub-header">
         Исходные данные для расчета комплексного показателя
         №{{loadedRatingElement.num}}<br>
-        <div class="well well-sm rating-element-name-well">{{loadedRatingElement.rating_element.name}}</div>
+        <div class="well well-sm rating-element-name-well">
+          {{loadedRatingElement.rating_element.name}}
+        </div>
         <!--<p class="rating-element-name-label"><span class="label label-primary">{{loadedRatingElement.rating_element.name}}</span></p>-->
         рейтинга управ районов САО в части показателей ЖКХ за<br>
         <p class="rating-year-month"><a
@@ -229,10 +231,12 @@
           <td *ngIf="headers[2].is_displayed" class="col-num text-center">
             21
           </td>
-          <td *ngIf="headers[3].is_displayed" class="col-num text-center left-padding-only">
+          <td *ngIf="headers[3].is_displayed"
+              class="col-num text-center left-padding-only">
             22
           </td>
-          <td *ngIf="headers[4].is_displayed" class="col-num text-center side-padding-only">
+          <td *ngIf="headers[4].is_displayed"
+              class="col-num text-center side-padding-only">
             23
           </td>
           <td *ngIf="headers[5].is_displayed" class="col-num text-center">
@@ -445,6 +449,9 @@
                   'Выберите&nbsp;файл...'}}
                 </label>
               </div>
+
+            </div>
+            <div *ngSwitchCase="false">
               <div class="input-file-wrapper"
                    *ngIf="subElement.document && subElement.isDocumentSaved">
                 <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
