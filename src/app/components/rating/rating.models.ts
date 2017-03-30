@@ -577,7 +577,7 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
       arr.push([region, this.sum_values[region]])
     }
     arr.sort(function (a, b) {
-      return a[1][0] - b[1][0]
+      return b[1][0] - a[1][0]
     });
     arr.forEach( (val, idx) => {
       this.region_places[val[0]] = idx + 1
