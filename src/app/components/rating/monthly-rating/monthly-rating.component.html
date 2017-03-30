@@ -172,7 +172,8 @@
         </th>
         <ng-container *ngFor="let region of regionsS.regions">
           <th class="text-center value-cell" *ngIf="region.is_displayed">
-            <span>{{region.name.slice(0, 3)}}</span>
+            <span class="region-name"
+                    tooltip="{{region.name.replace(' ', '&nbsp;')}}">{{region.name.slice(0, 3)}}</span>
           </th>
         </ng-container>
         <th *ngIf="headers[1].is_displayed" class="text-center avg-cell"
