@@ -204,7 +204,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
         if (!subElement.values[value].is_valid) {
           validationErrors.push(
             'Значение компонента для района не может быть нечисловым, ' +
-            'либо быть менее -100 или более 100'
+            'либо быть менее -1000 или более 1000'
           )
         }
       }
@@ -379,7 +379,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                       elementValueObject: MonthlyRatingSubElementValue,
                       scalarValue: string): void => {
     if ((scalarValue !== null) && (scalarValue !== '')) {
-      let regex = /^(-)?(\d{1,3}(,(\d{1,2})?)?)?$/;
+      let regex = /^(-)?(\d{1,4}(,(\d{1,2})?)?)?$/;
       if (regex.test(scalarValue)) {
         if (scalarValue === '-') {
           elementValueObject.value = '0';
@@ -388,7 +388,8 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
         } else {
           elementValueObject.minusZero = false;
           let toNum = +scalarValue.replace(',', '.');
-          if (toNum < -100 || toNum > 100) {
+          console.log(toNum);
+          if (toNum < -1000 || toNum > 1000) {
             elementValueObject.is_valid = false;
           } else {
             elementValueObject.value = toNum.toString().replace('.', ',');
