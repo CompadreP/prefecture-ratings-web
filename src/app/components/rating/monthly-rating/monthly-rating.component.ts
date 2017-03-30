@@ -1,6 +1,5 @@
 import {
-  Component, OnInit, OnDestroy, HostListener,
-  ViewChild, ElementRef, AfterViewInit, NgZone, Renderer
+  Component, OnInit, OnDestroy, AfterViewInit, NgZone, Renderer
 } from '@angular/core';
 import {Subject} from "rxjs";
 import 'rxjs/add/operator/catch';

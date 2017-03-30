@@ -4,7 +4,7 @@
 
 import {displayableMonth} from "../../common/functions";
 import {
-  AfterViewInit, ElementRef, OnDestroy, Renderer,
+  AfterViewInit, ElementRef, HostListener, OnDestroy, Renderer,
   ViewChild
 } from "@angular/core";
 import {RegionsService} from "../../common/services/regions.service";
@@ -51,8 +51,13 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
     window.onresize = () => {
-        this.setElementsSizes();
+      this.setElementsSizes();
     };
+  }
+
+  @HostListener("window:wheel", ['$event'])
+  onWindowScroll(event) {
+    this.tableBody.nativeElement.scrollTop += event.deltaY
   }
 
   public setElementsSizes = () => {
@@ -104,10 +109,22 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
     this._valueChangeWatchers[elementId][property].next([elementId, property, value])
   };
 
-  public displayAllRegions = (): void => {
+  public toggleDisplayAllRegions = (): void => {
     for (let region in this.regionsS.regions) {
       if (this.regionsS.regions.hasOwnProperty(region)) {
-        this.regionsS.regions[region].is_displayed = true;
+        if (this.regionsS.regions[region].is_displayed === false) {
+          this.displayAllRegions(true);
+          return
+        }
+      }
+    }
+    this.displayAllRegions(false);
+  };
+
+  public displayAllRegions = (display: boolean): void => {
+    for (let region in this.regionsS.regions) {
+      if (this.regionsS.regions.hasOwnProperty(region)) {
+        this.regionsS.regions[region].is_displayed = display;
       }
     }
     localStorage.setItem('regionsDisplay', JSON.stringify(this.regionsS.regions))
@@ -116,6 +133,32 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
   public toggleRegion = (region): void => {
     region.is_displayed = !region.is_displayed;
     localStorage.setItem('regionsDisplay', JSON.stringify(this.regionsS.regions))
+  };
+
+  public toggleDisplayAllHeaders = (): void => {
+    for (let header in this.headers) {
+      if (this.headers.hasOwnProperty(header)) {
+        if (this.headers[header].is_displayed === false) {
+          this.displayAllHeaders(true);
+          return
+        }
+      }
+    }
+    this.displayAllHeaders(false);
+  };
+
+  public displayAllHeaders = (display: boolean): void => {
+    for (let header in this.headers) {
+      if (this.headers.hasOwnProperty(header)) {
+        this.headers[header].is_displayed = display;
+      }
+    }
+    localStorage.setItem(this._localStorageHeadersKey, JSON.stringify(this.headers));
+  };
+
+  public toggleHeader = (header): void => {
+    header.is_displayed = !header.is_displayed;
+    localStorage.setItem(this._localStorageHeadersKey, JSON.stringify(this.headers))
   };
 
   public saveElementProperty = ([elementId, property, value]): void => {
@@ -144,20 +187,6 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
     this.pendingSaves[element.id]['responsible'] = true;
     this.saveElementProperty([element.id, 'responsible', newResponsible.id]);
     element.responsible = newResponsible
-  };
-
-  public displayAllHeaders = (): void => {
-    for (let header in this.headers) {
-      if (this.headers.hasOwnProperty(header)) {
-        this.headers[header].is_displayed = true;
-      }
-    }
-    localStorage.setItem(this._localStorageHeadersKey, JSON.stringify(this.headers));
-  };
-
-  public toggleHeader = (header): void => {
-    header.is_displayed = !header.is_displayed;
-    localStorage.setItem(this._localStorageHeadersKey, JSON.stringify(this.headers))
   };
 
   public displayableDisplayType = (displayType): string => {
