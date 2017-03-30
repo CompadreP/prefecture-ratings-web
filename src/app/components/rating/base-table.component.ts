@@ -58,6 +58,7 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
   @HostListener("window:wheel", ['$event'])
   onWindowScroll(event) {
     event.preventDefault();
+    this.tableBody.nativeElement.scrollLeft = 100;
     if (event.deltaY < 0) {
       if ((this.tableBody.nativeElement.scrollTop + event.deltaY) < 0) {
         this.tableBody.nativeElement.scrollTop = 0;
@@ -66,6 +67,15 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
       }
     } else {
       this.tableBody.nativeElement.scrollTop += event.deltaY
+    }
+    if (event.deltaX < 0) {
+      if ((window.scrollX + event.deltaX) < 0) {
+        window.scrollTo(0, 0);
+      } else {
+        window.scrollTo(window.scrollX + event.deltaX, 0);
+      }
+    } else {
+      window.scrollTo(window.scrollX + event.deltaX, 0);
     }
   };
 
