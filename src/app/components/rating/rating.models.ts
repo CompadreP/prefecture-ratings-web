@@ -108,19 +108,36 @@ export class MonthlyRatingSubElement {
   _avg: number;
 
   get best() {
-    return this._best ? this._best.toString().replace('.', ',') : null
+    //console.log(this._best);
+    if (this._best !== null && this._best !== undefined) {
+      return this._best.toString().replace('.', ',')
+    } else {
+      return null
+    }
   }
 
   get min() {
-    return this._min ? this._min.toString().replace('.', ',') : null
+    if (this._min !== null && this._min !== undefined) {
+      return this._min.toString().replace('.', ',')
+    } else {
+      return null
+    }
   }
 
   get max() {
-    return this._max ? this._max.toString().replace('.', ',') : null
+    if (this._max !== null && this._max !== undefined) {
+      return this._max.toString().replace('.', ',')
+    } else {
+      return null
+    }
   }
 
   get avg() {
-    return this._avg ? this._avg.toString().replace('.', ',') : null
+    if (this._avg !== null && this._avg !== undefined) {
+      return this._avg.toString().replace('.', ',')
+    } else {
+      return null
+    }
   }
 
   constructor(obj?) {
@@ -165,11 +182,16 @@ export class MonthlyRatingSubElement {
     let min = null;
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
-        if (min) {
-          if (this.values[value]._value && !this.values[value].is_average && this.values[value]._value < min) {
+        if (min !== null) {
+          if (this.values[value]._value !== null
+              && this.values[value]._value !== undefined
+              && !this.values[value].is_average
+              && this.values[value]._value < min) {
             min = this.values[value]._value
           }
-        } else if (this.values[value]._value && !this.values[value].is_average) {
+        } else if (this.values[value]._value !== null
+                   && this.values[value]._value !== undefined
+                   && !this.values[value].is_average) {
           min = this.values[value]._value
         }
       }
@@ -185,11 +207,16 @@ export class MonthlyRatingSubElement {
     let max = null;
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
-        if (max) {
-          if (this.values[value]._value && !this.values[value].is_average && this.values[value]._value > max) {
+        if (max !== null) {
+          if (this.values[value]._value  !== null
+              && this.values[value]._value !== undefined
+              && !this.values[value].is_average
+              && this.values[value]._value > max) {
             max = this.values[value]._value
           }
-        } else if (this.values[value]._value && !this.values[value].is_average) {
+        } else if (this.values[value]._value !== null
+                   && this.values[value]._value !== undefined
+                   && !this.values[value].is_average) {
           max = this.values[value]._value
         }
       }
@@ -207,7 +234,9 @@ export class MonthlyRatingSubElement {
     let cnt = 0;
     for (let value in this.values) {
       if (this.values.hasOwnProperty(value)) {
-        if (this.values[value]._value && !this.values[value].is_average) {
+        if (this.values[value]._value !== null
+            && this.values[value]._value !== undefined
+            && !this.values[value].is_average) {
           sum += this.values[value]._value;
           cnt++;
         }
