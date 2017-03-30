@@ -120,7 +120,7 @@
             </div>
           </th>
           <ng-container *ngFor="let region of regionsS.regions">
-            <th class="text-center element-value" *ngIf="region.is_displayed">
+            <th class="text-center subelement-value" *ngIf="region.is_displayed">
               <div>
               <span class="region-name"
                     tooltip="{{region.name.replace(' ', '&nbsp;')}}">{{region.name.slice(0, 3)}}</span>
@@ -161,7 +161,7 @@
           </th>
           <th [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}"></th>
           <ng-container *ngFor="let region of regionsS.regions">
-            <th class="fake-input"
+            <th class="fake-input subelement-value"
                 *ngIf="region.is_displayed">
               <div
                 [style.background-color]="loadedRatingElement.values[region.id]?.color"
@@ -211,7 +211,7 @@
               [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}"></th>
           <ng-container
             *ngFor="let region of regionsS.regions; let idx = index">
-            <th class="element-value col-num text-center"
+            <th class="subelement-value col-num text-center"
                 *ngIf="region.is_displayed">
               {{idx + 3}}
             </th>
@@ -330,7 +330,7 @@
             </div>
           </td>
           <ng-container *ngFor="let region of regionsS.regions">
-            <td class="subelement-value-input"
+            <td class="subelement-value-input subelement-value"
                 *ngIf="region.is_displayed"
                 [ngClass]="{'region-value': !userCanChangeSubElement(subElement)}"
                 [ngSwitch]="userCanChangeSubElement(subElement)">

@@ -490,7 +490,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
                   }
                 } else if (subElement.display_type === 2) {
                   if (subElement.values[value]._value !== null && subElement.values[value]._value !== undefined) {
-                    scalarValue = subElement.values[value]._value / 100
+                    scalarValue = (subElement.values[value]._value / 100).toFixed(4)
                   } else {
                     scalarValue = null
                   }
