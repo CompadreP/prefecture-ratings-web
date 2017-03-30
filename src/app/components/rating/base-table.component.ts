@@ -93,7 +93,7 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
     this.renderer.setElementStyle(
       this.tableWrapper.nativeElement,
       'height',
-      window.innerHeight - this.mainHeader.nativeElement.clientHeight - 60 + 'px'
+      window.innerHeight - this.mainHeader.nativeElement.clientHeight - 80 + 'px'
     );
     this.renderer.setElementStyle(
       this.tableBody.nativeElement,
