@@ -285,12 +285,16 @@
         <ng-container *ngFor="let region of regionsS.regions">
           <td class="fake-input"
               *ngIf="region.is_displayed">
-            <div
+            <div *ngIf="element._avg"
               [style.background-color]="element.values[region.id]?.color"
               class="text-center form-control">
               {{element.values[region.id] ?
               element.weightedValue(element.values[region.id]._value) : ''}}
             </div>
+            <div *ngIf="!element._avg"
+                 class="text-center form-control strong-grey-background">
+            </div>
+            <!--"element.values[region.id]?.color"-->
           </td>
         </ng-container>
 
