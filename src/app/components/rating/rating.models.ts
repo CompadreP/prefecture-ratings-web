@@ -488,6 +488,7 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
   approved_by?: RatingsUser;
   elements?: MonthlyRatingElement[] = [];
   sum_values: Map<number, Array<any>>;
+  region_places: Map<number, Array<any>>;
   _max_possible_value: number;
   _avg_value: number;
 
@@ -522,6 +523,7 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
         //console.log(this.elements);
       }
       this.sum_values = new Map();
+      this.region_places = new Map();
       this._max_possible_value = 0;
       this.calculateValues()
     }
@@ -559,6 +561,7 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
     if (cnt !== 0) {
       this._avg_value = sum / cnt;
       this.calculateColors(min_value, max_value);
+      this.calculateRegionsPlaces();
     }
   };
 
@@ -566,7 +569,20 @@ export class MonthlyRatingFull extends MonthlyRatingShort {
     for (let region in this.sum_values) {
       this.sum_values[region][1] = getColor(this.sum_values[region][0], min_value, max_value, 2);
     }
-  }
+  };
+
+  calculateRegionsPlaces = () => {
+    let arr = [];
+    for (let region in this.sum_values) {
+      arr.push([region, this.sum_values[region]])
+    }
+    arr.sort(function (a, b) {
+      return a[1][0] - b[1][0]
+    });
+    arr.forEach( (val, idx) => {
+      this.region_places[val[0]] = idx + 1
+    });
+  };
 
 }
 
