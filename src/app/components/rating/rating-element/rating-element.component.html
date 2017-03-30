@@ -4,15 +4,18 @@
   <!--[style.z-index]="isFileUploading ? 100 : -100">-->
   <!--</div>-->
   <div class="box rating-element-wrapper">
-    <div class="text-center">
-      <h5 class="sub-header">
-        Исходные данные для расчета комплексного показателя
-        №{{loadedRatingElement.num}}<br>
+    <div class="text-center rating-element-header-wrapper" #mainHeader>
+      <h5>
+        <p>Исходные данные для расчета комплексного показателя
+          №{{loadedRatingElement.num}}</p>
+
         <div class="well well-sm rating-element-name-well">
           {{loadedRatingElement.rating_element.name}}
         </div>
+
+
         <!--<p class="rating-element-name-label"><span class="label label-primary">{{loadedRatingElement.rating_element.name}}</span></p>-->
-        рейтинга управ районов САО в части показателей ЖКХ за<br>
+        <p>рейтинга управ районов САО в части показателей ЖКХ за</p>
         <p class="rating-year-month"><a
           routerLink="/rating/{{loadedRatingElement.monthly_rating.id}}">
           {{displayableMonth(loadedRatingElement.monthly_rating.month)}}
@@ -20,10 +23,8 @@
         в соответствии с
         {{loadedRatingElement.rating_element.base_document.description_imp}}
       </h5>
-    </div>
-
-    <div class="rating-label">
-      <div>
+      <div class="rating-label">
+        <div>
       <span class="label"
             [ngClass]="{
               'label-warning': !loadedRatingElement.monthly_rating.is_approved && !loadedRatingElement.monthly_rating.is_negotiated,
@@ -31,18 +32,20 @@
               'label-success': loadedRatingElement.monthly_rating.is_approved}">
         {{loadedRatingElement.monthly_rating.state}}
       </span>
+        </div>
       </div>
     </div>
 
-    <div class="rating-table">
+
+    <div class="rating-table" #tableWrapper>
       <table class="table table-striped" id="main-table">
 
         <!-- ############################# TABLE HEAD ##############################-->
 
-        <thead>
+        <thead #tableHead>
         <tr>
           <ng-container *ngIf="userCanChangeElement">
-            <th class="remove-sign"></th>
+            <th class="remove-sign-flex"></th>
           </ng-container>
           <th class="text-center rating-element-name">
             <div class="complex-header">
@@ -81,7 +84,8 @@
           <th *ngIf="headers[0].is_displayed"
               class="text-center rating-responsible-name"
               [innerHTML]="headers[0].text"></th>
-          <th class="text-center menu-only">
+          <th class="text-center"
+              [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}">
             <div class="complex-header">
               <div class="rating-menu-elements">
               <span dropdown>
@@ -123,17 +127,17 @@
               </div>
             </th>
           </ng-container>
-          <th *ngIf="headers[1].is_displayed" class="text-center"
+          <th *ngIf="headers[1].is_displayed" class="text-center best-value-select"
               [innerHTML]="headers[1].text">
           </th>
-          <th *ngIf="headers[2].is_displayed" class="text-center"
+          <th *ngIf="headers[2].is_displayed" class="text-center best-value"
               [innerHTML]="headers[2].text">
           </th>
           <th *ngIf="headers[3].is_displayed"
-              class="text-center left-padding-only"
+              class="text-center min-value"
               [innerHTML]="headers[3].text">
           </th>
-          <th *ngIf="headers[4].is_displayed" class="text-center"
+          <th *ngIf="headers[4].is_displayed" class="text-center max-value"
               [innerHTML]="headers[4].text">
           </th>
           <th *ngIf="headers[5].is_displayed"
@@ -143,117 +147,109 @@
           <th *ngIf="headers[6].is_displayed" class="text-center"
               [innerHTML]="headers[6].text">
           </th>
-          <!--<th *ngIf="headers[3].is_displayed"-->
-          <!--class="text-center rating-negotiator-comment"-->
-          <!--[innerHTML]="headers[3].text">-->
-          <!--</th>-->
-          <!--<th *ngIf="headers[4].is_displayed"-->
-          <!--class="text-center rating-region-comment"-->
-          <!--[innerHTML]="headers[4].text">-->
         </tr>
-        </thead>
-
-        <!-- ############################# TABLE BODY ##############################-->
-
-        <tbody>
-
-        <!-- ############################# SECOND HEADER ###########################-->
 
         <tr class="element-header">
           <ng-container *ngIf="userCanChangeElement">
-            <td class="remove-sign"></td>
+            <th class="remove-sign-flex"></th>
           </ng-container>
-          <td class="rating-element-name text-center">
+          <th class="rating-element-name text-center">
             Итоговый показатель
-          </td>
-          <td *ngIf="headers[0].is_displayed" class="rating-responsible-name">
+          </th>
+          <th *ngIf="headers[0].is_displayed" class="rating-responsible-name">
             {{loadedRatingElement.responsible.displayName}}
-          </td>
-          <td></td>
+          </th>
+          <th [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}"></th>
           <ng-container *ngFor="let region of regionsS.regions">
-            <td class="fake-input"
+            <th class="fake-input"
                 *ngIf="region.is_displayed">
               <div
                 [style.background-color]="loadedRatingElement.values[region.id]?.color"
                 class="text-center form-control">
                 {{loadedRatingElement.values[region.id]?.value}}
               </div>
-            </td>
+            </th>
           </ng-container>
-          <td *ngIf="headers[1].is_displayed" class="text-center">
-          </td>
-          <td *ngIf="headers[2].is_displayed">
+          <th *ngIf="headers[1].is_displayed" class="text-center best-value-select">
+          </th>
+          <th *ngIf="headers[2].is_displayed" class="best-value">
             <!--class="fake-input">-->
             <!--<div class="text-center form-control strong-green-background">-->
             <!--{{loadedRatingElement.best}}-->
             <!--</div>-->
-          </td>
-          <td *ngIf="headers[3].is_displayed"
-              class="fake-input left-padding-only region-value">
+          </th>
+          <th *ngIf="headers[3].is_displayed"
+              class="fake-input region-value min-value">
             <div class="text-center form-control strong-red-background">
               {{loadedRatingElement.min}}
             </div>
-          </td>
-          <td *ngIf="headers[4].is_displayed"
-              class="fake-input side-padding-only region-value">
+          </th>
+          <th *ngIf="headers[4].is_displayed"
+              class="fake-input side-padding-only region-value max-value">
             <div class="text-center form-control strong-green-background">
               {{loadedRatingElement.max}}
             </div>
-          </td>
-          <td *ngIf="headers[5].is_displayed" class="text-center">
-          </td>
-          <td *ngIf="headers[6].is_displayed" class="text-center">
-          </td>
+          </th>
+          <th *ngIf="headers[5].is_displayed" class="text-center rating-subelement-description">
+          </th>
+          <th *ngIf="headers[6].is_displayed" class="text-center">
+          </th>
         </tr>
 
         <tr class="element-second-header">
           <ng-container *ngIf="userCanChangeElement">
-            <td></td>
+            <th class="remove-sign-flex"></th>
           </ng-container>
-          <td class="col-num text-center">
+          <th class="col-num text-center rating-element-name">
             1
-          </td>
-          <td class="col-num text-center"
+          </th>
+          <th class="col-num text-center rating-responsible-name"
               *ngIf="headers[0].is_displayed">
             2
-          </td>
-          <td class="col-num text-center">3</td>
+          </th>
+          <th class="col-num text-center"
+              [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}"></th>
           <ng-container
             *ngFor="let region of regionsS.regions; let idx = index">
-            <td class="col-num text-center"
+            <th class="element-value col-num text-center"
                 *ngIf="region.is_displayed">
-              {{idx + 4}}
-            </td>
+              {{idx + 3}}
+            </th>
           </ng-container>
-          <td *ngIf="headers[1].is_displayed" class="col-num text-center">
+          <th *ngIf="headers[1].is_displayed" class="col-num text-center best-value-select">
+            19
+          </th>
+          <th *ngIf="headers[2].is_displayed" class="col-num text-center best-value">
             20
-          </td>
-          <td *ngIf="headers[2].is_displayed" class="col-num text-center">
+          </th>
+          <th *ngIf="headers[3].is_displayed"
+              class="col-num text-center min-value">
             21
-          </td>
-          <td *ngIf="headers[3].is_displayed"
-              class="col-num text-center left-padding-only">
+          </th>
+          <th *ngIf="headers[4].is_displayed"
+              class="col-num text-center side-padding-only max-value">
             22
-          </td>
-          <td *ngIf="headers[4].is_displayed"
-              class="col-num text-center side-padding-only">
+          </th>
+          <th *ngIf="headers[5].is_displayed" class="col-num text-center rating-subelement-description">
             23
-          </td>
-          <td *ngIf="headers[5].is_displayed" class="col-num text-center">
+          </th>
+          <th *ngIf="headers[6].is_displayed" class="col-num text-center">
             24
-          </td>
-          <td *ngIf="headers[6].is_displayed" class="col-num text-center">
-            25
-          </td>
+          </th>
         </tr>
 
-        <!-- ############################# BODY ####################################-->
+        </thead>
+
+        <!-- ############################# TABLE BODY ##############################-->
+
+        <tbody #tableBody>
+
         <tr class="subelement-row"
             *ngFor="let subElement of loadedRatingElement.related_sub_elements"
             [ngClass]="{'element-saved': userCanChangeSubElement(subElement) && (subElement.id !== undefined) && !pendingSaves[subElement.id],
                       'element-save-pending': userCanChangeSubElement(subElement) && (subElement.id === undefined) || pendingSaves[subElement.id] || !subElement.isSaved}">
           <ng-container *ngIf="userCanChangeElement">
-            <td class="remove-sign blue-background">
+            <td class="remove-sign-flex blue-background">
               <div>
               <span class="glyphicon glyphicon-remove-sign"
                     aria-hidden="true"
@@ -305,7 +301,8 @@
           </span>
             </div>
           </td>
-          <td *ngIf="headers[1].is_displayed" class="text-center">
+          <td *ngIf="headers[1].is_displayed" class="text-center"
+              [ngClass]="{'menu-only-simple': !userCanChangeElement, 'menu-only-wide': userCanChangeElement}">
             <div class="btn-group responsible-select"
                  dropdown>
               <button id="display-type-button" type="button"
@@ -347,7 +344,7 @@
                        [ngModel]="subElement.values[region.id]?.value"
                        (ngModelChange)="changeValueInput(subElement, subElement.values[region.id], $event)">
               </div>
-              <div class="text-center form-control"
+              <div class="text-center form-control text-nowrap"
                    [style.background-color]="subElement.values[region.id].color"
                    *ngSwitchCase="false">
                 {{subElement.values[region.id].value}}<span
@@ -355,7 +352,7 @@
               </div>
             </td>
           </ng-container>
-          <td *ngIf="headers[1].is_displayed" class="text-center">
+          <td *ngIf="headers[1].is_displayed" class="text-center best-value-select">
             <div class="btn-group responsible-select"
                  [ngSwitch]="userCanChangeSubElement(subElement)">
               <div *ngSwitchCase="true"
@@ -388,21 +385,21 @@
             </div>
           </td>
           <td *ngIf="headers[2].is_displayed"
-              class="green-background calculated-value">
+              class="green-background calculated-value best-value">
             <div class="text-center form-control strong-green-background">
               {{subElement.best}}<span
               *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
           <td *ngIf="headers[3].is_displayed"
-              class="light-blue-background calculated-value left-padding-only">
+              class="light-blue-background calculated-value min-value">
             <div class="text-center form-control">
               {{subElement.min}}<span
               *ngIf="subElement.display_type === 2">%</span>
             </div>
           </td>
           <td *ngIf="headers[4].is_displayed"
-              class="calculated-value side-padding-only">
+              class="calculated-value side-padding-only max-value">
             <div class="text-center form-control">
               {{subElement.max}}<span
               *ngIf="subElement.display_type === 2">%</span>
@@ -426,8 +423,9 @@
               class="text-center text-nowrap blue-background subelement-file-upload"
               [ngSwitch]="userCanChangeSubElement(subElement)">
             <div *ngSwitchCase="true">
-              <div class="remove-sign remove-sign-inline"
+              <div class="remove-sign"
                    *ngIf="subElement.document">
+                <!--remove-sign-inline-->
                 <div>
                   <span class="glyphicon glyphicon-remove-sign"
                         aria-hidden="true"
@@ -442,25 +440,35 @@
                        class="inputfile"
                        [disabled]="isFileUploading"
                        (change)="readFileToBase64(subElement, $event)">
-                <label
-                  for="{{subElement.id ? subElement.id : subElement.tempId}}-file">
-                  {{subElement.documentFileName ?
-                  getShortString(subElement.documentFileName) :
-                  'Выберите&nbsp;файл...'}}
+                <label class="text-nowrap"
+                       for="{{subElement.id ? subElement.id : subElement.tempId}}-file">
+                  {{getFileLabel(subElement)}}
                 </label>
+              </div>
+              <div
+                *ngIf="subElement.document || subElement.document && !subElement.isDocumentSaved">
+                <div class="input-file-wrapper"
+                     *ngIf="subElement.document && subElement.isDocumentSaved">
+                  <a class="text-nowrap"
+                     href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
+                </div>
               </div>
 
             </div>
             <div *ngSwitchCase="false">
               <div class="input-file-wrapper"
                    *ngIf="subElement.document && subElement.isDocumentSaved">
-                <a href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
+                <a class="text-nowrap"
+                   href="{{getFullDocumentLink(subElement)}}">{{getDocumentName(subElement.document)}}</a>
               </div>
             </div>
           </td>
         </tr>
         <tr class="add-sub-element-row">
-          <td *ngIf="userCanChangeElement">
+          <ng-container *ngIf="userCanChangeElement">
+            <th class="remove-sign-flex"></th>
+          </ng-container>
+          <td *ngIf="userCanChangeElement" class="rating-element-name">
             <div>
             <span class="glyphicon glyphicon-plus-sign"
                   aria-hidden="true"
@@ -468,7 +476,7 @@
             </span>
             </div>
           </td>
-          <td class="save-button"
+          <td class="rating-responsible-name"
               *ngIf="userCanChangeElement || userCanChangeOneOfSubelements">
             <div>
               <button class="btn btn-sm btn-primary"

@@ -1,6 +1,6 @@
 import {
   Component, OnInit, ViewChild, AfterViewInit,
-  HostListener
+  HostListener, Renderer, NgZone
 } from '@angular/core';
 import {Router, ActivatedRoute, Params} from '@angular/router';
 import 'rxjs/add/operator/switchMap';
@@ -85,12 +85,14 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
               private router: Router,
               private ratingelS: RatingElementsService,
               private availratS: AvailableRatingsService,
+              private ngZone: NgZone,
               public  notiS: NotificationService,
               public reqS: RequestsService,
               public regionsS: RegionsService,
               public authS: AuthenticationService,
-              public prefempS: PrefectureEmployeesService) {
-    super(regionsS, reqS, notiS);
+              public prefempS: PrefectureEmployeesService,
+              public renderer: Renderer,) {
+    super(regionsS, reqS, notiS, renderer);
   }
 
   ngOnInit() {
@@ -139,27 +141,17 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
           }
           this.loadedRatingElement.isSaved = true;
           this.loadedRatingElement.updateCalculatedFields();
+          this.ngZone.onStable.first().subscribe(() => {
+            setTimeout(() => {
+              this.setElementsSizes();
+            }, 0)
+          });
         },
         error => {
           this.notiS.notificateError(error);
           console.log(error);
         }
       );
-  }
-
-  ngAfterViewInit() {
-    /** WaitMe for file upload **/
-    //TODO
-    $('#file_loader').waitMe({
-      effect: 'bounce',
-      text: '',
-      bg: 'rgba(255,255,255,0.7)',
-      color: '#000',
-      maxSize: '',
-      textPos: 'vertical',
-      fontSize: '',
-      source: ''
-    });
   }
 
   canDeactivate() {
@@ -434,6 +426,16 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     };
     myReader.readAsDataURL(file);
     subElement.isSaved = false;
+  };
+
+  public getFileLabel = (subElement) => {
+    if (subElement.documentFileName) {
+      return subElement.documentFileName
+    } else if (subElement.document) {
+      return subElement.document
+    } else {
+      return 'Выберите файл...'
+    }
   };
 
   public removeSubElementDocument = (subElement: MonthlyRatingSubElement) => {

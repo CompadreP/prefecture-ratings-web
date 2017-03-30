@@ -3,12 +3,15 @@
  */
 
 import {displayableMonth} from "../../common/functions";
-import {OnDestroy} from "@angular/core";
+import {
+  AfterViewInit, ElementRef, OnDestroy, Renderer,
+  ViewChild
+} from "@angular/core";
 import {RegionsService} from "../../common/services/regions.service";
 import {RequestsService} from "../../common/services/requests.service";
 import {NotificationService} from "../notification/notification.service";
 
-export abstract class BaseTableComponent implements OnDestroy {
+export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
   abstract _elementSaveUrl: string;
   abstract _localStorageHeadersKey: string;
   abstract headers;
@@ -23,9 +26,15 @@ export abstract class BaseTableComponent implements OnDestroy {
   };
   notificationSubscriptionKeys = ['notificationOkSubscription', 'notificationCancelSubscription'];
 
+  @ViewChild('mainHeader') mainHeader: ElementRef;
+  @ViewChild('tableWrapper') tableWrapper: ElementRef;
+  @ViewChild('tableHead') tableHead: ElementRef;
+  @ViewChild('tableBody') tableBody: ElementRef;
+
   constructor(public regionsS: RegionsService,
               public reqS: RequestsService,
-              public notiS: NotificationService) {
+              public notiS: NotificationService,
+              public renderer: Renderer) {
     this._subscriptions = {};
     this._valueChangeWatchers = {};
     this.pendingSaves = {}
@@ -39,6 +48,30 @@ export abstract class BaseTableComponent implements OnDestroy {
       }
     }
   }
+
+  ngAfterViewInit() {
+    window.onresize = () => {
+        this.setElementsSizes();
+    };
+  }
+
+  public setElementsSizes = () => {
+    this.renderer.setElementStyle(
+      this.tableWrapper.nativeElement,
+      'top',
+      this.mainHeader.nativeElement.clientHeight + 60 + 'px'
+    );
+    this.renderer.setElementStyle(
+      this.tableWrapper.nativeElement,
+      'height',
+      window.innerHeight - this.mainHeader.nativeElement.clientHeight - 60 + 'px'
+    );
+    this.renderer.setElementStyle(
+      this.tableBody.nativeElement,
+      'height',
+      window.innerHeight - this.mainHeader.nativeElement.clientHeight - this.tableHead.nativeElement.clientHeight - 60 + 'px'
+    )
+  };
 
   public isLocalStorageHeadersValid = (): boolean => {
     let localStorageHeaders = JSON.parse(localStorage.getItem(this._localStorageHeadersKey));

@@ -1,4 +1,7 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {
+  Component, OnInit, OnDestroy, HostListener,
+  ViewChild, ElementRef, AfterViewInit, NgZone, Renderer
+} from '@angular/core';
 import {Subject} from "rxjs";
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
@@ -18,13 +21,15 @@ import {ActivatedRoute, Params, Router} from "@angular/router";
 import {MonthlyRatingService} from "./monthly-rating.service";
 import {saveAs} from "file-saver";
 
+declare let $: any;
+
 
 @Component({
   selector: 'rating',
   templateUrl: 'monthly-rating.component.html',
   styleUrls: ['monthly-rating.component.sass']
 })
-export class RatingComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class RatingComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   _elementSaveUrl: string = `${ROOT_API_URL}/api/ratings/monthly/elements/`;
   _localStorageHeadersKey: string = 'ratingHeadersDisplay';
   headers = [
@@ -54,16 +59,18 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
   pickedYear: number;
   pickedMonth: number;
 
-  constructor(public reqS: RequestsService,
+  constructor(private monthratS: MonthlyRatingService,
+              private route: ActivatedRoute,
+              private router: Router,
+              private ngZone: NgZone,
+              public reqS: RequestsService,
               public regionsS: RegionsService,
               public auth: AuthenticationService,
               public prefempS: PrefectureEmployeesService,
               public availratS: AvailableRatingsService,
               public notiS: NotificationService,
-              private monthratS: MonthlyRatingService,
-              private route: ActivatedRoute,
-              private router: Router,) {
-    super(regionsS, reqS, notiS);
+              public renderer: Renderer,) {
+    super(regionsS, reqS, notiS, renderer);
   }
 
   ngOnInit() {
@@ -111,6 +118,11 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     for (let month of this.availratS.availableYearMonths[this.pickedYear]) {
       this.availratS.availableMonths.push(month)
     }
+    this.ngZone.onStable.first().subscribe(() => {
+      setTimeout(() => {
+        this.setElementsSizes();
+      }, 0)
+    });
   };
 
   private setNewElementsChangeWatchers = (): void => {

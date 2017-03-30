@@ -1,17 +1,20 @@
 @import ../../../../styles
 
 .rating-subelement-description
-  @extend .rating-element-description
+  //@extend .rating-element-description
   max-width: 300px
+  min-width: 300px
+  width: 300px
 
-.element-header
-  margin-bottom: 5px
 
 .element-second-header
   height: 20px
   border-top: 2px solid #ddd
   border-bottom: 2px solid #ddd
   background: #e5e5e5 !important
+  td
+    padding-top: 0
+    padding-bottom: 0
 
 .add-sub-element-row
   background-color: transparent !important
@@ -44,37 +47,109 @@
   align-items: center
   justify-content: center
 
-.remove-sign
+.remove-sign-flex
   padding-right: 0
   border-right: 0 !important
+  min-width: 20px
+  width: 20px
   div
     @extend .flex-container
     span
       color: #e11204
       cursor: pointer
 
+.remove-sign
+  float: left
+  span
+    color: #e11204
+    cursor: pointer
+
+.subelement-file-upload
+  max-width: 200px
+  min-width: 200px
+  width: 200px
+  .input-file-wrapper
+    cursor: pointer
+    float: right
+    width: calc(100% - 20px)
+    text-overflow: ellipsis
+    overflow: hidden
+    a
+      overflow: hidden
+      //text-overflow: ellipsis !important
+    label
+      vertical-align: bottom
+      overflow: hidden
+      //text-overflow: ellipsis !important
+      cursor: inherit
+      margin: 0
+      font-size: inherit
+      font-weight: inherit
+      color: inherit
+      background-color: white
+      display: inline-block
+      border: 1px solid #d0d0d0
+      border-radius: 3px
+      padding-left: 3px
+      padding-right: 3px
+
+    .inputfile
+      display: none
+      width: 100%
+      height: 100%
+      opacity: 0
+      z-index: -1
+
 .remove-sign-inline
   display: inline-block
   div:first-of-type
     margin-top: 2px
-
-
-.save-button
-  div
-    @extend .flex-container
 
 .angular2-contextmenu
   li, a
     font-size: 12px !important
     padding: 2px !important
 
-.rating-year-month
-  padding: 4px 0
-  margin-bottom: 0
 
-.rating-element-name-well
-  width: auto
-  background-color: #337ab7
-  color: white
-  margin-top: 5px
-  margin-bottom: 5px
+
+.rating-element-header-wrapper
+  @extend .main-header
+  h5
+    p
+      margin-bottom: 0
+    margin-top: 5px
+    margin-bottom: 5px
+  .rating-element-name-well
+    display: inline-block
+    background-color: #337ab7
+    color: white
+    margin-top: 5px
+    margin-bottom: 5px
+    padding-top: 4px
+    padding-bottom: 4px
+
+  .rating-year-month
+    padding: 4px 0
+    margin-bottom: 0
+
+.rating-table
+  top: 195px
+
+.best-value-select
+  min-width: 71px !important
+  max-width: 71px !important
+  width: 71px !important
+.best-value
+  min-width: 55px !important
+  max-width: 55px !important
+  width: 55px !important
+
+.min-value
+  min-width: 55px !important
+  max-width: 55px !important
+  width: 55px !important
+
+.max-value
+  min-width: 55px !important
+  max-width: 55px !important
+  width: 55px !important

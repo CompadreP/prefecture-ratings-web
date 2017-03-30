@@ -24,39 +24,10 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button
   -webkit-appearance: none
 
-.subelement-file-upload
-  max-width: 200px
-  .input-file-wrapper
-    cursor: pointer
-    display: inline-block
-    width: 90%
-    label
-      vertical-align: bottom
-      overflow: hidden
-      text-overflow: ellipsis
-      cursor: inherit
-      margin: 0
-      font-size: inherit
-      font-weight: inherit
-      color: inherit
-      background-color: white
-      display: inline-block
-      border: 1px solid #d0d0d0
-      border-radius: 3px
-      padding-left: 3px
-      padding-right: 3px
 
-    .inputfile
-      display: none
-      width: 100%
-      height: 100%
-      opacity: 0
-      z-index: -1
-
-  //
-  //.inputfile:focus + label,
-  //.inputfile + label:hover
-
+.main-header
+  position: fixed
+  width: 100%
 
 .btn:focus
   outline: none
@@ -93,139 +64,191 @@ input::-webkit-inner-spin-button
     border-right: none !important
 
 .rating-table
-  height: 100%
+  position: absolute
+  top: 165px
+  display: table
+  width: 100%
+  //height: 100%
   font-size: 12px
-  margin-top: 15px
-  overflow-x: auto
-  overflow-y: auto
+
   table
+    position: absolute
     margin-bottom: 0
-  th
-    border-top: 2px solid #d0d0d0 !important
-    vertical-align: middle !important
-    white-space: normal !important
-  tr:nth-last-child(2)
-    border-bottom: 2px solid #d0d0d0 !important
-  td
-    vertical-align: middle !important
-    white-space: normal !important
-    textarea
-      resize: none
-      padding: 3px 5px
-      font-size: 12px
-      border-color: #d0d0d0
+
+    thead, tbody
+      float: left
+      width: 100%
+      //border-top: 2px solid #d0d0d0 !important
+
+    tbody
+      overflow: auto
+      height: 350px
+
+    tr
+      width: 100%
+      display: table
+
+      .value-cell
+        min-width: 42px
+        width: 42px
+      .avg-cell
+        min-width: 70px
+        width: 70px
+
+      &.tr-min-padding
+        th
+          padding-top: 2px !important
+          padding-bottom: 2px !important
+      &:nth-last-child(2)
+        border-bottom: 2px solid #d0d0d0 !important
+      th
+        padding-top: 3px !important
+        padding-bottom: 3px !important
+
+        //border-top: 2px solid #d0d0d0 !important
+        vertical-align: middle !important
+        white-space: normal !important
+      td
+        vertical-align: middle !important
+        white-space: normal !important
+        textarea
+          resize: none
+          padding: 3px 5px
+          font-size: 12px
+          border-color: #d0d0d0
+          width: 100%
+          height: 100%
+
+    .rating-element-name
+      min-width: 200px
+      width: 200px
+      border-left: 0 !important
+      a
+        color: #336699
+
+    .rating-element-name-label
+      padding: 6px 0
+      margin-bottom: 0
+      span
+        font-size: 14px !important
+
+    .complex-header
+      width: 100%
+      display: table
+      .rating-menu-elements
+        display: table-cell
+        vertical-align: middle
+        .elements-dropdown-choices
+          font-size: 12px
+          .dropdown-divider
+            margin: 5px
+          div
+            display: table-cell
+            vertical-align: middle
+            white-space: nowrap
+          .elements-dropdown-choices-checkbox
+            padding-left: 5px
+            padding-right: 5px
+            input
+              cursor: pointer
+          .elements-dropdown-choices-text
+            padding-right: 5px
+
+    .rating-responsible-name
+      text-align: center
+      min-width: 150px
+      width: 150px
+      vertical-align: middle
+
+    .col-num
+      font-weight: 500
+
+    .rating-element-description
+      min-width: 400px
+      width: 100%
+      margin: 0
+      border-left: 0 !important
+      div
+        width: auto
+
+    .menu-only-simple
+      padding-left: 0 !important
+      padding-right: 0 !important
+      width: 15px !important
+      min-width: 15px !important
+
+    .menu-only-wide
+      padding-left: 5px !important
+      padding-right: 5px !important
+      width: 90px !important
+      min-width: 90px !important
+
+    .choose-all
+      padding-left: 22px
+      cursor: pointer
+      color: #336699
+      span:hover
+        color: #4591d6
+
+    .textarea-wrapper
+      padding: 3px
       width: 100%
       height: 100%
 
-.rating-element-name
-  min-width: 200px
-  width: auto
-  border-left: 0 !important
-  a
-    color: #336699
+    .invalid-input
+      background-color: red !important
 
-.rating-element-name-label
-  padding: 6px 0
-  margin-bottom: 0
-  span
-    font-size: 14px !important
+    .element-value
+      min-width: 42px
+      width: 42px
 
-
-
-.complex-header
-  width: 100%
-  display: table
-  .rating-menu-elements
-    display: table-cell
-    vertical-align: middle
-    .elements-dropdown-choices
-      font-size: 12px
-      .dropdown-divider
-        margin: 5px
+    .fake-input
+      @extend .value-cell
+      background-color: inherit
+      padding: 1px !important
+      font-size: inherit !important
+      cursor: default
+      display: table-cell
+      vertical-align: middle
       div
-        display: table-cell
-        vertical-align: middle
-        white-space: nowrap
-      .elements-dropdown-choices-checkbox
-        padding-left: 5px
-        padding-right: 5px
-        input
-          cursor: pointer
-      .elements-dropdown-choices-text
-        padding-right: 5px
+        padding: 8px 0
+        font-size: inherit !important
 
-.rating-responsible-name
-  min-width: 150px
-  vertical-align: middle
+    .fake-input-grey
+      @extend .fake-input
+      background-color: #d6d6d6
 
-.col-num
-  font-weight: 500
+    .element-average
+      @extend .fake-input
+      div
+        max-width: 40px
+        width: 40px
+        background-color: #d6d6d6
+        margin: auto
 
-.rating-element-description
-  min-width: 400px
-  width: 100%
-  margin: 0
-  border-left: 0 !important
-  div
-    width: auto
-
-.menu-only
-  width: 20px !important
-  min-width: 20px !important
-
-.choose-all
-  padding-left: 22px
-  cursor: pointer
-  color: #336699
-  span:hover
-    color: #4591d6
-
-.textarea-wrapper
-  padding: 3px
-  width: 100%
-  height: 100%
-
-.invalid-input
-  background-color: red !important
-
-.element-value
-  min-width: 42px
-
-.fake-input
-  background-color: inherit
-  min-width: 42px
-  padding: 1px !important
-  font-size: inherit !important
-  cursor: default
-  display: table-cell
-  vertical-align: middle
-  div
-    padding: 8px 0
-    font-size: inherit !important
-
-.fake-input-grey
-  @extend .fake-input
-  background-color: #d6d6d6
-
-.element-average
-  @extend .fake-input
-  div
-    background-color: #d6d6d6
-    margin: auto
-    max-width: 42px
+    .region-value
+      @extend .fake-input
+      min-width: 51px
+      div
+        min-width: 51px
 
 
-.region-value
-  @extend .fake-input
-  min-width: 51px
-  div
-    min-width: 51px
+    .calculated-value
+      @extend .region-value
+      div
+        background-color: #d6d6d6
 
 
-.calculated-value
-  @extend .region-value
-  div
-    background-color: #d6d6d6
+    .value-label + div
+      min-width: 53px
+      height: 100% !important
+      width: 100% !important
+
+    .region-name
+      cursor: default
+
+    .file-loader
+      position: absolute
 
 .strong-green-background
   background-color: rgba(0, 220, 0, 0.5) !important
@@ -253,6 +276,11 @@ input::-webkit-inner-spin-button
   border-right: #ddd 1px solid
 
 
+.green-background
+  background-color: #deffe2
+  div
+    background-color: #deffe2
+
 .td-padding
   padding: 4px 8px
 
@@ -265,19 +293,3 @@ input::-webkit-inner-spin-button
 .no-padding
   padding: 0 !important
 
-.green-background
-  background-color: #deffe2
-  div
-    background-color: #deffe2
-
-
-.value-label + div
-  min-width: 53px
-  height: 100% !important
-  width: 100% !important
-
-.region-name
-  cursor: default
-
-.file-loader
-  position: absolute
