@@ -32,7 +32,9 @@ export class AuthenticationService {
       {
         email: email,
         password: password
-      }, this.reqS.options)
+      },
+      this.reqS.options
+    )
       .map(this.reqS.extractData)
       .catch(this.reqS.handleError)
       .subscribe(
@@ -54,7 +56,8 @@ export class AuthenticationService {
     this.reqS.http.post(
       this.logoutUrl,
       {},
-      this.reqS.options)
+      this.reqS.options
+    )
       .map(this.reqS.extractData)
       .catch(this.reqS.handleError)
       .subscribe(

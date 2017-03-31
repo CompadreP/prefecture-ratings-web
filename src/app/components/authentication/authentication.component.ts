@@ -53,7 +53,12 @@ export class AuthenticationComponent implements OnDestroy{
   }
 
   public onSubmit = (): void => {
-    this.authS.login(this.email, this.password);
+    if (validateEmail(this.email)) {
+      this.authS.login(this.email.toLowerCase(), this.password);
+    } else {
+      this.loginError = {};
+      this.loginError['message'] = 'Введен некорректный email'
+    }
   };
 
   public forgotPassword = ($event): void => {
