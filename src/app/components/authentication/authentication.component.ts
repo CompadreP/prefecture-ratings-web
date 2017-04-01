@@ -36,6 +36,7 @@ export class AuthenticationComponent implements OnDestroy{
     authS.successfulLogin$.subscribe(
       _ => {
         this.loginModal.hide();
+        this.loginError = null;
       }
     );
     authS.failedLogin$.subscribe(

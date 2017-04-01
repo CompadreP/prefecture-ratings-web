@@ -87,3 +87,25 @@ export function validateEmail(email) {
   let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 }
+
+export function getClientOS(navigator) {
+  let source: string;
+  if (navigator.userAgent) {
+    source = navigator.userAgent
+  } else if (navigator.oscpu) {
+    source = navigator.oscpu
+  } else {
+    return null
+  }
+  if (source && source.length > 0) {
+    if (source.indexOf('Mac OS X') > -1) {
+      return 'mac_os'
+    } else if (source.indexOf('Windows')) {
+      return 'windows'
+    } else {
+      return null
+    }
+  } else {
+    return null
+  }
+}

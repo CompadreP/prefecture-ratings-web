@@ -2,7 +2,7 @@
  * Created by evgeniy on 2017-03-20.
  */
 
-import {displayableMonth} from "../../common/functions";
+import {displayableMonth, getClientOS} from "../../common/functions";
 import {
   AfterViewInit, ElementRef, HostListener, OnDestroy, Renderer,
   ViewChild
@@ -80,6 +80,11 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
   };
 
   public setElementsSizes = () => {
+    let bottomOffset = 60;
+    let os = getClientOS(navigator);
+    if (os === null || os === 'windows') {
+      bottomOffset += 20
+    }
     this.renderer.setElementStyle(
       this.mainHeader.nativeElement,
       'width',
@@ -93,12 +98,12 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
     this.renderer.setElementStyle(
       this.tableWrapper.nativeElement,
       'height',
-      window.innerHeight - this.mainHeader.nativeElement.clientHeight - 80 + 'px'
+      window.innerHeight - this.mainHeader.nativeElement.clientHeight - bottomOffset + 'px'
     );
     this.renderer.setElementStyle(
       this.tableBody.nativeElement,
       'height',
-      window.innerHeight - this.mainHeader.nativeElement.clientHeight - this.tableHead.nativeElement.clientHeight - 80 + 'px'
+      window.innerHeight - this.mainHeader.nativeElement.clientHeight - this.tableHead.nativeElement.clientHeight - bottomOffset + 'px'
     )
   };
 
