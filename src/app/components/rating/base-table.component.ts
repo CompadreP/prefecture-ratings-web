@@ -82,7 +82,7 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
   public setElementsSizes = () => {
     let bottomOffset = 60;
     let os = getClientOS(navigator);
-    if (os === null || os === 'windows') {
+    if (os === null || os === 'windows_chrome') {
       bottomOffset += 20
     }
     this.renderer.setElementStyle(

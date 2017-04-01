@@ -101,7 +101,11 @@ export function getClientOS(navigator) {
     if (source.indexOf('Mac OS X') > -1) {
       return 'mac_os'
     } else if (source.indexOf('Windows')) {
-      return 'windows'
+      if (navigator.vendor && navigator.vendor.indexOf('Google') > -1) {
+        return 'windows_chrome'
+      } else {
+        return 'windows'
+      }
     } else {
       return null
     }
