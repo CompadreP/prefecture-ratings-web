@@ -9,17 +9,48 @@ import {RatingComponent} from "./components/rating/monthly-rating/monthly-rating
 import {RatingElementComponent} from "./components/rating/rating-element/rating-element.component";
 import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
 import {CurrentRatingLoaderComponent} from "./components/rating/current-rating-loader/current-rating-loader.component";
+import {NavbarComponent} from "./components/navbar/navbar.component";
+import {ROOT_API_URL} from "../settings";
 
 
 const appRoutes: Routes = [
   {path: 'current', component: CurrentRatingLoaderComponent},
   {path: 'rating/:id', component: RatingComponent},
-  {path: 'rating-element/:id', component: RatingElementComponent, canDeactivate:[ConfirmDeactivateGuard]},
+  {
+    path: 'rating-element/:id',
+    component: RatingElementComponent,
+    canDeactivate: [ConfirmDeactivateGuard]
+  },
   {
     path: '',
     redirectTo: '/current',
     pathMatch: 'full'
   },
+  {
+    path: 'admin',
+    component: NavbarComponent,
+    resolve: {
+      url: 'externalUrlRedirectResolver'
+    },
+    // data: {
+    //   externalUrl: `${ROOT_API_URL}/admin`
+    // }
+  },
+  {
+    path: 'static',
+    component: CurrentRatingLoaderComponent,
+    resolve: {
+      url: 'externalUrlRedirectResolver'
+    },
+  },
+  {
+    path: 'media',
+    component: CurrentRatingLoaderComponent,
+    resolve: {
+      url: 'externalUrlRedirectResolver'
+    },
+  }
+
 ];
 
 @NgModule({
