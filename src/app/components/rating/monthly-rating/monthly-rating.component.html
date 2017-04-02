@@ -302,14 +302,14 @@
             class="rating-element-description blue-background textarea-wrapper">
           {{element.rating_element.base_description}}
           <textarea
-            *ngIf="auth.user && auth.user.role === 'admin' && !loadedRating.is_approved"
+            *ngIf="auth.user && (auth.user.id === element.responsible.id) && !loadedRating.is_approved"
             autosize
             class="form-control"
             [ngClass]="{'element-saved': !pendingSaves[element.id]['additional_description'], 'element-save-pending': pendingSaves[element.id]['additional_description']}"
             [ngModel]="element.additional_description"
             (ngModelChange)="emitElementChange(element.id, 'additional_description', $event)"></textarea>
           <span
-            *ngIf="!auth.user || auth.user.role !== 'admin' || loadedRating.is_approved">
+            *ngIf="!auth.user || auth.user.id !== element.responsible.id || loadedRating.is_approved">
             {{element.additional_description}}
           </span>
         </td>

@@ -137,7 +137,16 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
           .distinctUntilChanged()
           .subscribe(event =>
             this.saveElementProperty(event)
-          )
+          );
+        this._valueChangeWatchers[element.id] = {
+          'additional_description': new Subject()
+        };
+        this._valueChangeWatchers[element.id]['additional_description']
+          .debounceTime(DEBOUNCE_TIME)
+          .distinctUntilChanged()
+          .subscribe(event =>
+            this.saveElementProperty(event)
+          );
       }
       if (this.auth.user && this.auth.user.can_approve_rating) {
         this._valueChangeWatchers[element.id] = {
@@ -151,15 +160,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
           )
       }
       if (this.auth.user && this.auth.user.role === 'admin') {
-        this._valueChangeWatchers[element.id] = {
-          'additional_description': new Subject()
-        };
-        this._valueChangeWatchers[element.id]['additional_description']
-          .debounceTime(DEBOUNCE_TIME)
-          .distinctUntilChanged()
-          .subscribe(event =>
-            this.saveElementProperty(event)
-          )
+
       }
     }
   };
