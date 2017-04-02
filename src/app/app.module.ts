@@ -20,8 +20,6 @@ import {RatingElementComponent} from './components/rating/rating-element/rating-
 import {AppRoutingModule} from './app-routing.module';
 import {ConfirmDeactivateGuard} from "./common/confirm-deactivate.guard";
 import {CurrentRatingLoaderComponent} from './components/rating/current-rating-loader/current-rating-loader.component';
-import {ActivatedRouteSnapshot, RouterStateSnapshot} from "@angular/router";
-import {ROOT_API_URL} from "../settings";
 
 
 @NgModule({
@@ -49,13 +47,6 @@ import {ROOT_API_URL} from "../settings";
   ],
   providers: [
     ConfirmDeactivateGuard,
-    {
-        provide: 'externalUrlRedirectResolver',
-        useValue: (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) =>
-        {
-          window.location.href = `${ROOT_API_URL}/${route.url}`;
-        }
-    }
   ],
   bootstrap: [AppComponent]
 })
