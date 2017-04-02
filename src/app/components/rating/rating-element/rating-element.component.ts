@@ -281,7 +281,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   public userCanChangeSubElement = (subElement: MonthlyRatingSubElement): boolean => {
     let result = !!this.authS.user
       && ((this.authS.user.id === subElement.responsible.id)
-           || (this.authS.user.id === this.loadedRatingElement.responsible.id))
+      || (this.authS.user.id === this.loadedRatingElement.responsible.id))
       && !this.loadedRatingElement.monthly_rating.is_approved;
     //console.log(result)
     return result
@@ -365,8 +365,8 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   // };
 
   public changeSubElementProperty = (subElement: MonthlyRatingSubElement,
-                              property: string,
-                              value): void => {
+                                     property: string,
+                                     value): void => {
     subElement[property] = value;
     subElement.isSaved = false;
     if (['best_type'].indexOf(property) > -1) {
@@ -376,8 +376,8 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   };
 
   public changeValueInput = (subElement: MonthlyRatingSubElement,
-                      elementValueObject: MonthlyRatingSubElementValue,
-                      scalarValue: string): void => {
+                             elementValueObject: MonthlyRatingSubElementValue,
+                             scalarValue: string): void => {
     if ((scalarValue !== null) && (scalarValue !== '')) {
       let regex = /^(-)?(\d{1,4}(,(\d{1,2})?)?)?$/;
       if (regex.test(scalarValue)) {
@@ -581,8 +581,8 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   };
 
   public setValueIsAverage = (subElement: MonthlyRatingSubElement,
-                       value: MonthlyRatingSubElementValue,
-                       isAverage: boolean): void => {
+                              value: MonthlyRatingSubElementValue,
+                              isAverage: boolean): void => {
     value.is_average = isAverage;
     subElement.updateCalculatedFields();
     subElement.isSaved = false;

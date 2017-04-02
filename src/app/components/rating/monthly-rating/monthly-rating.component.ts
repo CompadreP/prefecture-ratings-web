@@ -54,6 +54,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
     }
   ];
   loadedRating: MonthlyRatingFull = null;
+  excelDownloadLink: string;
 
   pickedYear: number;
   pickedMonth: number;
@@ -81,6 +82,7 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
         data => {
           //console.log(data);
           this.loadedRating = new MonthlyRatingFull(data);
+          this.excelDownloadLink = this.getDownloadLink();
           //console.log(this.loadedRating);
           this.proceedLoadedRating();
         },
