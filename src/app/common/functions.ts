@@ -40,35 +40,37 @@ export function generateGuid(): string {
 
 export function getColor(value: number, min: number, max: number, type: number): string {
   let alpha = 0.5;
-  if (max === min) {
-    return `rgba(0, 220, 0, ${alpha})`
-  } else if ((value !== null) || (value !== undefined)) {
-    let newMax;
-    let newValue;
-    let multiplexer;
-    newMax = max - min;
-    newValue = value - min;
-    if (newMax !== 0) {
-      multiplexer = 1 / Math.abs(newMax);
+  if ((value !== null) && (value !== undefined)) {
+    if (max === min) {
+      return `rgba(0, 220, 0, ${alpha})`
     } else {
-      multiplexer = 1
-    }
-    newValue = newValue * multiplexer;
-    let result;
-    if (type === 1) {
-      if (newValue <= 0.5) {
-        result = `rgba(${Math.round(newValue * 2 * 220)}, 220, 0, ${alpha})`
+      let newMax;
+      let newValue;
+      let multiplexer;
+      newMax = max - min;
+      newValue = value - min;
+      if (newMax !== 0) {
+        multiplexer = 1 / Math.abs(newMax);
       } else {
-        result = `rgba(220, ${Math.round((1 - newValue) * 2 * 220)}, 0, ${alpha})`
+        multiplexer = 1
       }
-    } else if (type === 2) {
-      if (newValue <= 0.5) {
-        result = `rgba(220, ${Math.round(newValue * 2 * 220)}, 0, ${alpha})`
-      } else {
-        result = `rgba(${Math.round((1 - newValue) * 2 * 220)}, 220, 0, ${alpha})`
+      newValue = newValue * multiplexer;
+      let result;
+      if (type === 1) {
+        if (newValue <= 0.5) {
+          result = `rgba(${Math.round(newValue * 2 * 220)}, 220, 0, ${alpha})`
+        } else {
+          result = `rgba(220, ${Math.round((1 - newValue) * 2 * 220)}, 0, ${alpha})`
+        }
+      } else if (type === 2) {
+        if (newValue <= 0.5) {
+          result = `rgba(220, ${Math.round(newValue * 2 * 220)}, 0, ${alpha})`
+        } else {
+          result = `rgba(${Math.round((1 - newValue) * 2 * 220)}, 220, 0, ${alpha})`
+        }
       }
+      return result;
     }
-    return result;
   } else {
     return null
   }
