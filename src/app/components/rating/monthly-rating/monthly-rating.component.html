@@ -1,6 +1,6 @@
 <div class="box" *ngIf="loadedRating">
   <div class="text-center main-header" #mainHeader>
-    <div class="excel-btn" (click)="downloadExcel()"></div>
+      <a class="excel-btn" href="{{getDownloadLink()}}"></a>
     <h5 class="rating-sub-header">
       Исходные данные для расчета рейтинга управ районов САО в части
       показателей ЖКХ за

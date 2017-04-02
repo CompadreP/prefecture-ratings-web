@@ -196,23 +196,30 @@ export class RatingComponent extends BaseTableComponent implements OnInit, OnDes
 
   };
 
-  public downloadExcel = () => {
-    console.log('downloading!');
-    this.reqS.http.get(
-      `${ROOT_API_URL}/api/ratings/downloads/${this.loadedRating.year}/${this.loadedRating.month}/`,
-      this.reqS.options
-    ).subscribe(
-      data => {
-        console.log(data);
-        let res = data as any;
-        let blob = new Blob([res._body], {type: 'application/ms-excel'});
-        saveAs(blob, 'myCSV_Report.xlsx');
-        // let file = data.blob();
-        // console.log(file.size + " bytes file downloaded. File type: ", file.type);
-        // saveAs(file, 'myCSV_Report.csv');
-      }
-    );
+  public getDownloadLink = () => {
+    return `${ROOT_API_URL}/api/ratings/downloads/${this.loadedRating.year}/${this.loadedRating.month}/`
   };
+
+  // public downloadExcel = () => {
+  //   console.log('downloading!');
+  //   this.reqS.http.get(
+  //     `${ROOT_API_URL}/api/ratings/downloads/${this.loadedRating.year}/${this.loadedRating.month}/`,
+  //     this.reqS.options
+  //   ).subscribe(
+  //     data => {
+  //       console.log(data);
+  //       let _data = new Blob([data], {type: 'application/vnd.ms-excel;charset=UTF-8'});
+  //       let filename = 'rating.xlsx';
+  //       saveAs(_data, filename);
+  //       // let res = data as any;
+  //       // let blob = new Blob([res._body], {type: 'application/ms-excel'});
+  //       // saveAs(blob, 'myCSV_Report.xlsx');
+  //       // let file = data.blob();
+  //       // console.log(file.size + " bytes file downloaded. File type: ", file.type);
+  //       // saveAs(file, 'myCSV_Report.csv');
+  //     }
+  //   );
+  // };
 
   public yearPicked = (year): void => {
     if (this.pickedYear !== year) {

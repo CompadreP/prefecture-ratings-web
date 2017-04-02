@@ -388,7 +388,6 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
         } else {
           elementValueObject.minusZero = false;
           let toNum = +scalarValue.replace(',', '.');
-          console.log(toNum);
           if (toNum < -1000 || toNum > 1000) {
             elementValueObject.is_valid = false;
           } else {

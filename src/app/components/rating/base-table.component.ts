@@ -2,7 +2,7 @@
  * Created by evgeniy on 2017-03-20.
  */
 
-import {displayableMonth, getClientOS} from "../../common/functions";
+import {displayableMonth, getClientType} from "../../common/functions";
 import {
   AfterViewInit, ElementRef, HostListener, OnDestroy, Renderer,
   ViewChild
@@ -81,7 +81,7 @@ export abstract class BaseTableComponent implements OnDestroy, AfterViewInit {
 
   public setElementsSizes = () => {
     let bottomOffset = 60;
-    let os = getClientOS(navigator);
+    let os = getClientType(navigator);
     if (os === null || os === 'windows_chrome') {
       bottomOffset += 20
     }

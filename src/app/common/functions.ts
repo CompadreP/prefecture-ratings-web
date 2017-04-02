@@ -88,7 +88,7 @@ export function validateEmail(email) {
   return re.test(email);
 }
 
-export function getClientOS(navigator) {
+export function getClientType(navigator) {
   let source: string;
   if (navigator.userAgent) {
     source = navigator.userAgent
