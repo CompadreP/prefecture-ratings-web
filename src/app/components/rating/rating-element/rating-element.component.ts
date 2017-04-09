@@ -245,7 +245,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
     this.notiS.notificate(new SimpleTextNotification(
       NotificationTypeEnum.SUCCESS,
       'Успешно!',
-      '<p class="text-center">Все внесенные изменения сохранены.</p>'
+      '<p class="text-center">Внесенные изменения сохранены.</p>'
     ))
   };
 
