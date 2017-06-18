@@ -252,7 +252,7 @@ export class RatingElementComponent extends BaseTableComponent implements OnInit
   @HostListener('window:beforeunload', ['$event'])
   public beforeUnloadHander(event) {
     if (this.checkIfUnsaved()) {
-      let dialogText = "You have unsaved data changes. Are you sure to close the page?";
+      let dialogText = "У вас имеются несохраненные изменения. Вы уверены, что хотите закрыть страницу?";
       event.returnValue = dialogText;
       return dialogText;
     }
